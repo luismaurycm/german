@@ -1,14 +1,17 @@
 """Captura cada pantalla del prototipo y los diagramas Mermaid con Edge headless."""
-import subprocess, sys, time
+import re, subprocess, sys, time
 from pathlib import Path
 from PIL import Image
 
-EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+EDGE = {"win32": r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        "darwin": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"}.get(sys.platform, "microsoft-edge")
 OUT = Path(__file__).parent
-PROTO = Path(sys.argv[1])
+PROTO = Path(sys.argv[1]).resolve()
+CAP = PROTO.parent / "capturas"
+DIA = PROTO.parent / "diagramas"
 
 def shot(url, png, w, h, wait=4000):
-    subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--hide-scrollbars", f"--window-size={w},{h}",
+    subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--user-data-dir=" + str(OUT / ".perfil_captura"), "--no-first-run", f"--window-size={w},{h}",
                     f"--virtual-time-budget={wait}", f"--screenshot={png}", url],
                    capture_output=True, timeout=90)
 
@@ -35,13 +38,13 @@ def bbox_crop(png):
 
 # 1) Copia del prototipo en modo captura: sin barra de control del prototipo
 html = PROTO.read_text(encoding="utf-8")
-cap_css = "<style>.top,.ctl{display:none!important}.wrap{padding:0!important;max-width:none!important;gap:0!important}.frame{border:0!important;border-radius:0!important;box-shadow:none!important}.toast{display:none!important}</style>"
+cap_css = "<style>:root,html{color-scheme:light!important}html,body{background:#fff!important}.xl-grid td.ed input{color:#1f2a37!important}.top,.ctl{display:none!important}.wrap{padding:0!important;max-width:none!important;gap:0!important}.frame{border:0!important;border-radius:0!important;box-shadow:none!important}.toast{display:none!important}</style>"
 cap = OUT / "proto_captura.html"
 cap.write_text("<!doctype html><html lang=\"es\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"></head><body style=\"margin:0\">" + html + cap_css + "</body></html>", encoding="utf-8")
 
-for i in (range(1, 13) if '--solo-diagramas' not in sys.argv else []):
-    code = f"UX-{i:02d}"
-    png = OUT / f"{code}.png"
+codes = list(dict.fromkeys(re.findall(r"\['(UX-\d{2})', '", html)))
+for code in (codes if '--solo-diagramas' not in sys.argv else []):
+    png = CAP / f"{code}.png"
     shot(cap.as_uri() + "#" + code, str(png), 1440, 1500)
     if png.exists():
         trim(str(png))
@@ -50,14 +53,14 @@ for i in (range(1, 13) if '--solo-diagramas' not in sys.argv else []):
         print(code, "SIN CAPTURA")
 
 # 2) Diagramas Mermaid
-for mmd in sorted(OUT.glob("*.mmd")):
+for mmd in (sorted(DIA.glob("*.mmd")) if '--solo-pantallas' not in sys.argv else []):
     page = OUT / (mmd.stem + ".html")
     page.write_text(
         "<!doctype html><html><head><meta charset=\"utf-8\"><script src=\"https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js\"></script></head>"
         "<body style=\"margin:0;background:#fff;font-family:Segoe UI,sans-serif\"><pre class=\"mermaid\" style=\"margin:24px\">" + mmd.read_text(encoding="utf-8") + "</pre>"
         "<script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#E3ECF7',primaryBorderColor:'#144E8C',primaryTextColor:'#1B2533',lineColor:'#365F91',fontSize:'18px',fontFamily:'Segoe UI'},flowchart:{curve:'basis'}});</script></body></html>",
         encoding="utf-8")
-    png = OUT / (mmd.stem + ".png")
+    png = DIA / (mmd.stem + ".png")
     shot(page.as_uri(), str(png), 1100, 2400, wait=6000)
     if png.exists():
         bbox_crop(str(png))

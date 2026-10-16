@@ -6,16 +6,16 @@ Producto interno de CM Consulting: una herramienta que se conecta al SAP del cli
 - los reportes de Excel con EPM add-in.
 
 Cubre los módulos de consolidación, presupuesto, activos fijos y deterioros, sobre dos arquitecturas:
-- **A:** BW 7.5 con BPC modelo estándar.
+- **A:** BW 7.5 o BW/4HANA con BPC modelo estándar (BPC 10.1 o 2021).
 - **B:** ERP, BW y BPC integrados, con BPC modelo embebido.
 
 ## Estado según el Playbook CM
 
 | Fase | Entregable | Estado |
 |---|---|---|
-| F3 · Análisis funcional | [DAF v1.0](docs/02-analisis-funcional/Analisis_Funcional_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 30 RF, 10 RNF, 12 RN, 6 INT, ASVS nivel 2 | Listo para aprobación |
-| F4 · Diseño UX | [Brief de diseño](docs/03-diseno-ux/Brief_Design_Acelerador_Consolidacion_BPC_CM_Consulting.md), [prototipo navegable](docs/03-diseno-ux/prototipo-acelerador-bpc.html) y [Documento UX v1.0](docs/03-diseno-ux/Documento_UX_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 12 pantallas, gate F4 cumplido | Listo para aprobación |
-| F5 · Historias de usuario | — | Pendiente |
+| F3 · Análisis funcional | [DAF v1.1](docs/02-analisis-funcional/Analisis_Funcional_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 39 RF, 12 RNF, 18 RN, 6 INT, ASVS nivel 2. La v1.1 agrega reglas de consolidación y control del cierre (RF-31 a RF-39) y la variante BW/4HANA | Listo para aprobación |
+| F4 · Diseño UX | [Brief de diseño](docs/03-diseno-ux/Brief_Design_Acelerador_Consolidacion_BPC_CM_Consulting.md), [prototipo navegable](docs/03-diseno-ux/prototipo-acelerador-bpc.html) y [Documento UX v1.1](docs/03-diseno-ux/Documento_UX_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 15 pantallas, gate F4 cumplido | Listo para aprobación |
+| F5 · Historias de usuario | [Historias de usuario v1.0](docs/04-historias-usuario/Historias_Usuario_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 9 épicas, 58 HU, 333 SP (unos 12 sprints de 30 SP) | Listo para revisión |
 | F6 · Arquitectura | — | Pendiente |
 
 ## Contenido
@@ -26,10 +26,12 @@ docs/
   01-solucion/                  Borrador de solución con diagrama (página HTML)
   02-analisis-funcional/        Documento de Análisis Funcional (Word)
   03-diseno-ux/                 Brief, prototipo HTML, Documento UX, capturas y diagramas
+  04-historias-usuario/         Documento de historias de usuario (Word)
 fuentes/
   transcripcion/                Script de transcripción (faster-whisper)
   daf/                          Generador del DAF y su JSON de requerimientos
   ux/                           Generador del Documento UX, inventario de pantallas y capturas
+  hu/                           Generador de las historias de usuario y su backlog.json
 ```
 
 ## Prototipo
@@ -46,11 +48,13 @@ Los generadores producen el JSON de bloques que consume la skill base `documento
 ```bash
 python fuentes/daf/build_daf.py fuentes/daf
 python fuentes/ux/build_ux.py
+python fuentes/hu/build_hu.py
 ```
 
 Después:
-1. Valida con `validar_requerimientos.py` (skill de análisis funcional) y con `validar_ux.py` (skill de diseño UX).
+1. Valida con `validar_requerimientos.py` (skill de análisis funcional), `validar_ux.py` (skill de diseño UX) y `validar_backlog.py` (skill de historias de usuario).
 2. Genera el Word con `build_cm_doc.py <bloques.json> <salida.docx>`. Necesita Pillow para insertar las imágenes.
+3. Las capturas del prototipo se regeneran con `python fuentes/ux/capturar.py docs/03-diseno-ux/prototipo-acelerador-bpc.html` (Edge en Windows, Chrome en macOS).
 
 ## Preguntas abiertas principales
 
@@ -58,3 +62,5 @@ Ninguna es crítica. Las de mayor impacto en arquitectura (F6) son:
 - Dónde se aloja el configurador web (DAF, pregunta 4).
 - Versiones exactas de cada arquitectura (DAF, pregunta 2).
 - Cómo leen BW con EPM los reportes de activos fijos y deterioros (DAF, pregunta 12).
+- Si asientos de ajuste, bloqueo por sociedad y flujo de cierre funcionan con BPC embebido (DAF, pregunta 17).
+- Versiones y ambiente de prueba para la variante BW/4HANA con BPC 2021 (DAF, pregunta 18).

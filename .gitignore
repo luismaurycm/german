@@ -11,3 +11,6 @@ venv/
 # Salidas intermedias de los generadores
 out*.docx
 proto_captura.html
+fuentes/ux/D*.html
+fuentes/ux/.perfil_captura/
+.DS_Store

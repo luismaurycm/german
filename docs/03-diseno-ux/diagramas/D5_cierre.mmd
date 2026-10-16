@@ -1,0 +1,16 @@
+flowchart TB
+  A["UX-15 Abrir el estado del cierre del periodo"] --> B["UX-13 Revisar participaciones y métodos (C02)"]
+  B --> C{"¿Cambió alguna participación?"}
+  C -->|"Sí"| D["Registrar el cambio desde este periodo"]
+  C -->|"No"| E["Copiar del periodo anterior"]
+  D --> F["UX-15 Revisar cuadre por sociedad"]
+  E --> F
+  F --> G{"¿Todas las sociedades cuadran?"}
+  G -->|"No"| H["UX-11 C03 Ver la diferencia y pedir la corrección"]
+  H --> F
+  G -->|"Sí"| I["UX-11 C01 Revisar la conciliación intercompañía"]
+  I --> J{"¿Hay parejas sobre el umbral?"}
+  J -->|"Sí"| K["UX-14 Registrar asiento de ajuste cuadrado"]
+  K --> I
+  J -->|"No"| L["Consolidar y bloquear las sociedades en UX-15"]
+  L --> M["UX-11 Reportes del cierre"]

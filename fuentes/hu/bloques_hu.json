@@ -1,0 +1,8743 @@
+{
+ "blocks": [
+  {
+   "type": "portada",
+   "text": "DOCUMENTO DE HISTORIAS DE USUARIO — ACELERADOR DE CONSOLIDACIÓN FINANCIERA SAP BW/BPC"
+  },
+  {
+   "type": "paragraph",
+   "text": "Producto interno CM Consulting",
+   "align": "center",
+   "bold": true,
+   "color": "144E8C",
+   "size": 28
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "Control de versiones"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Versión",
+     "Elaborado por",
+     "Fecha",
+     "Observaciones"
+    ],
+    [
+     "1.0",
+     "CM Consulting",
+     "16-Oct-26",
+     "Versión para revisión y aprobación, derivada del DAF v1.1 y del Documento UX v1.1."
+    ]
+   ],
+   "col_widths": [
+    1200,
+    2200,
+    1500,
+    3938
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "Confidencialidad"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "La información contenida en este documento es propiedad intelectual de "
+    },
+    {
+     "text": "CM CONSULTING SAS",
+     "bold": true
+    },
+    {
+     "text": "."
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Este documento es de uso interno de "
+    },
+    {
+     "text": "CM CONSULTING SAS",
+     "bold": true
+    },
+    {
+     "text": ". Su reproducción, distribución o comunicación por cualquier medio queda expresamente prohibida sin el consentimiento escrito de "
+    },
+    {
+     "text": "CM CONSULTING SAS",
+     "bold": true
+    },
+    {
+     "text": "."
+    }
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "toc"
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "1. Introducción"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "1.1 Objetivo"
+  },
+  {
+   "type": "paragraph",
+   "text": "Este documento descompone en épicas e historias de usuario la línea base funcional del Acelerador de consolidación financiera sobre SAP BW y SAP BPC, y propone el orden de construcción. Es la hoja de ruta para el diseño de arquitectura (F6), el plan de pruebas (F7) y la planeación de sprints."
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "1.2 Alcance del documento"
+  },
+  {
+   "type": "paragraph",
+   "text": "9 épicas y 58 historias de usuario que cubren los 39 RF del DAF v1.1, sus RNF relevantes y las 15 pantallas del Documento UX v1.1. Los story points incluyen las pruebas unitarias de cada historia: no hay historias separadas para escribir pruebas."
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "1.3 Fuentes y trazabilidad"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Fuente",
+     "Uso en este documento"
+    ],
+    [
+     "Documento de Análisis Funcional v1.1 (16-Oct-26)",
+     "Fuente autoritativa de RF, RNF, RN, roles y prioridades. Cada HU cita sus códigos."
+    ],
+    [
+     "Documento de Diseño UX v1.1 (16-Oct-26)",
+     "Pantallas UX-01 a UX-15 citadas en los criterios de aceptación."
+    ],
+    [
+     "Prototipo navegable",
+     "Comportamiento detallado de cada pantalla y de sus estados normal, vacío, carga y error."
+    ]
+   ],
+   "col_widths": [
+    3400,
+    5438
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "2. Marco de referencia"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "2.1 Estructura de cada historia de usuario"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Elemento",
+     "Contenido"
+    ],
+    [
+     "Tarjeta",
+     "Código HU-XX, título, prioridad, story points, dependencias y trazabilidad a RF, RNF e INT del DAF."
+    ],
+    [
+     "Narrativa",
+     "Como [rol del DAF], quiero [funcionalidad], para [beneficio]."
+    ],
+    [
+     "Criterios de aceptación",
+     "Afirmaciones verificables; las HU con interfaz citan su pantalla UX-XX."
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "2.2 Escala de story points"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "SP",
+     "Significado"
+    ],
+    [
+     "1",
+     "Trivial: configuración o ajuste menor."
+    ],
+    [
+     "2",
+     "Sencillo: lógica directa y validaciones básicas."
+    ],
+    [
+     "3",
+     "Estándar: CRUD o carga acotada sin integraciones nuevas."
+    ],
+    [
+     "5",
+     "Complejo: varias validaciones, estados o integración ligera."
+    ],
+    [
+     "8",
+     "Muy complejo: generación de objetos SAP, reglas de consolidación o varios actores."
+    ],
+    [
+     "13",
+     "Alta incertidumbre: se subdivide antes del sprint."
+    ]
+   ],
+   "col_widths": [
+    1000,
+    7838
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "2.3 Convenciones de prioridad"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Prioridad",
+     "Definición"
+    ],
+    [
+     "Alta",
+     "Sin ella el acelerador no implementa una consolidación operable."
+    ],
+    [
+     "Media",
+     "Soporte o mejora operativa; puede llegar después del primer cliente piloto."
+    ],
+    [
+     "Baja",
+     "Complementaria o de uso ocasional."
+    ]
+   ],
+   "col_widths": [
+    1500,
+    7338
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": "La prioridad de cada HU hereda la del RF principal que implementa (DAF, sección 5)."
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "3. Roles y actores del sistema"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Rol",
+     "Responsabilidad principal"
+    ],
+    [
+     "Consultor implementador",
+     "Configura y ejecuta el acelerador en cada cliente desde el configurador web."
+    ],
+    [
+     "Administrador SAP del cliente",
+     "Crea el usuario técnico e importa transportes y paquetes Z en el cliente (participa en HU-01 y en las dependencias)."
+    ],
+    [
+     "Usuario financiero",
+     "Consulta reportes, mantiene participaciones, registra asientos, captura presupuesto y lleva el cierre mensual."
+    ],
+    [
+     "Sistema",
+     "Capacidades automáticas del acelerador y de los objetos que genera (generación, cargas, reglas y validaciones)."
+    ]
+   ],
+   "col_widths": [
+    2800,
+    6038
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "4. Resumen de épicas"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Épica",
+     "Nombre",
+     "Foco",
+     "HU",
+     "SP",
+     "A / M / B"
+    ],
+    [
+     {
+      "text": "E1",
+      "bold": true
+     },
+     {
+      "text": "Conexión y diagnóstico",
+      "bold": true
+     },
+     "Prueba técnica del mecanismo de inyección, gestión de clientes, conexiones seguras a ERP, BW y BPC, identificación de la arquitectura e inventario de lo que ya existe en el cliente.",
+     "7",
+     "29",
+     "7 / 0 / 0"
+    ],
+    [
+     {
+      "text": "E2",
+      "bold": true
+     },
+     {
+      "text": "Configuración de alcance",
+      "bold": true
+     },
+     "Lo que el Consultor implementador define por cliente antes de generar: módulos, sociedades, estructura inicial de participaciones, mapeo de cuentas y versiones de presupuesto.",
+     "5",
+     "20",
+     "4 / 1 / 0"
+    ],
+    [
+     {
+      "text": "E3",
+      "bold": true
+     },
+     {
+      "text": "Bodega de datos en BW",
+      "bold": true
+     },
+     "Plan de generación, motor de ejecución paso a paso y creación de la bodega financiera en BW 7.5 y BW/4HANA, con campos Z, cadenas full y delta, activos fijos y deterioros.",
+     "8",
+     "50",
+     "7 / 1 / 0"
+    ],
+    [
+     {
+      "text": "E4",
+      "bold": true
+     },
+     {
+      "text": "Datos maestros",
+      "bold": true
+     },
+     "Carga de planes de cuentas, CeCo y CeBe, monedas y tasas, jerarquía de cuentas y la información de las sociedades no SAP.",
+     "5",
+     "24",
+     "5 / 0 / 0"
+    ],
+    [
+     {
+      "text": "E5",
+      "bold": true
+     },
+     {
+      "text": "Modelo BPC y consolidación",
+      "bold": true
+     },
+     "Dimensiones, importación desde BW, scripts por variante, eliminación intercompañía, conversión con diferencia en conversión, modelo de propiedad, eliminación de inversión, interés minoritario y coligadas.",
+     "9",
+     "57",
+     "9 / 0 / 0"
+    ],
+    [
+     {
+      "text": "E6",
+      "bold": true
+     },
+     {
+      "text": "Control del cierre",
+      "bold": true
+     },
+     "Lo que usa el Usuario financiero cada mes: participaciones por periodo, validación de cuadre, conciliación intercompañía, asientos de ajuste, bloqueo por sociedad y estado del cierre.",
+     "7",
+     "45",
+     "5 / 2 / 0"
+    ],
+    [
+     {
+      "text": "E7",
+      "bold": true
+     },
+     {
+      "text": "Reportes EPM de consolidación",
+      "bold": true
+     },
+     "Plantilla común de reportes con EPM add-in, cálculo de rubros por mapeo, los 20 reportes de consolidación por olas y el catálogo de descarga.",
+     "7",
+     "47",
+     "7 / 0 / 0"
+    ],
+    [
+     {
+      "text": "E8",
+      "bold": true
+     },
+     {
+      "text": "Presupuesto, activos fijos y deterioros",
+      "bold": true
+     },
+     "Modelo de planeación de presupuesto con sus versiones, captura P05, reportes P01 a P04 y reportes de activos fijos y deterioros que leen de BW.",
+     "5",
+     "32",
+     "4 / 1 / 0"
+    ],
+    [
+     {
+      "text": "E9",
+      "bold": true
+     },
+     {
+      "text": "Seguridad, auditoría y compatibilidad",
+      "bold": true
+     },
+     "Capacidades transversales: registro de ejecuciones, controles ASVS nivel 2, accesibilidad y certificación de la arquitectura B y de la variante BW/4HANA.",
+     "5",
+     "29",
+     "4 / 1 / 0"
+    ],
+    [
+     {
+      "text": "TOTAL",
+      "bold": true
+     },
+     "—",
+     "—",
+     {
+      "text": "58",
+      "bold": true
+     },
+     {
+      "text": "333",
+      "bold": true
+     },
+     {
+      "text": "52 / 6 / 0",
+      "bold": true
+     }
+    ]
+   ],
+   "col_widths": [
+    700,
+    1900,
+    3838,
+    600,
+    700,
+    1100
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "4.1 Recomendación de planeación"
+  },
+  {
+   "type": "paragraph",
+   "text": "Se sugiere iniciar con HU-01, la prueba técnica del mecanismo de inyección: es el mayor riesgo del producto y condiciona todos los generadores. En paralelo se construye la base de E1 y E2 (clientes, conexiones seguras, arquitectura, inventario y configuración de alcance). Después se avanza en el orden del proceso de implementación: E3 bodega en BW, E4 datos maestros y E5 modelo BPC y consolidación. Las capacidades de E9 (registro de ejecuciones, ASVS y accesibilidad) se construyen desde los primeros sprints, porque cada generador escribe en el registro."
+  },
+  {
+   "type": "paragraph",
+   "text": "E6 control del cierre y E7 reportes arrancan cuando E5 deja una consolidación ejecutable (HU-29), y avanzan en paralelo. E8 puede construirse en paralelo con E6 una vez exista la bodega (HU-18) y el modelo BPC (HU-26). Puntos de demostración sugeridos: conexión, diagnóstico y configuración (fin de E2); bodega y datos maestros cargados (fin de E4); consolidación en dos monedas con los reportes de la ola 1 (HU-44); cierre mensual completo con C01 a C04."
+  },
+  {
+   "type": "paragraph",
+   "text": "La estimación de 333 story points equivale a unos 12 sprints de dos semanas, con una velocidad de referencia de 30 story points por sprint para un equipo de 4 a 5 personas. Es referencial y se ajusta en el Sprint Planning. La certificación de la arquitectura B (HU-57) y de la variante BW/4HANA (HU-58) depende de que existan esos ambientes."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "5. E1 — Conexión y diagnóstico"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Prueba técnica del mecanismo de inyección, gestión de clientes, conexiones seguras a ERP, BW y BPC, identificación de la arquitectura e inventario de lo que ya existe en el cliente."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "7 historia(s) de usuario · 29 story points · 7 Alta / 0 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-01",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Spike: prueba técnica de inyección en la arquitectura A",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "2",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "—",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "INT-02 · INT-03 · RNF-Seg-03",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "una prueba técnica documentada que cree un objeto de prueba en BW y en BPC por RFC con paquete Z, UJFS, UJKT y respaldo UJBR",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "confirmar que el acelerador puede crear objetos en el sistema del cliente antes de construir los generadores",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "La prueba se ejecuta en el ambiente de arquitectura A con el usuario técnico del cliente, sin permisos SAP_ALL (RNF-Seg-03).",
+    "Se crea por RFC un objeto de prueba en BW y un miembro de dimensión en BPC, y se verifica su existencia desde SAP GUI.",
+    "Se genera y restaura un respaldo UJBR del ambiente BPC de prueba.",
+    "El entregable es una nota técnica con el resultado, los permisos mínimos requeridos y la recomendación (seguir o cambiar de mecanismo).",
+    "La duración está limitada a un sprint; si el mecanismo falla, la decisión se escala antes de iniciar E3."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-02",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Gestionar clientes",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "—",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-01 · RNF-Comp-03 · UX-01",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "crear un cliente, verlo en una lista con su arquitectura y paso actual, y buscarlo por nombre",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "llevar varias implementaciones con el mismo acelerador sin mezclar su configuración",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-01 se listan los clientes con arquitectura, paso actual, estado, última ejecución y usuario.",
+    "El botón Nuevo cliente pide el nombre; el nombre es obligatorio y no puede repetir uno existente.",
+    "Al crear el cliente, el sistema lleva a UX-02 Conexiones.",
+    "Sin clientes se muestra «Aún no hay clientes. Crea el primero para empezar.»",
+    "La búsqueda filtra la lista por nombre.",
+    "En el prototipo, el configurador se ejecuta en el equipo del Consultor implementador sin servidores adicionales (RNF-Comp-03)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-03",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Registrar y probar conexiones a SAP",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-01, HU-02",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-01 · UX-02",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "registrar host, mandante, usuario técnico y credencial de ERP, BW y BPC y probar cada conexión",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "saber antes de generar si el acelerador puede llegar a cada sistema del cliente",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-02 cada sistema tiene su tarjeta con host, mandante, usuario técnico y credencial, todos obligatorios.",
+    "Probar conexión muestra «Conexión exitosa» o «Fallida» con el mensaje que devuelve SAP.",
+    "Continuar al diagnóstico solo se habilita con las conexiones requeridas en estado exitoso.",
+    "Cada prueba queda en el registro de ejecuciones (RNF-Aud-01)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-04",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Proteger las credenciales de conexión",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-03",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RNF-Seg-02 · RNF-Seg-03 · UX-02",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "que las credenciales de SAP se guarden cifradas y se muestren enmascaradas",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "evitar que alguien con acceso al equipo lea las claves de los sistemas del cliente",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-02 la credencial se muestra enmascarada y solo se revela con Mostrar.",
+    "Ningún archivo de configuración ni registro contiene la credencial legible (RNF-Seg-02).",
+    "La documentación del rol técnico lista los permisos mínimos por paso, sin SAP_ALL (RNF-Seg-03).",
+    "Una credencial inválida se reporta sin escribirla en el mensaje de error."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-05",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Validar la conexión ERP–BW",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-03",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-02 · UX-02",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "validar que BW recibe datos del ERP antes de iniciar las cargas",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "no descubrir en mitad de la generación que los extractores no pueden llegar a BW",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-02 el botón Validar conexión ERP–BW aparece solo si ERP y BW están en sistemas separados (RN-01).",
+    "En la arquitectura B se reemplaza por una nota que explica por qué no aplica.",
+    "El resultado de la validación queda registrado con fecha, usuario y mensaje."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-06",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Identificar arquitectura y versión",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-03",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-04 · RNF-Comp-04 · RNF-Comp-05 · UX-02 · UX-01",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "que el acelerador detecte si el cliente opera la arquitectura A o B y qué versiones de BW y BPC tiene",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que los pasos siguientes usen la variante de generación correcta",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-02 se muestra la insignia A o B y las versiones detectadas de BW y BPC.",
+    "La arquitectura A reconoce BW 7.5 y BW/4HANA con BPC modelo estándar (RNF-Comp-05).",
+    "Si la versión no tiene variante disponible se muestra «Versión no soportada aún» y no se puede continuar (RNF-Comp-04).",
+    "La arquitectura y la versión quedan guardadas en el cliente y se ven en UX-01."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-07",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Inventariar objetos existentes",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-01, HU-06",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-03 · UX-03",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ver los extractores activos, InfoProviders, modelos BPC y campos Z que ya existen en el cliente",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "decidir qué generar y no recrear lo que el cliente ya tiene",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-03 el inventario se muestra en pestañas: extractores, InfoProviders (InfoCubos o aDSO según la versión), modelos BPC y campos Z.",
+    "El indicador Bodega existente se marca si BW ya tiene la bodega; en ese caso no se recrea (RN-03).",
+    "Volver a escanear repite el inventario y actualiza la fecha del último escaneo.",
+    "Si el escaneo falla se muestra el paso que falló y el mensaje del sistema."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "6. E2 — Configuración de alcance"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Lo que el Consultor implementador define por cliente antes de generar: módulos, sociedades, estructura inicial de participaciones, mapeo de cuentas y versiones de presupuesto."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "5 historia(s) de usuario · 20 story points · 4 Alta / 1 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-08",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Seleccionar módulos",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "2",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-02",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-05 · UX-04",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "marcar los módulos a implementar: consolidación, presupuesto, activos fijos y deterioros",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "generar solo lo que el cliente contrató",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-04 cada módulo es una tarjeta con casilla y descripción de lo que genera.",
+    "El resumen muestra la cantidad de módulos y de reportes y se actualiza al marcar.",
+    "Continuar está deshabilitado sin módulos marcados.",
+    "Activos fijos y deterioros muestran «Se queda en BW; no crea modelo en BPC» (RN-12)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-09",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Registrar sociedades del grupo",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-02",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-06 · RF-13 · UX-05",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "registrar las sociedades a consolidar con su moneda local, sociedad matriz, plan de cuentas y si están en SAP",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "definir el perímetro de la consolidación",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-05 la tabla permite agregar y editar sociedades con código, nombre, en SAP, moneda local, matriz y plan de cuentas.",
+    "Solo se registran sociedades del grupo; clientes y proveedores no son entidades (RN-07).",
+    "Cada sociedad puede tener su propio plan de cuentas (RN-05).",
+    "La moneda local es obligatoria; si falta, se muestra «La sociedad X no tiene moneda local» y no se guarda.",
+    "Una sociedad marcada como no SAP habilita el paso UX-07."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-10",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Registrar la estructura inicial de participaciones",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-09",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-31 · UX-05",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "registrar para cada sociedad el porcentaje de propiedad y el método de consolidación inicial",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que el modelo de propiedad nazca con la estructura societaria real del grupo",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-05 cada sociedad tiene % de propiedad (0 a 100) y método: matriz, integración global, participación o fuera del perímetro (RN-13).",
+    "Solo una sociedad del grupo puede tener método matriz.",
+    "Un porcentaje fuera de 0 a 100 se marca en la fila y no se guarda.",
+    "La estructura se usa como primer periodo del modelo de propiedad (HU-32)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-11",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Mapear cuentas a rubros de reporte",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-07, HU-09",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-07 · UX-06",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "asignar las cuentas contables de cada sociedad a los rubros de los reportes",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que los reportes muestren cada rubro con las cuentas correctas",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-06 se elige un rubro y se le asignan cuentas marcadas, filtradas por el plan de cuentas de la sociedad (RN-05).",
+    "La vista previa del rubro muestra la suma de sus cuentas mapeadas (RN-10).",
+    "El contador muestra las cuentas sin mapear y el filtro Solo sin mapear las lista.",
+    "Las cuentas se leen del ERP del cliente por la conexión registrada en HU-03.",
+    "Si el guardado falla se informa cuántas asignaciones no se guardaron."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-12",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Definir versiones de presupuesto",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Media",
+      "align": "center",
+      "fill": "FFF3CD"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "2",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-08",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-39 · UX-04 · UX-08",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "definir las versiones del modelo de planeación: presupuesto anual y proyecciones como 3+9, 6+6 y 9+3",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que el cliente pueda planear y reproyectar el año sin crear modelos nuevos",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-04, si Presupuesto está marcado, se muestran las versiones propuestas y se pueden agregar, renombrar o quitar.",
+    "Debe existir al menos la versión de presupuesto anual.",
+    "Los códigos de versión no se repiten.",
+    "Las versiones pasan al plan de generación (UX-08)."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "7. E3 — Bodega de datos en BW"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Plan de generación, motor de ejecución paso a paso y creación de la bodega financiera en BW 7.5 y BW/4HANA, con campos Z, cadenas full y delta, activos fijos y deterioros."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "8 historia(s) de usuario · 50 story points · 7 Alta / 1 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-13",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Revisar el plan de generación",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-07, HU-08, HU-11",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-08 · RF-16 · RF-18 · UX-08",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ver todo lo que el acelerador va a crear en BW y BPC antes de ejecutar",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "confirmar el alcance con el cliente y evitar cambios no esperados en sus sistemas",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-08 el plan se agrupa en SAP BW, SAP BPC y Monedas y tasas, y marca cada objeto como Nuevo o Existente.",
+    "Los objetos existentes no se recrean ni se modifican (RN-03).",
+    "El total de objetos a crear se muestra y Generar pide confirmación con ese número.",
+    "Si un paso anterior está incompleto, el plan muestra cuál falta con un enlace para completarlo."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-14",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Ejecutar el plan paso a paso",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-13",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-08 · RNF-Aud-01 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "que la generación se ejecute en orden, con el estado y la duración de cada paso, y reintentar desde el paso que falló",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "no repetir lo que ya quedó bien cuando un paso falla",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-09 la línea de pasos muestra cada paso como completo, en curso, pendiente o con error, y su duración.",
+    "Un paso con error muestra la causa, el enlace a la pantalla que la corrige y Reintentar desde este paso.",
+    "Reintentar no vuelve a ejecutar los pasos completos.",
+    "Al terminar se muestra el resumen y el botón Ver reportes (UX-10)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-15",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Generar la bodega financiera en BW 7.5",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-01, HU-14",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-08 · INT-01 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "activar el extractor financiero estándar y crear los InfoCubos de movimientos financieros si la bodega no existe",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "tener la base de datos de la consolidación sin construirla a mano",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Si el inventario indica que no hay bodega, se activa 0FI_GL_14 y se crean los InfoProviders del módulo de consolidación.",
+    "Si la bodega existe, el paso queda como Existente y no crea objetos (RN-03).",
+    "Cada objeto creado queda en el registro con su nombre técnico (RNF-Aud-01).",
+    "El resultado se ve en UX-09 con el número de objetos creados."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-16",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Generar la bodega en la variante BW/4HANA",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-06, HU-15",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-08 · RNF-Comp-05 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "crear la bodega con aDSO en lugar de InfoCubos cuando el cliente opera BW/4HANA con BPC 2021",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "soportar a los clientes que migran desde BW 7.5, cuyo mantenimiento termina",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Si la versión detectada es BW/4HANA, la generación usa la variante BW/4HANA sin cambiar la configuración del cliente (RNF-Comp-04).",
+    "Los InfoProviders se crean como aDSO; no se genera ningún InfoCubo (RNF-Comp-05).",
+    "Los extractores se conectan por ODP.",
+    "El plan UX-08 muestra «aDSO» en los InfoProviders de esta variante."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-17",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Incorporar campos Z a la bodega",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Media",
+      "align": "center",
+      "fill": "FFF3CD"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-07, HU-15",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-09 · UX-03 · UX-08",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "elegir los campos Z del cliente que se agregan a la bodega",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "conservar en la consolidación la información propia del cliente",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-03, pestaña Campos Z, se marcan los campos a incorporar.",
+    "Los campos marcados aparecen como Nuevo en el plan UX-08.",
+    "Un campo Z sin tipo de dato compatible se marca con el motivo y no se incorpora."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-18",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Generar cadenas de proceso full y delta",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-15",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-10 · RNF-Rend-01 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "crear las cadenas que cargan el histórico una vez y después la delta cada noche",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que los reportes tengan los movimientos del día anterior sin intervención manual",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Se crea una cadena de carga full inicial y una cadena delta programada cada 24 horas (RN-04).",
+    "Después de la carga delta, la antigüedad de los datos es de 24 horas o menos (RNF-Rend-01).",
+    "Las cadenas no usan borrado de peticiones solapadas que duplique datos.",
+    "La ejecución de la carga full se ve como paso en UX-09."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-19",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Generar el módulo de activos fijos en BW",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-08, HU-18",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-24 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "activar el extractor de activos fijos y crear sus InfoProviders y cargas si el módulo está seleccionado",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "alimentar los reportes de activos fijos sin crear un modelo en BPC",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Solo se genera si Activos fijos está marcado en UX-04.",
+    "Se activa el extractor estándar de activos fijos y se crean sus InfoProviders y cargas en BW, sin modelo en BPC (RN-12).",
+    "El plan UX-08 y la ejecución UX-09 muestran el paso «Activos fijos en BW»."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-20",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Generar el módulo de deterioros en BW",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-08, HU-18",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-25 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "activar el extractor de deterioros y crear sus InfoProviders y cargas si el módulo está seleccionado",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "alimentar los reportes de deterioros sin crear un modelo en BPC",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Solo se genera si Deterioros está marcado en UX-04.",
+    "Se activa el extractor estándar de deterioros y se crean sus InfoProviders y cargas en BW, sin modelo en BPC (RN-12).",
+    "El plan UX-08 y la ejecución UX-09 muestran el paso «Deterioros en BW»."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "8. E4 — Datos maestros"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Carga de planes de cuentas, CeCo y CeBe, monedas y tasas, jerarquía de cuentas y la información de las sociedades no SAP."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "5 historia(s) de usuario · 24 story points · 5 Alta / 0 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-21",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Cargar los planes de cuentas",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-09, HU-15",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-11 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "cargar en BW el plan de cuentas de cada sociedad seleccionada",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que cada sociedad conserve su propio plan de cuentas en la bodega",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Se carga el plan de cuentas de cada sociedad registrada en UX-05 (RN-05).",
+    "El paso «Planes de cuentas» se ve en UX-09 con la cantidad de cuentas cargadas.",
+    "Una sociedad sin plan de cuentas en el ERP se reporta como error del paso con su código."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-22",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Cargar centros de costo y de beneficio",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-21",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-12 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "cargar en BW los centros de costo y de beneficio de las sociedades seleccionadas",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "permitir el detalle por centro en los reportes y el presupuesto",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Se cargan CeCo y CeBe de todas las sociedades seleccionadas.",
+    "El paso se ve en UX-09 con las cantidades cargadas.",
+    "Un error de carga muestra la sociedad y el mensaje del sistema."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-23",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Cargar monedas y tasas de cambio",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-09, HU-15",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-13 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "cargar la moneda local de cada sociedad y las tasas de cierre, promedio e histórica frente al dólar",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "convertir la consolidación a la otra moneda de presentación",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "La moneda local de cada sociedad se toma tal como la maneja SAP (RN-06).",
+    "Se cargan tasas de cierre, promedio e histórica por moneda y periodo (RN-11).",
+    "Una moneda sin tasa para el periodo se reporta como error del paso en UX-09.",
+    "UX-08 muestra la moneda local por sociedad y los tipos de tasa."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-24",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Cargar la jerarquía de cuentas",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-21",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-14 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "cargar en BW la jerarquía de cuentas del cliente",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "agrupar las cuentas en los niveles que usan los reportes",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Se carga la jerarquía de cuentas desde el ERP.",
+    "Una cuenta en la jerarquía que no existe en el plan de cuentas se reporta en el paso.",
+    "El paso se ve en UX-09 con la cantidad de nodos cargados."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-25",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Cargar la información de sociedades no SAP",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-09, HU-11",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-15 · INT-04 · UX-07",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "subir el archivo contable de cada sociedad no SAP, ver la vista previa y los errores por fila",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que las sociedades fuera de SAP entren al mismo modelo que las demás",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-07 se sube un archivo por sociedad no SAP y se ve la vista previa con sociedad, cuenta, periodo, tercero, CeCo, CeBe e importe.",
+    "Los errores se listan por fila, columna y motivo; una cuenta fuera del mapeo se marca como «cuenta sin mapear».",
+    "Confirmar carga se habilita solo sin errores.",
+    "El archivo debe ser de una sociedad del grupo registrada (RN-07).",
+    "La carga pasa por la validación de cuadre de HU-36 antes de llegar a BPC."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "9. E5 — Modelo BPC y consolidación"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Dimensiones, importación desde BW, scripts por variante, eliminación intercompañía, conversión con diferencia en conversión, modelo de propiedad, eliminación de inversión, interés minoritario y coligadas."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "9 historia(s) de usuario · 57 story points · 9 Alta / 0 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-26",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Configurar las dimensiones del modelo de consolidación",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-01, HU-21, HU-22, HU-23, HU-24",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-16 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "crear en BPC las dimensiones del modelo de consolidación y cargar sus miembros con los datos del cliente",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "tener el modelo listo para recibir los datos financieros",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Se crean las dimensiones definidas en arquitectura, entre ellas cuentas, entidades, intercompañía y terceros.",
+    "Los miembros se cargan desde los datos maestros de E4.",
+    "UX-08 lista el modelo de consolidación como objeto a crear y UX-09 muestra el paso.",
+    "Un miembro rechazado por BPC se reporta con su código."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-27",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Importar los datos de BW a BPC",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-18, HU-26",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-17 · INT-05 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "importar al modelo BPC los datos del InfoProvider de BW en el modelo estándar",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "consolidar con la información que ya está en la bodega",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Aplica solo a la arquitectura A; en la B el paso no aparece en UX-09.",
+    "La importación se genera como paquete de Data Manager y se ejecuta por sociedad y periodo.",
+    "Solo se importan las sociedades que pasan la validación de cuadre (HU-36).",
+    "El paso «Importación a BPC» se ve en UX-09 con la cantidad de registros."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-28",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Desplegar los scripts de consolidación por variante",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-26",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-18 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "desplegar en BPC los scripts completados con los datos del cliente en la variante de su arquitectura",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "no reescribir la lógica de consolidación en cada cliente",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "El script usa la variante de modelo estándar o embebido según la arquitectura (RN-02).",
+    "Los códigos de sociedades y cuentas del cliente se insertan sin edición manual.",
+    "UX-08 muestra la variante que se va a desplegar.",
+    "Antes de reemplazar un script existente se genera respaldo UJBR."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-29",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Ejecutar la consolidación con eliminación intercompañía",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-27, HU-28",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-19 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ejecutar la consolidación del grupo eliminando las transacciones entre sus sociedades",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "dejar el resultado consolidado consultable en BPC",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Solo participan las sociedades del grupo (RN-07).",
+    "Las transacciones intercompañía entre sociedades con integración global se eliminan.",
+    "El paso «Consolidación» en UX-09 muestra el resultado; si falla, muestra la causa y Reintentar desde este paso.",
+    "El resultado queda consultable en R05 Hoja de eliminaciones intercompañía."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-30",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Convertir a la otra moneda de presentación",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-23, HU-29",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-26 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "convertir los saldos de cada sociedad a la otra moneda de presentación con las tasas cargadas",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "presentar la consolidación en moneda local y en dólares",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Balance con tasa de cierre, resultados con tasa promedio y patrimonio con tasa histórica (RN-11).",
+    "La consolidación queda disponible en ambas monedas (RN-06).",
+    "UX-09 muestra el resumen «Consolidación disponible en moneda local y en dólares».",
+    "Si falta una tasa del periodo, el paso falla e indica la moneda."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-31",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Registrar la diferencia en conversión",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-30",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-33 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "calcular la diferencia que deja aplicar tasas distintas y registrarla en la cuenta de patrimonio definida",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que balance y resultados cuadren después de convertir",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "La diferencia se registra en la cuenta de patrimonio configurada, no en resultados (RN-18).",
+    "Después de convertir, activo menos pasivo y patrimonio da cero en la moneda de presentación.",
+    "UX-08 muestra la cuenta de destino y UX-09 el paso con su resultado."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-32",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Generar el modelo de propiedad",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-10, HU-26",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-31 · UX-08 · UX-10",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "generar en BPC el modelo de propiedad con la estructura inicial y la plantilla C02",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que el cliente mantenga sus participaciones sin construir el modelo a mano",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Se crea el modelo de propiedad con la estructura registrada en HU-10 como primer periodo.",
+    "Se genera la plantilla C02 conectada al modelo de propiedad.",
+    "UX-08 lista el modelo de propiedad y la plantilla C02 como objetos a crear.",
+    "C02 aparece en el catálogo de UX-10."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-33",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Eliminar inversión y calcular interés minoritario",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-29, HU-32",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-32 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "eliminar la inversión de la matriz contra el patrimonio de cada subsidiaria con integración global y calcular el interés minoritario",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "presentar estados consolidados que cumplan NIIF 10",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Aplica a las sociedades con método integración global en el periodo (RN-13).",
+    "Usa los porcentajes del periodo; un cambio de porcentaje no altera periodos anteriores (RN-14).",
+    "El interés minoritario se presenta separado en el patrimonio consolidado.",
+    "UX-09 muestra el paso «Eliminación de inversión e interés minoritario».",
+    "La diferencia entre inversión y patrimonio eliminado queda en una cuenta identificable."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-34",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Aplicar el método de participación a coligadas",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-33",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-19 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "reconocer la proporción del resultado de las coligadas sin eliminar sus transacciones intercompañía",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "incluir las coligadas en la consolidación según NIC 28",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Las sociedades con método participación no se integran línea a línea (RN-13).",
+    "Se reconoce la proporción del resultado según el porcentaje de propiedad del periodo.",
+    "Las transacciones con coligadas no se eliminan.",
+    "Las sociedades fuera del perímetro no participan en el periodo."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "10. E6 — Control del cierre"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Lo que usa el Usuario financiero cada mes: participaciones por periodo, validación de cuadre, conciliación intercompañía, asientos de ajuste, bloqueo por sociedad y estado del cierre."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "7 historia(s) de usuario · 45 story points · 5 Alta / 2 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-35",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Mantener participaciones y métodos por periodo",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-32",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-31 · RNF-Aud-02 · UX-13",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "registrar cada mes en la plantilla C02 los porcentajes de control, consolidación y propiedad y el método de cada sociedad",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que la consolidación del periodo use la estructura societaria vigente",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-13 se elige grupo y periodo y se editan % control, % consolidación, % propiedad y método por sociedad.",
+    "Copiar del periodo anterior trae las participaciones del mes previo.",
+    "Los porcentajes deben estar entre 0 y 100 y el método es obligatorio; un error marca la celda y no guarda la fila.",
+    "Un cambio aplica desde el periodo elegido y no altera los anteriores (RN-14).",
+    "Cada cambio queda registrado con usuario, fecha, valor anterior y nuevo (RNF-Aud-02)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-36",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Validar cuadre antes de importar",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-11, HU-27",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-36 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "validar cada sociedad y periodo antes de pasar los datos a BPC",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "no consolidar sociedades descuadradas ni con cuentas sin mapear",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "El paquete de importación y la carga no SAP comprueban que activo = pasivo + patrimonio dentro de la tolerancia definida (RN-16).",
+    "Se comprueba que la utilidad del estado de resultados sea igual al resultado del ejercicio del balance.",
+    "Se comprueba que todas las cuentas con saldo estén mapeadas.",
+    "Una sociedad que no cumple no se importa y queda en C03 con la diferencia.",
+    "UX-09 muestra el paso «Validación de cuadre» con las sociedades rechazadas."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-37",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Consultar la validación de cuadre",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-36, HU-42",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-36 · UX-11",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ver en C03 qué sociedades no se importaron y por qué",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "pedir la corrección a la sociedad antes de consolidar",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-11, hoja C03, se ve por sociedad la diferencia de balance, la diferencia entre utilidad y resultado, las cuentas mapeadas y si se importó.",
+    "Una sociedad no importada se marca «No importada» con texto e ícono.",
+    "Sin importaciones en el periodo se muestra «Aún no hay importaciones en el periodo elegido».",
+    "Sin conexión a BPC se muestra el error de conexión de EPM."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-38",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Conciliar saldos intercompañía",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-27, HU-42",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-34 · UX-11 · UX-10",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "comparar en C01 lo que registra cada sociedad frente a su contraparte por cuenta intercompañía",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "corregir las diferencias antes de ejecutar la eliminación",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-11, hoja C01, se ve por pareja de sociedades y cuentas lo que registra cada parte y la diferencia.",
+    "Las parejas que superan el umbral se marcan «Supera el umbral» con texto e ícono.",
+    "Solo aparecen sociedades del grupo (RN-07).",
+    "C01 se puede ejecutar antes de la consolidación del periodo."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-39",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Registrar asientos de ajuste de consolidación",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-26",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-35 · RNF-Aud-02 · UX-14",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "registrar asientos con líneas de sociedad, cuenta, intercompañía, débito, crédito y observación",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "corregir la consolidación con un registro trazable",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-14 el asiento tiene grupo, periodo y moneda, y líneas con sociedad, cuenta, intercompañía, débito, crédito y observación.",
+    "Guardar asiento solo se habilita si los débitos son iguales a los créditos (RN-15); si no, se muestra «Descuadrado» con la diferencia.",
+    "No se aceptan líneas de una sociedad bloqueada en el periodo (RN-17).",
+    "Cada asiento queda con número, usuario y fecha en la lista del periodo (RNF-Aud-02)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-40",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Bloquear saldos por sociedad",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Media",
+      "align": "center",
+      "fill": "FFF3CD"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-26",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-37 · RNF-Aud-02 · UX-15",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "bloquear o desbloquear una sociedad en un periodo sin afectar a las demás",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "cerrar cada sociedad cuando está lista aunque otras sigan en revisión",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-15 cada sociedad tiene el botón Bloquear o Desbloquear.",
+    "Una sociedad bloqueada no admite cargas, asientos ni reprocesos del periodo (RN-17).",
+    "Bloquear una sociedad no bloquea a las demás del grupo.",
+    "Cada bloqueo y desbloqueo queda registrado con usuario y fecha (RNF-Aud-02)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-41",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Seguir el estado del cierre",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Media",
+      "align": "center",
+      "fill": "FFF3CD"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-36, HU-38, HU-40",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-38 · UX-15",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ver en C04 qué pasos del cierre están completos, pendientes o con error por sociedad",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "saber qué falta para cerrar el mes y dónde está cada problema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-15 la matriz muestra por sociedad el estado de carga, cuadre, conciliación, conversión, consolidación y reportes, en ese orden.",
+    "Un paso con error enlaza al reporte que explica la causa (p. ej. C03).",
+    "Las hojas dan acceso a C02 (UX-13) y a Asientos (UX-14).",
+    "Si el cierre no ha iniciado se muestra «El cierre del periodo aún no ha iniciado»."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "11. E7 — Reportes EPM de consolidación"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Plantilla común de reportes con EPM add-in, cálculo de rubros por mapeo, los 20 reportes de consolidación por olas y el catálogo de descarga."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "7 historia(s) de usuario · 47 story points · 7 Alta / 0 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-42",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Usar la plantilla común de reportes EPM",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-29",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-20 · RF-21 · INT-06 · UX-11",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "elegir sociedad, si incluye filiales, moneda y periodo en un reporte y actualizarlo desde BPC",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "consultar la consolidación sin pedir reportes nuevos a TI",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-11 los parámetros Sociedad, Incluir filiales, Moneda y Periodo están en celdas con lista.",
+    "Incluir filiales cambia entre la sociedad sola y la sociedad con sus filiales, con columna Total (RN-09).",
+    "Moneda permite solo moneda local o dólares (RN-06).",
+    "Sin conexión a BPC se muestra «No se pudo conectar a BPC; revisa la conexión de EPM»; sin datos, «Sin datos para la sociedad y el periodo elegidos»."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-43",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Calcular rubros por mapeo",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-11, HU-42",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-22 · UX-11",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "que cada rubro del reporte sea la suma de las cuentas mapeadas",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que un cambio de mapeo se refleje en todos los reportes sin editarlos",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-11 cada rubro muestra la suma de las cuentas mapeadas en UX-06 (RN-10).",
+    "Un cambio en el mapeo se refleja al actualizar el reporte.",
+    "El detalle de un rubro permite ver las cuentas que lo forman."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-44",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Consultar los reportes de la ola 1",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-43",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-20 · RNF-Comp-02 · UX-11",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "consultar R01 Estado de situación financiera, R05 Hoja de eliminaciones y R07 Efectivo",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "validar el prototipo con los reportes base del cierre",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "R01, R05 y R07 se entregan como Excel con EPM conectados al modelo BPC (UX-11).",
+    "Las cifras de R01 cuadran con el balance consolidado del modelo para el periodo de prueba.",
+    "R05 muestra las eliminaciones intercompañía por pareja de sociedades.",
+    "Cada reporte abre y actualiza con EPM add-in (RNF-Comp-02)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-45",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Consultar los reportes de la ola 2",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-44, HU-33, HU-31",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-20 · UX-11 · UX-10",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "consultar R02, R03, R04 y R06",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "completar los estados financieros consolidados y las partes relacionadas",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "R02, R03, R04 y R06 se entregan con la estructura común de UX-11.",
+    "R03 muestra por separado el interés minoritario y la diferencia en conversión.",
+    "R04 clasifica los rubros del flujo de efectivo; un rubro sin clasificar se reporta en UX-10 como error del reporte."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-46",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Consultar las notas de la ola 3 (R08 a R14)",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-44, HU-19, HU-20",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-20 · RF-30 · UX-11",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "consultar las notas de activo y pasivo R08 a R14",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "preparar las revelaciones del cierre con los datos del modelo",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "R08 a R14 se entregan con la estructura común de UX-11.",
+    "R08, R10 y R11 incluyen los movimientos que vienen de activos fijos y deterioros en BW (RF-30).",
+    "Cada nota cuadra con el rubro correspondiente de R01."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-47",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Consultar los reportes de la ola 3 (R15 a R20)",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-44",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-20 · RNF-Comp-02 · UX-11",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "consultar R15 a R20, incluido el informe a junta directiva",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "completar los 20 reportes de consolidación",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "R15 a R20 se entregan con la estructura común de UX-11.",
+    "R20 resume las cifras principales del grupo en moneda local y en dólares.",
+    "Los 20 reportes abren y actualizan con EPM add-in (RNF-Comp-02)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-48",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Generar y descargar el paquete de reportes",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-44",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-20 · RF-27 · RF-29 · RF-34 · UX-10",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ver el catálogo de reportes de los módulos elegidos, generarlos y descargarlos en un .zip",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "entregar al cliente sus reportes listos para usar",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-10 el catálogo lista ID, reporte, módulo, fuente (BPC o BW), ola y estado, filtrable por módulo.",
+    "El catálogo incluye C01 a C04; el clic en el ID abre su vista previa (UX-11, UX-13 o UX-15).",
+    "Descargar reportes genera un .zip con los Excel de los módulos elegidos.",
+    "Un reporte con error muestra la causa en su estado."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "12. E8 — Presupuesto, activos fijos y deterioros"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Modelo de planeación de presupuesto con sus versiones, captura P05, reportes P01 a P04 y reportes de activos fijos y deterioros que leen de BW."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "5 historia(s) de usuario · 32 story points · 4 Alta / 1 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-49",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Generar el modelo de planeación de presupuesto",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-08, HU-18, HU-26",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-23 · UX-08 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "cargar en BW el presupuesto desde 0FI_GL_14 y generar en BPC un modelo de planeación separado del de consolidación",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que el cliente planee sin afectar la consolidación",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Solo se genera si Presupuesto está marcado en UX-04.",
+    "El modelo de planeación es independiente del modelo de consolidación.",
+    "UX-08 lista el modelo de presupuesto y UX-09 muestra el paso «Modelo de presupuesto».",
+    "El presupuesto cargado desde el ERP queda disponible en el modelo."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-50",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Capturar y ajustar el presupuesto",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-49",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-28 · UX-12",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ingresar valores por cuenta, centro de costo y mes en el formulario P05 y guardarlos en BPC",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "construir el presupuesto del año en el mismo modelo que lo compara con la ejecución",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En la pantalla UX-12 se eligen sociedad, versión y año; las celdas editables están en amarillo y los totales se calculan.",
+    "Solo se aceptan números; una celda inválida se marca en rojo y no se guarda.",
+    "Guardar datos escribe en el modelo de planeación de BPC (RN-08).",
+    "Sin presupuesto para la versión se muestra «Sin presupuesto para esta versión: ingresa los valores»."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-51",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Elegir la versión del presupuesto",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Media",
+      "align": "center",
+      "fill": "FFF3CD"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-12, HU-50",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-39 · UX-12 · UX-11",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "elegir la versión (anual, 3+9, 6+6, 9+3) en la captura y en los reportes de presupuesto",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "comparar la ejecución con la proyección vigente",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-12 y en la hoja P01 de UX-11 la versión se elige de una lista con las versiones definidas en HU-12.",
+    "Los valores guardados en una versión no cambian las demás.",
+    "P01 a P05 muestran en el encabezado la versión elegida."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-52",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Consultar los reportes de presupuesto P01 a P04",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-42, HU-50",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-27 · UX-11 · UX-10",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "consultar presupuesto frente a ejecución, gastos por CeCo, ingresos por CeBe y proyección de cierre",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "hacer seguimiento del presupuesto del año",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "P01 a P04 se entregan como Excel con EPM conectados al modelo de planeación (RN-08).",
+    "En UX-11, P01 muestra presupuesto, ejecución, variación y porcentaje de ejecución.",
+    "Los valores guardados en P05 se reflejan en P01 al actualizar."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-53",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Consultar los reportes de activos fijos y deterioros",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-19, HU-20, HU-42",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RF-29 · UX-10 · UX-11",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Usuario financiero",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "consultar A01 a A03 y D01 a D02 con datos de BW",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "controlar activos y deterioros sin un modelo adicional en BPC",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "A01 a A03 y D01 a D02 leen su información de BW (RN-12).",
+    "En UX-10 la fuente de estos reportes se muestra como BW.",
+    "A01 y D01 muestran saldo inicial, movimientos y saldo final por clase o cuenta."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "13. E9 — Seguridad, auditoría y compatibilidad"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "Foco de la épica",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "Capacidades transversales: registro de ejecuciones, controles ASVS nivel 2, accesibilidad y certificación de la arquitectura B y de la variante BW/4HANA."
+    ],
+    [
+     {
+      "text": "Métricas",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     "5 historia(s) de usuario · 29 story points · 4 Alta / 1 Media / 0 Baja"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ],
+   "has_header": false
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-54",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Consultar y descargar el registro de ejecuciones",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-14",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RNF-Aud-01 · UX-09",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ver y descargar el registro de cada paso ejecutado en el cliente",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "auditar qué cambió el acelerador en los sistemas del cliente",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "En UX-09 el registro muestra fecha y hora, usuario, sistema, paso, objetos y resultado.",
+    "El 100 % de las ejecuciones queda registrado y se conserva al menos 12 meses (RNF-Aud-01).",
+    "Descargar registro entrega un archivo con los mismos campos.",
+    "El registro no contiene credenciales (RNF-Seg-02)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-55",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Aplicar los controles ASVS nivel 2 al configurador",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "5",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-04",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RNF-Seg-01",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Sistema",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "que el configurador cumpla los controles de OWASP ASVS nivel 2",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "proteger la información financiera y los datos personales de terceros del cliente",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "La verificación ASVS nivel 2 termina sin hallazgos altos abiertos (RNF-Seg-01).",
+    "Las entradas de archivos y formularios se validan del lado del servidor.",
+    "Las dependencias del configurador no tienen vulnerabilidades altas conocidas.",
+    "Los datos de terceros se tratan según la Ley 1581/2012 (DAF, sección 9)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-56",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Verificar la accesibilidad del configurador",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "3",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-14",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RNF-Usa-01 · UX-01",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "que las pantallas del configurador cumplan WCAG 2.1 AA",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "que cualquier consultor pueda usar el configurador con teclado o lector de pantalla",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Las pantallas UX-01 a UX-10 tienen 0 incumplimientos A y AA en una revisión automática (RNF-Usa-01).",
+    "El foco es visible y todos los controles se operan con teclado.",
+    "Los estados usan texto e ícono, no solo color."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-57",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Certificar la arquitectura B",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Media",
+      "align": "center",
+      "fill": "FFF3CD"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-29, HU-41",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RNF-Comp-01",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ejecutar todos los RF aplicables en un ambiente de arquitectura B",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "ofrecer el acelerador a clientes con ERP, BW y BPC integrados",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Los RF aplicables a la arquitectura B se ejecutan completos en un ambiente B (RNF-Comp-01).",
+    "Los scripts usan la variante de modelo embebido (RN-02).",
+    "Se documenta qué funciones de E6 están disponibles en el modelo embebido (DAF, pregunta 17)."
+   ]
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     {
+      "text": "HU-58",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Certificar la variante BW/4HANA con BPC 2021",
+      "bold": true
+     },
+     {
+      "text": "Prioridad",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "Alta",
+      "align": "center",
+      "fill": "F8D7DA"
+     }
+    ],
+    [
+     {
+      "text": "Story Points",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "8",
+      "align": "center"
+     },
+     {
+      "text": "Dependencias",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "HU-16, HU-41",
+      "align": "center"
+     }
+    ],
+    [
+     {
+      "text": "Trazabilidad RF/RNF",
+      "fill": "144E8C",
+      "align": "center"
+     },
+     {
+      "text": "RNF-Comp-05 · RNF-Comp-04",
+      "colspan": 3
+     }
+    ]
+   ],
+   "col_widths": [
+    1500,
+    3938,
+    1700,
+    1700
+   ],
+   "has_header": false
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Como ",
+     "italic": true
+    },
+    {
+     "text": "Consultor implementador",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ", quiero ",
+     "italic": true
+    },
+    {
+     "text": "ejecutar todos los RF de la arquitectura A en un ambiente BW/4HANA con BPC 2021 modelo estándar",
+     "italic": true
+    },
+    {
+     "text": ", para ",
+     "italic": true
+    },
+    {
+     "text": "confirmar el soporte para los clientes que dejan BW 7.5",
+     "bold": true,
+     "italic": true
+    },
+    {
+     "text": ".",
+     "italic": true
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Criterios de aceptación:",
+     "bold": true,
+     "color": "144E8C"
+    }
+   ]
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Todos los RF de la arquitectura A se ejecutan completos en el ambiente BW/4HANA (RNF-Comp-05).",
+    "No se genera ningún InfoCubo en esta variante.",
+    "Agregar la variante no cambia la configuración de clientes existentes (RNF-Comp-04)."
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "14. Matriz de trazabilidad HU ↔ RF/RNF"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "HU",
+     "Título",
+     "Épica",
+     "Prioridad",
+     "SP",
+     "RF / RNF / INT"
+    ],
+    [
+     {
+      "text": "HU-01",
+      "bold": true
+     },
+     "Spike: prueba técnica de inyección en la arquitectura A",
+     "E1",
+     "Alta",
+     "2",
+     "INT-02, INT-03, RNF-Seg-03"
+    ],
+    [
+     {
+      "text": "HU-02",
+      "bold": true
+     },
+     "Gestionar clientes",
+     "E1",
+     "Alta",
+     "3",
+     "RF-01, RNF-Comp-03"
+    ],
+    [
+     {
+      "text": "HU-03",
+      "bold": true
+     },
+     "Registrar y probar conexiones a SAP",
+     "E1",
+     "Alta",
+     "5",
+     "RF-01"
+    ],
+    [
+     {
+      "text": "HU-04",
+      "bold": true
+     },
+     "Proteger las credenciales de conexión",
+     "E1",
+     "Alta",
+     "3",
+     "RNF-Seg-02, RNF-Seg-03"
+    ],
+    [
+     {
+      "text": "HU-05",
+      "bold": true
+     },
+     "Validar la conexión ERP–BW",
+     "E1",
+     "Alta",
+     "3",
+     "RF-02"
+    ],
+    [
+     {
+      "text": "HU-06",
+      "bold": true
+     },
+     "Identificar arquitectura y versión",
+     "E1",
+     "Alta",
+     "5",
+     "RF-04, RNF-Comp-04, RNF-Comp-05"
+    ],
+    [
+     {
+      "text": "HU-07",
+      "bold": true
+     },
+     "Inventariar objetos existentes",
+     "E1",
+     "Alta",
+     "8",
+     "RF-03"
+    ],
+    [
+     {
+      "text": "HU-08",
+      "bold": true
+     },
+     "Seleccionar módulos",
+     "E2",
+     "Alta",
+     "2",
+     "RF-05"
+    ],
+    [
+     {
+      "text": "HU-09",
+      "bold": true
+     },
+     "Registrar sociedades del grupo",
+     "E2",
+     "Alta",
+     "5",
+     "RF-06, RF-13"
+    ],
+    [
+     {
+      "text": "HU-10",
+      "bold": true
+     },
+     "Registrar la estructura inicial de participaciones",
+     "E2",
+     "Alta",
+     "3",
+     "RF-31"
+    ],
+    [
+     {
+      "text": "HU-11",
+      "bold": true
+     },
+     "Mapear cuentas a rubros de reporte",
+     "E2",
+     "Alta",
+     "8",
+     "RF-07"
+    ],
+    [
+     {
+      "text": "HU-12",
+      "bold": true
+     },
+     "Definir versiones de presupuesto",
+     "E2",
+     "Media",
+     "2",
+     "RF-39"
+    ],
+    [
+     {
+      "text": "HU-13",
+      "bold": true
+     },
+     "Revisar el plan de generación",
+     "E3",
+     "Alta",
+     "5",
+     "RF-08, RF-16, RF-18"
+    ],
+    [
+     {
+      "text": "HU-14",
+      "bold": true
+     },
+     "Ejecutar el plan paso a paso",
+     "E3",
+     "Alta",
+     "8",
+     "RF-08, RNF-Aud-01"
+    ],
+    [
+     {
+      "text": "HU-15",
+      "bold": true
+     },
+     "Generar la bodega financiera en BW 7.5",
+     "E3",
+     "Alta",
+     "8",
+     "RF-08, INT-01"
+    ],
+    [
+     {
+      "text": "HU-16",
+      "bold": true
+     },
+     "Generar la bodega en la variante BW/4HANA",
+     "E3",
+     "Alta",
+     "8",
+     "RF-08, RNF-Comp-05"
+    ],
+    [
+     {
+      "text": "HU-17",
+      "bold": true
+     },
+     "Incorporar campos Z a la bodega",
+     "E3",
+     "Media",
+     "3",
+     "RF-09"
+    ],
+    [
+     {
+      "text": "HU-18",
+      "bold": true
+     },
+     "Generar cadenas de proceso full y delta",
+     "E3",
+     "Alta",
+     "8",
+     "RF-10, RNF-Rend-01"
+    ],
+    [
+     {
+      "text": "HU-19",
+      "bold": true
+     },
+     "Generar el módulo de activos fijos en BW",
+     "E3",
+     "Alta",
+     "5",
+     "RF-24"
+    ],
+    [
+     {
+      "text": "HU-20",
+      "bold": true
+     },
+     "Generar el módulo de deterioros en BW",
+     "E3",
+     "Alta",
+     "5",
+     "RF-25"
+    ],
+    [
+     {
+      "text": "HU-21",
+      "bold": true
+     },
+     "Cargar los planes de cuentas",
+     "E4",
+     "Alta",
+     "5",
+     "RF-11"
+    ],
+    [
+     {
+      "text": "HU-22",
+      "bold": true
+     },
+     "Cargar centros de costo y de beneficio",
+     "E4",
+     "Alta",
+     "3",
+     "RF-12"
+    ],
+    [
+     {
+      "text": "HU-23",
+      "bold": true
+     },
+     "Cargar monedas y tasas de cambio",
+     "E4",
+     "Alta",
+     "5",
+     "RF-13"
+    ],
+    [
+     {
+      "text": "HU-24",
+      "bold": true
+     },
+     "Cargar la jerarquía de cuentas",
+     "E4",
+     "Alta",
+     "3",
+     "RF-14"
+    ],
+    [
+     {
+      "text": "HU-25",
+      "bold": true
+     },
+     "Cargar la información de sociedades no SAP",
+     "E4",
+     "Alta",
+     "8",
+     "RF-15, INT-04"
+    ],
+    [
+     {
+      "text": "HU-26",
+      "bold": true
+     },
+     "Configurar las dimensiones del modelo de consolidación",
+     "E5",
+     "Alta",
+     "8",
+     "RF-16"
+    ],
+    [
+     {
+      "text": "HU-27",
+      "bold": true
+     },
+     "Importar los datos de BW a BPC",
+     "E5",
+     "Alta",
+     "5",
+     "RF-17, INT-05"
+    ],
+    [
+     {
+      "text": "HU-28",
+      "bold": true
+     },
+     "Desplegar los scripts de consolidación por variante",
+     "E5",
+     "Alta",
+     "8",
+     "RF-18"
+    ],
+    [
+     {
+      "text": "HU-29",
+      "bold": true
+     },
+     "Ejecutar la consolidación con eliminación intercompañía",
+     "E5",
+     "Alta",
+     "8",
+     "RF-19"
+    ],
+    [
+     {
+      "text": "HU-30",
+      "bold": true
+     },
+     "Convertir a la otra moneda de presentación",
+     "E5",
+     "Alta",
+     "5",
+     "RF-26"
+    ],
+    [
+     {
+      "text": "HU-31",
+      "bold": true
+     },
+     "Registrar la diferencia en conversión",
+     "E5",
+     "Alta",
+     "5",
+     "RF-33"
+    ],
+    [
+     {
+      "text": "HU-32",
+      "bold": true
+     },
+     "Generar el modelo de propiedad",
+     "E5",
+     "Alta",
+     "5",
+     "RF-31"
+    ],
+    [
+     {
+      "text": "HU-33",
+      "bold": true
+     },
+     "Eliminar inversión y calcular interés minoritario",
+     "E5",
+     "Alta",
+     "8",
+     "RF-32"
+    ],
+    [
+     {
+      "text": "HU-34",
+      "bold": true
+     },
+     "Aplicar el método de participación a coligadas",
+     "E5",
+     "Alta",
+     "5",
+     "RF-19"
+    ],
+    [
+     {
+      "text": "HU-35",
+      "bold": true
+     },
+     "Mantener participaciones y métodos por periodo",
+     "E6",
+     "Alta",
+     "5",
+     "RF-31, RNF-Aud-02"
+    ],
+    [
+     {
+      "text": "HU-36",
+      "bold": true
+     },
+     "Validar cuadre antes de importar",
+     "E6",
+     "Alta",
+     "8",
+     "RF-36"
+    ],
+    [
+     {
+      "text": "HU-37",
+      "bold": true
+     },
+     "Consultar la validación de cuadre",
+     "E6",
+     "Alta",
+     "3",
+     "RF-36"
+    ],
+    [
+     {
+      "text": "HU-38",
+      "bold": true
+     },
+     "Conciliar saldos intercompañía",
+     "E6",
+     "Alta",
+     "8",
+     "RF-34"
+    ],
+    [
+     {
+      "text": "HU-39",
+      "bold": true
+     },
+     "Registrar asientos de ajuste de consolidación",
+     "E6",
+     "Alta",
+     "8",
+     "RF-35, RNF-Aud-02"
+    ],
+    [
+     {
+      "text": "HU-40",
+      "bold": true
+     },
+     "Bloquear saldos por sociedad",
+     "E6",
+     "Media",
+     "5",
+     "RF-37, RNF-Aud-02"
+    ],
+    [
+     {
+      "text": "HU-41",
+      "bold": true
+     },
+     "Seguir el estado del cierre",
+     "E6",
+     "Media",
+     "8",
+     "RF-38"
+    ],
+    [
+     {
+      "text": "HU-42",
+      "bold": true
+     },
+     "Usar la plantilla común de reportes EPM",
+     "E7",
+     "Alta",
+     "8",
+     "RF-20, RF-21, INT-06"
+    ],
+    [
+     {
+      "text": "HU-43",
+      "bold": true
+     },
+     "Calcular rubros por mapeo",
+     "E7",
+     "Alta",
+     "5",
+     "RF-22"
+    ],
+    [
+     {
+      "text": "HU-44",
+      "bold": true
+     },
+     "Consultar los reportes de la ola 1",
+     "E7",
+     "Alta",
+     "5",
+     "RF-20, RNF-Comp-02"
+    ],
+    [
+     {
+      "text": "HU-45",
+      "bold": true
+     },
+     "Consultar los reportes de la ola 2",
+     "E7",
+     "Alta",
+     "8",
+     "RF-20"
+    ],
+    [
+     {
+      "text": "HU-46",
+      "bold": true
+     },
+     "Consultar las notas de la ola 3 (R08 a R14)",
+     "E7",
+     "Alta",
+     "8",
+     "RF-20, RF-30"
+    ],
+    [
+     {
+      "text": "HU-47",
+      "bold": true
+     },
+     "Consultar los reportes de la ola 3 (R15 a R20)",
+     "E7",
+     "Alta",
+     "8",
+     "RF-20, RNF-Comp-02"
+    ],
+    [
+     {
+      "text": "HU-48",
+      "bold": true
+     },
+     "Generar y descargar el paquete de reportes",
+     "E7",
+     "Alta",
+     "5",
+     "RF-20, RF-27, RF-29, RF-34"
+    ],
+    [
+     {
+      "text": "HU-49",
+      "bold": true
+     },
+     "Generar el modelo de planeación de presupuesto",
+     "E8",
+     "Alta",
+     "8",
+     "RF-23"
+    ],
+    [
+     {
+      "text": "HU-50",
+      "bold": true
+     },
+     "Capturar y ajustar el presupuesto",
+     "E8",
+     "Alta",
+     "5",
+     "RF-28"
+    ],
+    [
+     {
+      "text": "HU-51",
+      "bold": true
+     },
+     "Elegir la versión del presupuesto",
+     "E8",
+     "Media",
+     "3",
+     "RF-39"
+    ],
+    [
+     {
+      "text": "HU-52",
+      "bold": true
+     },
+     "Consultar los reportes de presupuesto P01 a P04",
+     "E8",
+     "Alta",
+     "8",
+     "RF-27"
+    ],
+    [
+     {
+      "text": "HU-53",
+      "bold": true
+     },
+     "Consultar los reportes de activos fijos y deterioros",
+     "E8",
+     "Alta",
+     "8",
+     "RF-29"
+    ],
+    [
+     {
+      "text": "HU-54",
+      "bold": true
+     },
+     "Consultar y descargar el registro de ejecuciones",
+     "E9",
+     "Alta",
+     "5",
+     "RNF-Aud-01"
+    ],
+    [
+     {
+      "text": "HU-55",
+      "bold": true
+     },
+     "Aplicar los controles ASVS nivel 2 al configurador",
+     "E9",
+     "Alta",
+     "5",
+     "RNF-Seg-01"
+    ],
+    [
+     {
+      "text": "HU-56",
+      "bold": true
+     },
+     "Verificar la accesibilidad del configurador",
+     "E9",
+     "Alta",
+     "3",
+     "RNF-Usa-01"
+    ],
+    [
+     {
+      "text": "HU-57",
+      "bold": true
+     },
+     "Certificar la arquitectura B",
+     "E9",
+     "Media",
+     "8",
+     "RNF-Comp-01"
+    ],
+    [
+     {
+      "text": "HU-58",
+      "bold": true
+     },
+     "Certificar la variante BW/4HANA con BPC 2021",
+     "E9",
+     "Alta",
+     "8",
+     "RNF-Comp-05, RNF-Comp-04"
+    ]
+   ],
+   "col_widths": [
+    900,
+    3338,
+    700,
+    1000,
+    600,
+    2300
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "14.1 Cobertura de los RF del DAF"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "RF",
+     "Prioridad DAF",
+     "HU que lo implementan"
+    ],
+    [
+     "RF-01",
+     "Alta",
+     "HU-02, HU-03"
+    ],
+    [
+     "RF-02",
+     "Alta",
+     "HU-05"
+    ],
+    [
+     "RF-03",
+     "Alta",
+     "HU-07"
+    ],
+    [
+     "RF-04",
+     "Alta",
+     "HU-06"
+    ],
+    [
+     "RF-05",
+     "Alta",
+     "HU-08"
+    ],
+    [
+     "RF-06",
+     "Alta",
+     "HU-09"
+    ],
+    [
+     "RF-07",
+     "Alta",
+     "HU-11"
+    ],
+    [
+     "RF-08",
+     "Alta",
+     "HU-13, HU-14, HU-15, HU-16"
+    ],
+    [
+     "RF-09",
+     "Media",
+     "HU-17"
+    ],
+    [
+     "RF-10",
+     "Alta",
+     "HU-18"
+    ],
+    [
+     "RF-11",
+     "Alta",
+     "HU-21"
+    ],
+    [
+     "RF-12",
+     "Alta",
+     "HU-22"
+    ],
+    [
+     "RF-13",
+     "Alta",
+     "HU-09, HU-23"
+    ],
+    [
+     "RF-14",
+     "Alta",
+     "HU-24"
+    ],
+    [
+     "RF-15",
+     "Alta",
+     "HU-25"
+    ],
+    [
+     "RF-16",
+     "Alta",
+     "HU-13, HU-26"
+    ],
+    [
+     "RF-17",
+     "Alta",
+     "HU-27"
+    ],
+    [
+     "RF-18",
+     "Alta",
+     "HU-13, HU-28"
+    ],
+    [
+     "RF-19",
+     "Alta",
+     "HU-29, HU-34"
+    ],
+    [
+     "RF-20",
+     "Alta",
+     "HU-42, HU-44, HU-45, HU-46, HU-47, HU-48"
+    ],
+    [
+     "RF-21",
+     "Alta",
+     "HU-42"
+    ],
+    [
+     "RF-22",
+     "Alta",
+     "HU-43"
+    ],
+    [
+     "RF-23",
+     "Alta",
+     "HU-49"
+    ],
+    [
+     "RF-24",
+     "Alta",
+     "HU-19"
+    ],
+    [
+     "RF-25",
+     "Alta",
+     "HU-20"
+    ],
+    [
+     "RF-26",
+     "Alta",
+     "HU-30"
+    ],
+    [
+     "RF-27",
+     "Alta",
+     "HU-48, HU-52"
+    ],
+    [
+     "RF-28",
+     "Alta",
+     "HU-50"
+    ],
+    [
+     "RF-29",
+     "Alta",
+     "HU-48, HU-53"
+    ],
+    [
+     "RF-30",
+     "Media",
+     "HU-46"
+    ],
+    [
+     "RF-31",
+     "Alta",
+     "HU-10, HU-32, HU-35"
+    ],
+    [
+     "RF-32",
+     "Alta",
+     "HU-33"
+    ],
+    [
+     "RF-33",
+     "Alta",
+     "HU-31"
+    ],
+    [
+     "RF-34",
+     "Alta",
+     "HU-38, HU-48"
+    ],
+    [
+     "RF-35",
+     "Alta",
+     "HU-39"
+    ],
+    [
+     "RF-36",
+     "Alta",
+     "HU-36, HU-37"
+    ],
+    [
+     "RF-37",
+     "Media",
+     "HU-40"
+    ],
+    [
+     "RF-38",
+     "Media",
+     "HU-41"
+    ],
+    [
+     "RF-39",
+     "Media",
+     "HU-12, HU-51"
+    ]
+   ],
+   "col_widths": [
+    1200,
+    1600,
+    6038
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "15. Próximos pasos y gobierno de las historias"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "15.1 Validación y aprobación"
+  },
+  {
+   "type": "paragraph",
+   "text": "Las historias se revisan con el área de CM Consulting responsable del producto y con el consultor SAP BPC que aportó el levantamiento. Una vez aprobadas, son la hoja de ruta funcional y la base del documento de arquitectura, el plan de pruebas y el plan de sprints."
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "15.2 Gestión del backlog"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "El backlog se mantiene en Azure DevOps durante la construcción.",
+    "Los cambios de alcance, criterios o prioridad siguen el control de cambios del producto.",
+    "No hay historias con 13 story points; si una estimación sube a 13 en el refinamiento, se divide antes de comprometerla.",
+    "Cada historia se da por terminada con sus pruebas unitarias y con el registro de ejecución de RNF-Aud-01 cuando aplica."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "15.3 Dependencias críticas"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "HU-01 y todo E3 a E5: acceso al ambiente de arquitectura A, usuario técnico y permiso para paquete Z y transportes (DAF, dependencias 12.2).",
+    "HU-16 y HU-58: ambiente BW/4HANA con BPC 2021 modelo estándar y sus versiones exactas (DAF, pregunta 18).",
+    "HU-57: ambiente de arquitectura B; HU-39 a HU-41 en esa arquitectura dependen de la pregunta 17 del DAF.",
+    "HU-25: formato del archivo de sociedades no SAP (DAF, pregunta 5).",
+    "HU-23 y HU-30: tipos de tasa y tabla de origen en SAP (DAF, pregunta 3).",
+    "HU-33 y HU-34: métodos de consolidación y cuentas de destino (DAF, pregunta 15).",
+    "HU-36 a HU-38: tolerancia de cuadre y umbral de conciliación (DAF, pregunta 14).",
+    "HU-53: cómo leen BW los reportes con EPM add-in (DAF, pregunta 12)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "15.4 Próximas acciones"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Sesión de revisión de las historias con el consultor SAP BPC.",
+    "Resolver las dependencias de HU-01 para iniciar el primer sprint.",
+    "Documento de arquitectura (F6) con base en este backlog: alojamiento del configurador, versiones y lectura de BW desde EPM.",
+    "Plan de pruebas (F7) derivado de los criterios de aceptación.",
+    "Sprint Planning del Sprint 1 con HU-01 a HU-06 y HU-08."
+   ]
+  }
+ ]
+}

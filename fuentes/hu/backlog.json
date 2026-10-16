@@ -1,0 +1,1735 @@
+{
+  "epicas": [
+    {
+      "codigo": "E1",
+      "nombre": "Conexión y diagnóstico"
+    },
+    {
+      "codigo": "E2",
+      "nombre": "Configuración de alcance"
+    },
+    {
+      "codigo": "E3",
+      "nombre": "Bodega de datos en BW"
+    },
+    {
+      "codigo": "E4",
+      "nombre": "Datos maestros"
+    },
+    {
+      "codigo": "E5",
+      "nombre": "Modelo BPC y consolidación"
+    },
+    {
+      "codigo": "E6",
+      "nombre": "Control del cierre"
+    },
+    {
+      "codigo": "E7",
+      "nombre": "Reportes EPM de consolidación"
+    },
+    {
+      "codigo": "E8",
+      "nombre": "Presupuesto, activos fijos y deterioros"
+    },
+    {
+      "codigo": "E9",
+      "nombre": "Seguridad, auditoría y compatibilidad"
+    }
+  ],
+  "hus": [
+    {
+      "codigo": "HU-01",
+      "epica": "E1",
+      "rol": "Consultor implementador",
+      "titulo": "Spike: prueba técnica de inyección en la arquitectura A",
+      "quiero": "una prueba técnica documentada que cree un objeto de prueba en BW y en BPC por RFC con paquete Z, UJFS, UJKT y respaldo UJBR",
+      "para": "confirmar que el acelerador puede crear objetos en el sistema del cliente antes de construir los generadores",
+      "criterios": [
+        "La prueba se ejecuta en el ambiente de arquitectura A con el usuario técnico del cliente, sin permisos SAP_ALL (RNF-Seg-03).",
+        "Se crea por RFC un objeto de prueba en BW y un miembro de dimensión en BPC, y se verifica su existencia desde SAP GUI.",
+        "Se genera y restaura un respaldo UJBR del ambiente BPC de prueba.",
+        "El entregable es una nota técnica con el resultado, los permisos mínimos requeridos y la recomendación (seguir o cambiar de mecanismo).",
+        "La duración está limitada a un sprint; si el mecanismo falla, la decisión se escala antes de iniciar E3."
+      ],
+      "prioridad": "Alta",
+      "sp": 2,
+      "dependencias": [],
+      "trazabilidad": [
+        "INT-02",
+        "INT-03",
+        "RNF-Seg-03"
+      ],
+      "ux": [],
+      "tiene_interfaz": false,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-02",
+      "epica": "E1",
+      "rol": "Consultor implementador",
+      "titulo": "Gestionar clientes",
+      "quiero": "crear un cliente, verlo en una lista con su arquitectura y paso actual, y buscarlo por nombre",
+      "para": "llevar varias implementaciones con el mismo acelerador sin mezclar su configuración",
+      "criterios": [
+        "En la pantalla UX-01 se listan los clientes con arquitectura, paso actual, estado, última ejecución y usuario.",
+        "El botón Nuevo cliente pide el nombre; el nombre es obligatorio y no puede repetir uno existente.",
+        "Al crear el cliente, el sistema lleva a UX-02 Conexiones.",
+        "Sin clientes se muestra «Aún no hay clientes. Crea el primero para empezar.»",
+        "La búsqueda filtra la lista por nombre.",
+        "En el prototipo, el configurador se ejecuta en el equipo del Consultor implementador sin servidores adicionales (RNF-Comp-03)."
+      ],
+      "prioridad": "Alta",
+      "sp": 3,
+      "dependencias": [],
+      "trazabilidad": [
+        "RF-01",
+        "RNF-Comp-03"
+      ],
+      "ux": [
+        "UX-01"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-03",
+      "epica": "E1",
+      "rol": "Consultor implementador",
+      "titulo": "Registrar y probar conexiones a SAP",
+      "quiero": "registrar host, mandante, usuario técnico y credencial de ERP, BW y BPC y probar cada conexión",
+      "para": "saber antes de generar si el acelerador puede llegar a cada sistema del cliente",
+      "criterios": [
+        "En la pantalla UX-02 cada sistema tiene su tarjeta con host, mandante, usuario técnico y credencial, todos obligatorios.",
+        "Probar conexión muestra «Conexión exitosa» o «Fallida» con el mensaje que devuelve SAP.",
+        "Continuar al diagnóstico solo se habilita con las conexiones requeridas en estado exitoso.",
+        "Cada prueba queda en el registro de ejecuciones (RNF-Aud-01)."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-01",
+        "HU-02"
+      ],
+      "trazabilidad": [
+        "RF-01"
+      ],
+      "ux": [
+        "UX-02"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-04",
+      "epica": "E1",
+      "rol": "Consultor implementador",
+      "titulo": "Proteger las credenciales de conexión",
+      "quiero": "que las credenciales de SAP se guarden cifradas y se muestren enmascaradas",
+      "para": "evitar que alguien con acceso al equipo lea las claves de los sistemas del cliente",
+      "criterios": [
+        "En UX-02 la credencial se muestra enmascarada y solo se revela con Mostrar.",
+        "Ningún archivo de configuración ni registro contiene la credencial legible (RNF-Seg-02).",
+        "La documentación del rol técnico lista los permisos mínimos por paso, sin SAP_ALL (RNF-Seg-03).",
+        "Una credencial inválida se reporta sin escribirla en el mensaje de error."
+      ],
+      "prioridad": "Alta",
+      "sp": 3,
+      "dependencias": [
+        "HU-03"
+      ],
+      "trazabilidad": [
+        "RNF-Seg-02",
+        "RNF-Seg-03"
+      ],
+      "ux": [
+        "UX-02"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-05",
+      "epica": "E1",
+      "rol": "Consultor implementador",
+      "titulo": "Validar la conexión ERP–BW",
+      "quiero": "validar que BW recibe datos del ERP antes de iniciar las cargas",
+      "para": "no descubrir en mitad de la generación que los extractores no pueden llegar a BW",
+      "criterios": [
+        "En UX-02 el botón Validar conexión ERP–BW aparece solo si ERP y BW están en sistemas separados (RN-01).",
+        "En la arquitectura B se reemplaza por una nota que explica por qué no aplica.",
+        "El resultado de la validación queda registrado con fecha, usuario y mensaje."
+      ],
+      "prioridad": "Alta",
+      "sp": 3,
+      "dependencias": [
+        "HU-03"
+      ],
+      "trazabilidad": [
+        "RF-02"
+      ],
+      "ux": [
+        "UX-02"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-06",
+      "epica": "E1",
+      "rol": "Consultor implementador",
+      "titulo": "Identificar arquitectura y versión",
+      "quiero": "que el acelerador detecte si el cliente opera la arquitectura A o B y qué versiones de BW y BPC tiene",
+      "para": "que los pasos siguientes usen la variante de generación correcta",
+      "criterios": [
+        "En UX-02 se muestra la insignia A o B y las versiones detectadas de BW y BPC.",
+        "La arquitectura A reconoce BW 7.5 y BW/4HANA con BPC modelo estándar (RNF-Comp-05).",
+        "Si la versión no tiene variante disponible se muestra «Versión no soportada aún» y no se puede continuar (RNF-Comp-04).",
+        "La arquitectura y la versión quedan guardadas en el cliente y se ven en UX-01."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-03"
+      ],
+      "trazabilidad": [
+        "RF-04",
+        "RNF-Comp-04",
+        "RNF-Comp-05"
+      ],
+      "ux": [
+        "UX-02",
+        "UX-01"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-07",
+      "epica": "E1",
+      "rol": "Consultor implementador",
+      "titulo": "Inventariar objetos existentes",
+      "quiero": "ver los extractores activos, InfoProviders, modelos BPC y campos Z que ya existen en el cliente",
+      "para": "decidir qué generar y no recrear lo que el cliente ya tiene",
+      "criterios": [
+        "En la pantalla UX-03 el inventario se muestra en pestañas: extractores, InfoProviders (InfoCubos o aDSO según la versión), modelos BPC y campos Z.",
+        "El indicador Bodega existente se marca si BW ya tiene la bodega; en ese caso no se recrea (RN-03).",
+        "Volver a escanear repite el inventario y actualiza la fecha del último escaneo.",
+        "Si el escaneo falla se muestra el paso que falló y el mensaje del sistema."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-01",
+        "HU-06"
+      ],
+      "trazabilidad": [
+        "RF-03"
+      ],
+      "ux": [
+        "UX-03"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-08",
+      "epica": "E2",
+      "rol": "Consultor implementador",
+      "titulo": "Seleccionar módulos",
+      "quiero": "marcar los módulos a implementar: consolidación, presupuesto, activos fijos y deterioros",
+      "para": "generar solo lo que el cliente contrató",
+      "criterios": [
+        "En la pantalla UX-04 cada módulo es una tarjeta con casilla y descripción de lo que genera.",
+        "El resumen muestra la cantidad de módulos y de reportes y se actualiza al marcar.",
+        "Continuar está deshabilitado sin módulos marcados.",
+        "Activos fijos y deterioros muestran «Se queda en BW; no crea modelo en BPC» (RN-12)."
+      ],
+      "prioridad": "Alta",
+      "sp": 2,
+      "dependencias": [
+        "HU-02"
+      ],
+      "trazabilidad": [
+        "RF-05"
+      ],
+      "ux": [
+        "UX-04"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-09",
+      "epica": "E2",
+      "rol": "Consultor implementador",
+      "titulo": "Registrar sociedades del grupo",
+      "quiero": "registrar las sociedades a consolidar con su moneda local, sociedad matriz, plan de cuentas y si están en SAP",
+      "para": "definir el perímetro de la consolidación",
+      "criterios": [
+        "En la pantalla UX-05 la tabla permite agregar y editar sociedades con código, nombre, en SAP, moneda local, matriz y plan de cuentas.",
+        "Solo se registran sociedades del grupo; clientes y proveedores no son entidades (RN-07).",
+        "Cada sociedad puede tener su propio plan de cuentas (RN-05).",
+        "La moneda local es obligatoria; si falta, se muestra «La sociedad X no tiene moneda local» y no se guarda.",
+        "Una sociedad marcada como no SAP habilita el paso UX-07."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-02"
+      ],
+      "trazabilidad": [
+        "RF-06",
+        "RF-13"
+      ],
+      "ux": [
+        "UX-05"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-10",
+      "epica": "E2",
+      "rol": "Consultor implementador",
+      "titulo": "Registrar la estructura inicial de participaciones",
+      "quiero": "registrar para cada sociedad el porcentaje de propiedad y el método de consolidación inicial",
+      "para": "que el modelo de propiedad nazca con la estructura societaria real del grupo",
+      "criterios": [
+        "En UX-05 cada sociedad tiene % de propiedad (0 a 100) y método: matriz, integración global, participación o fuera del perímetro (RN-13).",
+        "Solo una sociedad del grupo puede tener método matriz.",
+        "Un porcentaje fuera de 0 a 100 se marca en la fila y no se guarda.",
+        "La estructura se usa como primer periodo del modelo de propiedad (HU-32)."
+      ],
+      "prioridad": "Alta",
+      "sp": 3,
+      "dependencias": [
+        "HU-09"
+      ],
+      "trazabilidad": [
+        "RF-31"
+      ],
+      "ux": [
+        "UX-05"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-11",
+      "epica": "E2",
+      "rol": "Consultor implementador",
+      "titulo": "Mapear cuentas a rubros de reporte",
+      "quiero": "asignar las cuentas contables de cada sociedad a los rubros de los reportes",
+      "para": "que los reportes muestren cada rubro con las cuentas correctas",
+      "criterios": [
+        "En la pantalla UX-06 se elige un rubro y se le asignan cuentas marcadas, filtradas por el plan de cuentas de la sociedad (RN-05).",
+        "La vista previa del rubro muestra la suma de sus cuentas mapeadas (RN-10).",
+        "El contador muestra las cuentas sin mapear y el filtro Solo sin mapear las lista.",
+        "Las cuentas se leen del ERP del cliente por la conexión registrada en HU-03.",
+        "Si el guardado falla se informa cuántas asignaciones no se guardaron."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-07",
+        "HU-09"
+      ],
+      "trazabilidad": [
+        "RF-07"
+      ],
+      "ux": [
+        "UX-06"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-12",
+      "epica": "E2",
+      "rol": "Consultor implementador",
+      "titulo": "Definir versiones de presupuesto",
+      "quiero": "definir las versiones del modelo de planeación: presupuesto anual y proyecciones como 3+9, 6+6 y 9+3",
+      "para": "que el cliente pueda planear y reproyectar el año sin crear modelos nuevos",
+      "criterios": [
+        "En UX-04, si Presupuesto está marcado, se muestran las versiones propuestas y se pueden agregar, renombrar o quitar.",
+        "Debe existir al menos la versión de presupuesto anual.",
+        "Los códigos de versión no se repiten.",
+        "Las versiones pasan al plan de generación (UX-08)."
+      ],
+      "prioridad": "Media",
+      "sp": 2,
+      "dependencias": [
+        "HU-08"
+      ],
+      "trazabilidad": [
+        "RF-39"
+      ],
+      "ux": [
+        "UX-04",
+        "UX-08"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-13",
+      "epica": "E3",
+      "rol": "Consultor implementador",
+      "titulo": "Revisar el plan de generación",
+      "quiero": "ver todo lo que el acelerador va a crear en BW y BPC antes de ejecutar",
+      "para": "confirmar el alcance con el cliente y evitar cambios no esperados en sus sistemas",
+      "criterios": [
+        "En la pantalla UX-08 el plan se agrupa en SAP BW, SAP BPC y Monedas y tasas, y marca cada objeto como Nuevo o Existente.",
+        "Los objetos existentes no se recrean ni se modifican (RN-03).",
+        "El total de objetos a crear se muestra y Generar pide confirmación con ese número.",
+        "Si un paso anterior está incompleto, el plan muestra cuál falta con un enlace para completarlo."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-07",
+        "HU-08",
+        "HU-11"
+      ],
+      "trazabilidad": [
+        "RF-08",
+        "RF-16",
+        "RF-18"
+      ],
+      "ux": [
+        "UX-08"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-14",
+      "epica": "E3",
+      "rol": "Consultor implementador",
+      "titulo": "Ejecutar el plan paso a paso",
+      "quiero": "que la generación se ejecute en orden, con el estado y la duración de cada paso, y reintentar desde el paso que falló",
+      "para": "no repetir lo que ya quedó bien cuando un paso falla",
+      "criterios": [
+        "En la pantalla UX-09 la línea de pasos muestra cada paso como completo, en curso, pendiente o con error, y su duración.",
+        "Un paso con error muestra la causa, el enlace a la pantalla que la corrige y Reintentar desde este paso.",
+        "Reintentar no vuelve a ejecutar los pasos completos.",
+        "Al terminar se muestra el resumen y el botón Ver reportes (UX-10)."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-13"
+      ],
+      "trazabilidad": [
+        "RF-08",
+        "RNF-Aud-01"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-15",
+      "epica": "E3",
+      "rol": "Sistema",
+      "titulo": "Generar la bodega financiera en BW 7.5",
+      "quiero": "activar el extractor financiero estándar y crear los InfoCubos de movimientos financieros si la bodega no existe",
+      "para": "tener la base de datos de la consolidación sin construirla a mano",
+      "criterios": [
+        "Si el inventario indica que no hay bodega, se activa 0FI_GL_14 y se crean los InfoProviders del módulo de consolidación.",
+        "Si la bodega existe, el paso queda como Existente y no crea objetos (RN-03).",
+        "Cada objeto creado queda en el registro con su nombre técnico (RNF-Aud-01).",
+        "El resultado se ve en UX-09 con el número de objetos creados."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-01",
+        "HU-14"
+      ],
+      "trazabilidad": [
+        "RF-08",
+        "INT-01"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-16",
+      "epica": "E3",
+      "rol": "Sistema",
+      "titulo": "Generar la bodega en la variante BW/4HANA",
+      "quiero": "crear la bodega con aDSO en lugar de InfoCubos cuando el cliente opera BW/4HANA con BPC 2021",
+      "para": "soportar a los clientes que migran desde BW 7.5, cuyo mantenimiento termina",
+      "criterios": [
+        "Si la versión detectada es BW/4HANA, la generación usa la variante BW/4HANA sin cambiar la configuración del cliente (RNF-Comp-04).",
+        "Los InfoProviders se crean como aDSO; no se genera ningún InfoCubo (RNF-Comp-05).",
+        "Los extractores se conectan por ODP.",
+        "El plan UX-08 muestra «aDSO» en los InfoProviders de esta variante."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-06",
+        "HU-15"
+      ],
+      "trazabilidad": [
+        "RF-08",
+        "RNF-Comp-05"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-17",
+      "epica": "E3",
+      "rol": "Consultor implementador",
+      "titulo": "Incorporar campos Z a la bodega",
+      "quiero": "elegir los campos Z del cliente que se agregan a la bodega",
+      "para": "conservar en la consolidación la información propia del cliente",
+      "criterios": [
+        "En UX-03, pestaña Campos Z, se marcan los campos a incorporar.",
+        "Los campos marcados aparecen como Nuevo en el plan UX-08.",
+        "Un campo Z sin tipo de dato compatible se marca con el motivo y no se incorpora."
+      ],
+      "prioridad": "Media",
+      "sp": 3,
+      "dependencias": [
+        "HU-07",
+        "HU-15"
+      ],
+      "trazabilidad": [
+        "RF-09"
+      ],
+      "ux": [
+        "UX-03",
+        "UX-08"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-18",
+      "epica": "E3",
+      "rol": "Sistema",
+      "titulo": "Generar cadenas de proceso full y delta",
+      "quiero": "crear las cadenas que cargan el histórico una vez y después la delta cada noche",
+      "para": "que los reportes tengan los movimientos del día anterior sin intervención manual",
+      "criterios": [
+        "Se crea una cadena de carga full inicial y una cadena delta programada cada 24 horas (RN-04).",
+        "Después de la carga delta, la antigüedad de los datos es de 24 horas o menos (RNF-Rend-01).",
+        "Las cadenas no usan borrado de peticiones solapadas que duplique datos.",
+        "La ejecución de la carga full se ve como paso en UX-09."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-15"
+      ],
+      "trazabilidad": [
+        "RF-10",
+        "RNF-Rend-01"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-19",
+      "epica": "E3",
+      "rol": "Sistema",
+      "titulo": "Generar el módulo de activos fijos en BW",
+      "quiero": "activar el extractor de activos fijos y crear sus InfoProviders y cargas si el módulo está seleccionado",
+      "para": "alimentar los reportes de activos fijos sin crear un modelo en BPC",
+      "criterios": [
+        "Solo se genera si Activos fijos está marcado en UX-04.",
+        "Se activa el extractor estándar de activos fijos y se crean sus InfoProviders y cargas en BW, sin modelo en BPC (RN-12).",
+        "El plan UX-08 y la ejecución UX-09 muestran el paso «Activos fijos en BW»."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-08",
+        "HU-18"
+      ],
+      "trazabilidad": [
+        "RF-24"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-20",
+      "epica": "E3",
+      "rol": "Sistema",
+      "titulo": "Generar el módulo de deterioros en BW",
+      "quiero": "activar el extractor de deterioros y crear sus InfoProviders y cargas si el módulo está seleccionado",
+      "para": "alimentar los reportes de deterioros sin crear un modelo en BPC",
+      "criterios": [
+        "Solo se genera si Deterioros está marcado en UX-04.",
+        "Se activa el extractor estándar de deterioros y se crean sus InfoProviders y cargas en BW, sin modelo en BPC (RN-12).",
+        "El plan UX-08 y la ejecución UX-09 muestran el paso «Deterioros en BW»."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-08",
+        "HU-18"
+      ],
+      "trazabilidad": [
+        "RF-25"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-21",
+      "epica": "E4",
+      "rol": "Sistema",
+      "titulo": "Cargar los planes de cuentas",
+      "quiero": "cargar en BW el plan de cuentas de cada sociedad seleccionada",
+      "para": "que cada sociedad conserve su propio plan de cuentas en la bodega",
+      "criterios": [
+        "Se carga el plan de cuentas de cada sociedad registrada en UX-05 (RN-05).",
+        "El paso «Planes de cuentas» se ve en UX-09 con la cantidad de cuentas cargadas.",
+        "Una sociedad sin plan de cuentas en el ERP se reporta como error del paso con su código."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-09",
+        "HU-15"
+      ],
+      "trazabilidad": [
+        "RF-11"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-22",
+      "epica": "E4",
+      "rol": "Sistema",
+      "titulo": "Cargar centros de costo y de beneficio",
+      "quiero": "cargar en BW los centros de costo y de beneficio de las sociedades seleccionadas",
+      "para": "permitir el detalle por centro en los reportes y el presupuesto",
+      "criterios": [
+        "Se cargan CeCo y CeBe de todas las sociedades seleccionadas.",
+        "El paso se ve en UX-09 con las cantidades cargadas.",
+        "Un error de carga muestra la sociedad y el mensaje del sistema."
+      ],
+      "prioridad": "Alta",
+      "sp": 3,
+      "dependencias": [
+        "HU-21"
+      ],
+      "trazabilidad": [
+        "RF-12"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-23",
+      "epica": "E4",
+      "rol": "Sistema",
+      "titulo": "Cargar monedas y tasas de cambio",
+      "quiero": "cargar la moneda local de cada sociedad y las tasas de cierre, promedio e histórica frente al dólar",
+      "para": "convertir la consolidación a la otra moneda de presentación",
+      "criterios": [
+        "La moneda local de cada sociedad se toma tal como la maneja SAP (RN-06).",
+        "Se cargan tasas de cierre, promedio e histórica por moneda y periodo (RN-11).",
+        "Una moneda sin tasa para el periodo se reporta como error del paso en UX-09.",
+        "UX-08 muestra la moneda local por sociedad y los tipos de tasa."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-09",
+        "HU-15"
+      ],
+      "trazabilidad": [
+        "RF-13"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-24",
+      "epica": "E4",
+      "rol": "Sistema",
+      "titulo": "Cargar la jerarquía de cuentas",
+      "quiero": "cargar en BW la jerarquía de cuentas del cliente",
+      "para": "agrupar las cuentas en los niveles que usan los reportes",
+      "criterios": [
+        "Se carga la jerarquía de cuentas desde el ERP.",
+        "Una cuenta en la jerarquía que no existe en el plan de cuentas se reporta en el paso.",
+        "El paso se ve en UX-09 con la cantidad de nodos cargados."
+      ],
+      "prioridad": "Alta",
+      "sp": 3,
+      "dependencias": [
+        "HU-21"
+      ],
+      "trazabilidad": [
+        "RF-14"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-25",
+      "epica": "E4",
+      "rol": "Consultor implementador",
+      "titulo": "Cargar la información de sociedades no SAP",
+      "quiero": "subir el archivo contable de cada sociedad no SAP, ver la vista previa y los errores por fila",
+      "para": "que las sociedades fuera de SAP entren al mismo modelo que las demás",
+      "criterios": [
+        "En la pantalla UX-07 se sube un archivo por sociedad no SAP y se ve la vista previa con sociedad, cuenta, periodo, tercero, CeCo, CeBe e importe.",
+        "Los errores se listan por fila, columna y motivo; una cuenta fuera del mapeo se marca como «cuenta sin mapear».",
+        "Confirmar carga se habilita solo sin errores.",
+        "El archivo debe ser de una sociedad del grupo registrada (RN-07).",
+        "La carga pasa por la validación de cuadre de HU-36 antes de llegar a BPC."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-09",
+        "HU-11"
+      ],
+      "trazabilidad": [
+        "RF-15",
+        "INT-04"
+      ],
+      "ux": [
+        "UX-07"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-26",
+      "epica": "E5",
+      "rol": "Sistema",
+      "titulo": "Configurar las dimensiones del modelo de consolidación",
+      "quiero": "crear en BPC las dimensiones del modelo de consolidación y cargar sus miembros con los datos del cliente",
+      "para": "tener el modelo listo para recibir los datos financieros",
+      "criterios": [
+        "Se crean las dimensiones definidas en arquitectura, entre ellas cuentas, entidades, intercompañía y terceros.",
+        "Los miembros se cargan desde los datos maestros de E4.",
+        "UX-08 lista el modelo de consolidación como objeto a crear y UX-09 muestra el paso.",
+        "Un miembro rechazado por BPC se reporta con su código."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-01",
+        "HU-21",
+        "HU-22",
+        "HU-23",
+        "HU-24"
+      ],
+      "trazabilidad": [
+        "RF-16"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-27",
+      "epica": "E5",
+      "rol": "Sistema",
+      "titulo": "Importar los datos de BW a BPC",
+      "quiero": "importar al modelo BPC los datos del InfoProvider de BW en el modelo estándar",
+      "para": "consolidar con la información que ya está en la bodega",
+      "criterios": [
+        "Aplica solo a la arquitectura A; en la B el paso no aparece en UX-09.",
+        "La importación se genera como paquete de Data Manager y se ejecuta por sociedad y periodo.",
+        "Solo se importan las sociedades que pasan la validación de cuadre (HU-36).",
+        "El paso «Importación a BPC» se ve en UX-09 con la cantidad de registros."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-18",
+        "HU-26"
+      ],
+      "trazabilidad": [
+        "RF-17",
+        "INT-05"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-28",
+      "epica": "E5",
+      "rol": "Sistema",
+      "titulo": "Desplegar los scripts de consolidación por variante",
+      "quiero": "desplegar en BPC los scripts completados con los datos del cliente en la variante de su arquitectura",
+      "para": "no reescribir la lógica de consolidación en cada cliente",
+      "criterios": [
+        "El script usa la variante de modelo estándar o embebido según la arquitectura (RN-02).",
+        "Los códigos de sociedades y cuentas del cliente se insertan sin edición manual.",
+        "UX-08 muestra la variante que se va a desplegar.",
+        "Antes de reemplazar un script existente se genera respaldo UJBR."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-26"
+      ],
+      "trazabilidad": [
+        "RF-18"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-29",
+      "epica": "E5",
+      "rol": "Consultor implementador",
+      "titulo": "Ejecutar la consolidación con eliminación intercompañía",
+      "quiero": "ejecutar la consolidación del grupo eliminando las transacciones entre sus sociedades",
+      "para": "dejar el resultado consolidado consultable en BPC",
+      "criterios": [
+        "Solo participan las sociedades del grupo (RN-07).",
+        "Las transacciones intercompañía entre sociedades con integración global se eliminan.",
+        "El paso «Consolidación» en UX-09 muestra el resultado; si falla, muestra la causa y Reintentar desde este paso.",
+        "El resultado queda consultable en R05 Hoja de eliminaciones intercompañía."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-27",
+        "HU-28"
+      ],
+      "trazabilidad": [
+        "RF-19"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-30",
+      "epica": "E5",
+      "rol": "Sistema",
+      "titulo": "Convertir a la otra moneda de presentación",
+      "quiero": "convertir los saldos de cada sociedad a la otra moneda de presentación con las tasas cargadas",
+      "para": "presentar la consolidación en moneda local y en dólares",
+      "criterios": [
+        "Balance con tasa de cierre, resultados con tasa promedio y patrimonio con tasa histórica (RN-11).",
+        "La consolidación queda disponible en ambas monedas (RN-06).",
+        "UX-09 muestra el resumen «Consolidación disponible en moneda local y en dólares».",
+        "Si falta una tasa del periodo, el paso falla e indica la moneda."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-23",
+        "HU-29"
+      ],
+      "trazabilidad": [
+        "RF-26"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-31",
+      "epica": "E5",
+      "rol": "Sistema",
+      "titulo": "Registrar la diferencia en conversión",
+      "quiero": "calcular la diferencia que deja aplicar tasas distintas y registrarla en la cuenta de patrimonio definida",
+      "para": "que balance y resultados cuadren después de convertir",
+      "criterios": [
+        "La diferencia se registra en la cuenta de patrimonio configurada, no en resultados (RN-18).",
+        "Después de convertir, activo menos pasivo y patrimonio da cero en la moneda de presentación.",
+        "UX-08 muestra la cuenta de destino y UX-09 el paso con su resultado."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-30"
+      ],
+      "trazabilidad": [
+        "RF-33"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-32",
+      "epica": "E5",
+      "rol": "Sistema",
+      "titulo": "Generar el modelo de propiedad",
+      "quiero": "generar en BPC el modelo de propiedad con la estructura inicial y la plantilla C02",
+      "para": "que el cliente mantenga sus participaciones sin construir el modelo a mano",
+      "criterios": [
+        "Se crea el modelo de propiedad con la estructura registrada en HU-10 como primer periodo.",
+        "Se genera la plantilla C02 conectada al modelo de propiedad.",
+        "UX-08 lista el modelo de propiedad y la plantilla C02 como objetos a crear.",
+        "C02 aparece en el catálogo de UX-10."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-10",
+        "HU-26"
+      ],
+      "trazabilidad": [
+        "RF-31"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-10"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-33",
+      "epica": "E5",
+      "rol": "Sistema",
+      "titulo": "Eliminar inversión y calcular interés minoritario",
+      "quiero": "eliminar la inversión de la matriz contra el patrimonio de cada subsidiaria con integración global y calcular el interés minoritario",
+      "para": "presentar estados consolidados que cumplan NIIF 10",
+      "criterios": [
+        "Aplica a las sociedades con método integración global en el periodo (RN-13).",
+        "Usa los porcentajes del periodo; un cambio de porcentaje no altera periodos anteriores (RN-14).",
+        "El interés minoritario se presenta separado en el patrimonio consolidado.",
+        "UX-09 muestra el paso «Eliminación de inversión e interés minoritario».",
+        "La diferencia entre inversión y patrimonio eliminado queda en una cuenta identificable."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-29",
+        "HU-32"
+      ],
+      "trazabilidad": [
+        "RF-32"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-34",
+      "epica": "E5",
+      "rol": "Sistema",
+      "titulo": "Aplicar el método de participación a coligadas",
+      "quiero": "reconocer la proporción del resultado de las coligadas sin eliminar sus transacciones intercompañía",
+      "para": "incluir las coligadas en la consolidación según NIC 28",
+      "criterios": [
+        "Las sociedades con método participación no se integran línea a línea (RN-13).",
+        "Se reconoce la proporción del resultado según el porcentaje de propiedad del periodo.",
+        "Las transacciones con coligadas no se eliminan.",
+        "Las sociedades fuera del perímetro no participan en el periodo."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-33"
+      ],
+      "trazabilidad": [
+        "RF-19"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-35",
+      "epica": "E6",
+      "rol": "Usuario financiero",
+      "titulo": "Mantener participaciones y métodos por periodo",
+      "quiero": "registrar cada mes en la plantilla C02 los porcentajes de control, consolidación y propiedad y el método de cada sociedad",
+      "para": "que la consolidación del periodo use la estructura societaria vigente",
+      "criterios": [
+        "En la pantalla UX-13 se elige grupo y periodo y se editan % control, % consolidación, % propiedad y método por sociedad.",
+        "Copiar del periodo anterior trae las participaciones del mes previo.",
+        "Los porcentajes deben estar entre 0 y 100 y el método es obligatorio; un error marca la celda y no guarda la fila.",
+        "Un cambio aplica desde el periodo elegido y no altera los anteriores (RN-14).",
+        "Cada cambio queda registrado con usuario, fecha, valor anterior y nuevo (RNF-Aud-02)."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-32"
+      ],
+      "trazabilidad": [
+        "RF-31",
+        "RNF-Aud-02"
+      ],
+      "ux": [
+        "UX-13"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-36",
+      "epica": "E6",
+      "rol": "Sistema",
+      "titulo": "Validar cuadre antes de importar",
+      "quiero": "validar cada sociedad y periodo antes de pasar los datos a BPC",
+      "para": "no consolidar sociedades descuadradas ni con cuentas sin mapear",
+      "criterios": [
+        "El paquete de importación y la carga no SAP comprueban que activo = pasivo + patrimonio dentro de la tolerancia definida (RN-16).",
+        "Se comprueba que la utilidad del estado de resultados sea igual al resultado del ejercicio del balance.",
+        "Se comprueba que todas las cuentas con saldo estén mapeadas.",
+        "Una sociedad que no cumple no se importa y queda en C03 con la diferencia.",
+        "UX-09 muestra el paso «Validación de cuadre» con las sociedades rechazadas."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-11",
+        "HU-27"
+      ],
+      "trazabilidad": [
+        "RF-36"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-37",
+      "epica": "E6",
+      "rol": "Usuario financiero",
+      "titulo": "Consultar la validación de cuadre",
+      "quiero": "ver en C03 qué sociedades no se importaron y por qué",
+      "para": "pedir la corrección a la sociedad antes de consolidar",
+      "criterios": [
+        "En la pantalla UX-11, hoja C03, se ve por sociedad la diferencia de balance, la diferencia entre utilidad y resultado, las cuentas mapeadas y si se importó.",
+        "Una sociedad no importada se marca «No importada» con texto e ícono.",
+        "Sin importaciones en el periodo se muestra «Aún no hay importaciones en el periodo elegido».",
+        "Sin conexión a BPC se muestra el error de conexión de EPM."
+      ],
+      "prioridad": "Alta",
+      "sp": 3,
+      "dependencias": [
+        "HU-36",
+        "HU-42"
+      ],
+      "trazabilidad": [
+        "RF-36"
+      ],
+      "ux": [
+        "UX-11"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-38",
+      "epica": "E6",
+      "rol": "Usuario financiero",
+      "titulo": "Conciliar saldos intercompañía",
+      "quiero": "comparar en C01 lo que registra cada sociedad frente a su contraparte por cuenta intercompañía",
+      "para": "corregir las diferencias antes de ejecutar la eliminación",
+      "criterios": [
+        "En la pantalla UX-11, hoja C01, se ve por pareja de sociedades y cuentas lo que registra cada parte y la diferencia.",
+        "Las parejas que superan el umbral se marcan «Supera el umbral» con texto e ícono.",
+        "Solo aparecen sociedades del grupo (RN-07).",
+        "C01 se puede ejecutar antes de la consolidación del periodo."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-27",
+        "HU-42"
+      ],
+      "trazabilidad": [
+        "RF-34"
+      ],
+      "ux": [
+        "UX-11",
+        "UX-10"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-39",
+      "epica": "E6",
+      "rol": "Usuario financiero",
+      "titulo": "Registrar asientos de ajuste de consolidación",
+      "quiero": "registrar asientos con líneas de sociedad, cuenta, intercompañía, débito, crédito y observación",
+      "para": "corregir la consolidación con un registro trazable",
+      "criterios": [
+        "En la pantalla UX-14 el asiento tiene grupo, periodo y moneda, y líneas con sociedad, cuenta, intercompañía, débito, crédito y observación.",
+        "Guardar asiento solo se habilita si los débitos son iguales a los créditos (RN-15); si no, se muestra «Descuadrado» con la diferencia.",
+        "No se aceptan líneas de una sociedad bloqueada en el periodo (RN-17).",
+        "Cada asiento queda con número, usuario y fecha en la lista del periodo (RNF-Aud-02)."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-26"
+      ],
+      "trazabilidad": [
+        "RF-35",
+        "RNF-Aud-02"
+      ],
+      "ux": [
+        "UX-14"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-40",
+      "epica": "E6",
+      "rol": "Usuario financiero",
+      "titulo": "Bloquear saldos por sociedad",
+      "quiero": "bloquear o desbloquear una sociedad en un periodo sin afectar a las demás",
+      "para": "cerrar cada sociedad cuando está lista aunque otras sigan en revisión",
+      "criterios": [
+        "En la pantalla UX-15 cada sociedad tiene el botón Bloquear o Desbloquear.",
+        "Una sociedad bloqueada no admite cargas, asientos ni reprocesos del periodo (RN-17).",
+        "Bloquear una sociedad no bloquea a las demás del grupo.",
+        "Cada bloqueo y desbloqueo queda registrado con usuario y fecha (RNF-Aud-02)."
+      ],
+      "prioridad": "Media",
+      "sp": 5,
+      "dependencias": [
+        "HU-26"
+      ],
+      "trazabilidad": [
+        "RF-37",
+        "RNF-Aud-02"
+      ],
+      "ux": [
+        "UX-15"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-41",
+      "epica": "E6",
+      "rol": "Usuario financiero",
+      "titulo": "Seguir el estado del cierre",
+      "quiero": "ver en C04 qué pasos del cierre están completos, pendientes o con error por sociedad",
+      "para": "saber qué falta para cerrar el mes y dónde está cada problema",
+      "criterios": [
+        "En la pantalla UX-15 la matriz muestra por sociedad el estado de carga, cuadre, conciliación, conversión, consolidación y reportes, en ese orden.",
+        "Un paso con error enlaza al reporte que explica la causa (p. ej. C03).",
+        "Las hojas dan acceso a C02 (UX-13) y a Asientos (UX-14).",
+        "Si el cierre no ha iniciado se muestra «El cierre del periodo aún no ha iniciado»."
+      ],
+      "prioridad": "Media",
+      "sp": 8,
+      "dependencias": [
+        "HU-36",
+        "HU-38",
+        "HU-40"
+      ],
+      "trazabilidad": [
+        "RF-38"
+      ],
+      "ux": [
+        "UX-15"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-42",
+      "epica": "E7",
+      "rol": "Usuario financiero",
+      "titulo": "Usar la plantilla común de reportes EPM",
+      "quiero": "elegir sociedad, si incluye filiales, moneda y periodo en un reporte y actualizarlo desde BPC",
+      "para": "consultar la consolidación sin pedir reportes nuevos a TI",
+      "criterios": [
+        "En la pantalla UX-11 los parámetros Sociedad, Incluir filiales, Moneda y Periodo están en celdas con lista.",
+        "Incluir filiales cambia entre la sociedad sola y la sociedad con sus filiales, con columna Total (RN-09).",
+        "Moneda permite solo moneda local o dólares (RN-06).",
+        "Sin conexión a BPC se muestra «No se pudo conectar a BPC; revisa la conexión de EPM»; sin datos, «Sin datos para la sociedad y el periodo elegidos»."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-29"
+      ],
+      "trazabilidad": [
+        "RF-20",
+        "RF-21",
+        "INT-06"
+      ],
+      "ux": [
+        "UX-11"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-43",
+      "epica": "E7",
+      "rol": "Usuario financiero",
+      "titulo": "Calcular rubros por mapeo",
+      "quiero": "que cada rubro del reporte sea la suma de las cuentas mapeadas",
+      "para": "que un cambio de mapeo se refleje en todos los reportes sin editarlos",
+      "criterios": [
+        "En UX-11 cada rubro muestra la suma de las cuentas mapeadas en UX-06 (RN-10).",
+        "Un cambio en el mapeo se refleja al actualizar el reporte.",
+        "El detalle de un rubro permite ver las cuentas que lo forman."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-11",
+        "HU-42"
+      ],
+      "trazabilidad": [
+        "RF-22"
+      ],
+      "ux": [
+        "UX-11"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-44",
+      "epica": "E7",
+      "rol": "Usuario financiero",
+      "titulo": "Consultar los reportes de la ola 1",
+      "quiero": "consultar R01 Estado de situación financiera, R05 Hoja de eliminaciones y R07 Efectivo",
+      "para": "validar el prototipo con los reportes base del cierre",
+      "criterios": [
+        "R01, R05 y R07 se entregan como Excel con EPM conectados al modelo BPC (UX-11).",
+        "Las cifras de R01 cuadran con el balance consolidado del modelo para el periodo de prueba.",
+        "R05 muestra las eliminaciones intercompañía por pareja de sociedades.",
+        "Cada reporte abre y actualiza con EPM add-in (RNF-Comp-02)."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-43"
+      ],
+      "trazabilidad": [
+        "RF-20",
+        "RNF-Comp-02"
+      ],
+      "ux": [
+        "UX-11"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-45",
+      "epica": "E7",
+      "rol": "Usuario financiero",
+      "titulo": "Consultar los reportes de la ola 2",
+      "quiero": "consultar R02, R03, R04 y R06",
+      "para": "completar los estados financieros consolidados y las partes relacionadas",
+      "criterios": [
+        "R02, R03, R04 y R06 se entregan con la estructura común de UX-11.",
+        "R03 muestra por separado el interés minoritario y la diferencia en conversión.",
+        "R04 clasifica los rubros del flujo de efectivo; un rubro sin clasificar se reporta en UX-10 como error del reporte."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-44",
+        "HU-33",
+        "HU-31"
+      ],
+      "trazabilidad": [
+        "RF-20"
+      ],
+      "ux": [
+        "UX-11",
+        "UX-10"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-46",
+      "epica": "E7",
+      "rol": "Usuario financiero",
+      "titulo": "Consultar las notas de la ola 3 (R08 a R14)",
+      "quiero": "consultar las notas de activo y pasivo R08 a R14",
+      "para": "preparar las revelaciones del cierre con los datos del modelo",
+      "criterios": [
+        "R08 a R14 se entregan con la estructura común de UX-11.",
+        "R08, R10 y R11 incluyen los movimientos que vienen de activos fijos y deterioros en BW (RF-30).",
+        "Cada nota cuadra con el rubro correspondiente de R01."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-44",
+        "HU-19",
+        "HU-20"
+      ],
+      "trazabilidad": [
+        "RF-20",
+        "RF-30"
+      ],
+      "ux": [
+        "UX-11"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-47",
+      "epica": "E7",
+      "rol": "Usuario financiero",
+      "titulo": "Consultar los reportes de la ola 3 (R15 a R20)",
+      "quiero": "consultar R15 a R20, incluido el informe a junta directiva",
+      "para": "completar los 20 reportes de consolidación",
+      "criterios": [
+        "R15 a R20 se entregan con la estructura común de UX-11.",
+        "R20 resume las cifras principales del grupo en moneda local y en dólares.",
+        "Los 20 reportes abren y actualizan con EPM add-in (RNF-Comp-02)."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-44"
+      ],
+      "trazabilidad": [
+        "RF-20",
+        "RNF-Comp-02"
+      ],
+      "ux": [
+        "UX-11"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-48",
+      "epica": "E7",
+      "rol": "Consultor implementador",
+      "titulo": "Generar y descargar el paquete de reportes",
+      "quiero": "ver el catálogo de reportes de los módulos elegidos, generarlos y descargarlos en un .zip",
+      "para": "entregar al cliente sus reportes listos para usar",
+      "criterios": [
+        "En la pantalla UX-10 el catálogo lista ID, reporte, módulo, fuente (BPC o BW), ola y estado, filtrable por módulo.",
+        "El catálogo incluye C01 a C04; el clic en el ID abre su vista previa (UX-11, UX-13 o UX-15).",
+        "Descargar reportes genera un .zip con los Excel de los módulos elegidos.",
+        "Un reporte con error muestra la causa en su estado."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-44"
+      ],
+      "trazabilidad": [
+        "RF-20",
+        "RF-27",
+        "RF-29",
+        "RF-34"
+      ],
+      "ux": [
+        "UX-10"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-49",
+      "epica": "E8",
+      "rol": "Sistema",
+      "titulo": "Generar el modelo de planeación de presupuesto",
+      "quiero": "cargar en BW el presupuesto desde 0FI_GL_14 y generar en BPC un modelo de planeación separado del de consolidación",
+      "para": "que el cliente planee sin afectar la consolidación",
+      "criterios": [
+        "Solo se genera si Presupuesto está marcado en UX-04.",
+        "El modelo de planeación es independiente del modelo de consolidación.",
+        "UX-08 lista el modelo de presupuesto y UX-09 muestra el paso «Modelo de presupuesto».",
+        "El presupuesto cargado desde el ERP queda disponible en el modelo."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-08",
+        "HU-18",
+        "HU-26"
+      ],
+      "trazabilidad": [
+        "RF-23"
+      ],
+      "ux": [
+        "UX-08",
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-50",
+      "epica": "E8",
+      "rol": "Usuario financiero",
+      "titulo": "Capturar y ajustar el presupuesto",
+      "quiero": "ingresar valores por cuenta, centro de costo y mes en el formulario P05 y guardarlos en BPC",
+      "para": "construir el presupuesto del año en el mismo modelo que lo compara con la ejecución",
+      "criterios": [
+        "En la pantalla UX-12 se eligen sociedad, versión y año; las celdas editables están en amarillo y los totales se calculan.",
+        "Solo se aceptan números; una celda inválida se marca en rojo y no se guarda.",
+        "Guardar datos escribe en el modelo de planeación de BPC (RN-08).",
+        "Sin presupuesto para la versión se muestra «Sin presupuesto para esta versión: ingresa los valores»."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-49"
+      ],
+      "trazabilidad": [
+        "RF-28"
+      ],
+      "ux": [
+        "UX-12"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-51",
+      "epica": "E8",
+      "rol": "Usuario financiero",
+      "titulo": "Elegir la versión del presupuesto",
+      "quiero": "elegir la versión (anual, 3+9, 6+6, 9+3) en la captura y en los reportes de presupuesto",
+      "para": "comparar la ejecución con la proyección vigente",
+      "criterios": [
+        "En UX-12 y en la hoja P01 de UX-11 la versión se elige de una lista con las versiones definidas en HU-12.",
+        "Los valores guardados en una versión no cambian las demás.",
+        "P01 a P05 muestran en el encabezado la versión elegida."
+      ],
+      "prioridad": "Media",
+      "sp": 3,
+      "dependencias": [
+        "HU-12",
+        "HU-50"
+      ],
+      "trazabilidad": [
+        "RF-39"
+      ],
+      "ux": [
+        "UX-12",
+        "UX-11"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-52",
+      "epica": "E8",
+      "rol": "Usuario financiero",
+      "titulo": "Consultar los reportes de presupuesto P01 a P04",
+      "quiero": "consultar presupuesto frente a ejecución, gastos por CeCo, ingresos por CeBe y proyección de cierre",
+      "para": "hacer seguimiento del presupuesto del año",
+      "criterios": [
+        "P01 a P04 se entregan como Excel con EPM conectados al modelo de planeación (RN-08).",
+        "En UX-11, P01 muestra presupuesto, ejecución, variación y porcentaje de ejecución.",
+        "Los valores guardados en P05 se reflejan en P01 al actualizar."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-42",
+        "HU-50"
+      ],
+      "trazabilidad": [
+        "RF-27"
+      ],
+      "ux": [
+        "UX-11",
+        "UX-10"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-53",
+      "epica": "E8",
+      "rol": "Usuario financiero",
+      "titulo": "Consultar los reportes de activos fijos y deterioros",
+      "quiero": "consultar A01 a A03 y D01 a D02 con datos de BW",
+      "para": "controlar activos y deterioros sin un modelo adicional en BPC",
+      "criterios": [
+        "A01 a A03 y D01 a D02 leen su información de BW (RN-12).",
+        "En UX-10 la fuente de estos reportes se muestra como BW.",
+        "A01 y D01 muestran saldo inicial, movimientos y saldo final por clase o cuenta."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-19",
+        "HU-20",
+        "HU-42"
+      ],
+      "trazabilidad": [
+        "RF-29"
+      ],
+      "ux": [
+        "UX-10",
+        "UX-11"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-54",
+      "epica": "E9",
+      "rol": "Consultor implementador",
+      "titulo": "Consultar y descargar el registro de ejecuciones",
+      "quiero": "ver y descargar el registro de cada paso ejecutado en el cliente",
+      "para": "auditar qué cambió el acelerador en los sistemas del cliente",
+      "criterios": [
+        "En UX-09 el registro muestra fecha y hora, usuario, sistema, paso, objetos y resultado.",
+        "El 100 % de las ejecuciones queda registrado y se conserva al menos 12 meses (RNF-Aud-01).",
+        "Descargar registro entrega un archivo con los mismos campos.",
+        "El registro no contiene credenciales (RNF-Seg-02)."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-14"
+      ],
+      "trazabilidad": [
+        "RNF-Aud-01"
+      ],
+      "ux": [
+        "UX-09"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-55",
+      "epica": "E9",
+      "rol": "Sistema",
+      "titulo": "Aplicar los controles ASVS nivel 2 al configurador",
+      "quiero": "que el configurador cumpla los controles de OWASP ASVS nivel 2",
+      "para": "proteger la información financiera y los datos personales de terceros del cliente",
+      "criterios": [
+        "La verificación ASVS nivel 2 termina sin hallazgos altos abiertos (RNF-Seg-01).",
+        "Las entradas de archivos y formularios se validan del lado del servidor.",
+        "Las dependencias del configurador no tienen vulnerabilidades altas conocidas.",
+        "Los datos de terceros se tratan según la Ley 1581/2012 (DAF, sección 9)."
+      ],
+      "prioridad": "Alta",
+      "sp": 5,
+      "dependencias": [
+        "HU-04"
+      ],
+      "trazabilidad": [
+        "RNF-Seg-01"
+      ],
+      "ux": [],
+      "tiene_interfaz": false,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-56",
+      "epica": "E9",
+      "rol": "Consultor implementador",
+      "titulo": "Verificar la accesibilidad del configurador",
+      "quiero": "que las pantallas del configurador cumplan WCAG 2.1 AA",
+      "para": "que cualquier consultor pueda usar el configurador con teclado o lector de pantalla",
+      "criterios": [
+        "Las pantallas UX-01 a UX-10 tienen 0 incumplimientos A y AA en una revisión automática (RNF-Usa-01).",
+        "El foco es visible y todos los controles se operan con teclado.",
+        "Los estados usan texto e ícono, no solo color."
+      ],
+      "prioridad": "Alta",
+      "sp": 3,
+      "dependencias": [
+        "HU-14"
+      ],
+      "trazabilidad": [
+        "RNF-Usa-01"
+      ],
+      "ux": [
+        "UX-01"
+      ],
+      "tiene_interfaz": true,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-57",
+      "epica": "E9",
+      "rol": "Consultor implementador",
+      "titulo": "Certificar la arquitectura B",
+      "quiero": "ejecutar todos los RF aplicables en un ambiente de arquitectura B",
+      "para": "ofrecer el acelerador a clientes con ERP, BW y BPC integrados",
+      "criterios": [
+        "Los RF aplicables a la arquitectura B se ejecutan completos en un ambiente B (RNF-Comp-01).",
+        "Los scripts usan la variante de modelo embebido (RN-02).",
+        "Se documenta qué funciones de E6 están disponibles en el modelo embebido (DAF, pregunta 17)."
+      ],
+      "prioridad": "Media",
+      "sp": 8,
+      "dependencias": [
+        "HU-29",
+        "HU-41"
+      ],
+      "trazabilidad": [
+        "RNF-Comp-01"
+      ],
+      "ux": [],
+      "tiene_interfaz": false,
+      "nota_prioridad": ""
+    },
+    {
+      "codigo": "HU-58",
+      "epica": "E9",
+      "rol": "Consultor implementador",
+      "titulo": "Certificar la variante BW/4HANA con BPC 2021",
+      "quiero": "ejecutar todos los RF de la arquitectura A en un ambiente BW/4HANA con BPC 2021 modelo estándar",
+      "para": "confirmar el soporte para los clientes que dejan BW 7.5",
+      "criterios": [
+        "Todos los RF de la arquitectura A se ejecutan completos en el ambiente BW/4HANA (RNF-Comp-05).",
+        "No se genera ningún InfoCubo en esta variante.",
+        "Agregar la variante no cambia la configuración de clientes existentes (RNF-Comp-04)."
+      ],
+      "prioridad": "Alta",
+      "sp": 8,
+      "dependencias": [
+        "HU-16",
+        "HU-41"
+      ],
+      "trazabilidad": [
+        "RNF-Comp-05",
+        "RNF-Comp-04"
+      ],
+      "ux": [],
+      "tiene_interfaz": false,
+      "nota_prioridad": ""
+    }
+  ],
+  "roles_daf": [
+    "Consultor implementador",
+    "Administrador SAP del cliente",
+    "Usuario financiero"
+  ],
+  "rf_daf": {
+    "RF-01": "Alta",
+    "RF-02": "Alta",
+    "RF-03": "Alta",
+    "RF-04": "Alta",
+    "RF-05": "Alta",
+    "RF-06": "Alta",
+    "RF-07": "Alta",
+    "RF-08": "Alta",
+    "RF-09": "Media",
+    "RF-10": "Alta",
+    "RF-11": "Alta",
+    "RF-12": "Alta",
+    "RF-13": "Alta",
+    "RF-14": "Alta",
+    "RF-15": "Alta",
+    "RF-16": "Alta",
+    "RF-17": "Alta",
+    "RF-18": "Alta",
+    "RF-19": "Alta",
+    "RF-26": "Alta",
+    "RF-20": "Alta",
+    "RF-21": "Alta",
+    "RF-22": "Alta",
+    "RF-23": "Alta",
+    "RF-24": "Alta",
+    "RF-25": "Alta",
+    "RF-27": "Alta",
+    "RF-28": "Alta",
+    "RF-29": "Alta",
+    "RF-30": "Media",
+    "RF-31": "Alta",
+    "RF-32": "Alta",
+    "RF-33": "Alta",
+    "RF-34": "Alta",
+    "RF-35": "Alta",
+    "RF-36": "Alta",
+    "RF-37": "Media",
+    "RF-38": "Media",
+    "RF-39": "Media"
+  },
+  "ux_pantallas": [
+    "UX-01",
+    "UX-02",
+    "UX-03",
+    "UX-04",
+    "UX-05",
+    "UX-06",
+    "UX-07",
+    "UX-08",
+    "UX-09",
+    "UX-10",
+    "UX-11",
+    "UX-12",
+    "UX-13",
+    "UX-14",
+    "UX-15"
+  ]
+}

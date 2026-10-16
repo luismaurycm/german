@@ -12,10 +12,17 @@ flowchart TB
     U9 -->|"error de conexión o permisos"| U2
     U9 --> U10["UX-10 Reportes"]
   end
-  subgraph UF["Usuario financiero · Excel con EPM"]
+  subgraph UF["Usuario financiero · Excel con EPM y BPC"]
+    U15["UX-15 Estado del cierre"]
+    U13["UX-13 Participaciones y métodos"]
+    U14["UX-14 Asientos de ajuste"]
     U11["UX-11 Plantilla de reporte"]
     U12["UX-12 Captura de presupuesto"]
+    U15 --> U13
+    U15 --> U14
+    U15 -->|"sociedad con error"| U11
     U12 -->|"Guardar datos"| U11
   end
   U10 -.->|"entrega de archivos"| U11
   U10 -.->|"entrega de P05"| U12
+  U10 -.->|"entrega de C02 y C04"| U15

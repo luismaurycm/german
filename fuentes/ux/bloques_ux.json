@@ -34,6 +34,12 @@
      "CM Consulting",
      "16-Oct-26",
      "Versión para aprobación"
+    ],
+    [
+     "1.1",
+     "CM Consulting",
+     "16-Oct-26",
+     "Alineado con el DAF v1.1: pantallas UX-13 a UX-15, flujo de cierre mensual y ajustes en UX-04, UX-05 y UX-08 a UX-12 para RF-31 a RF-39."
     ]
    ],
    "col_widths": [
@@ -115,17 +121,17 @@
      "color": "F2B707"
     },
     {
-     "text": ". Deriva del Documento de Análisis Funcional v1.0 (16-Oct-26) y del brief de diseño de la misma fecha. Las historias de usuario referencian los códigos UX-XX de este documento en sus criterios de aceptación."
+     "text": ". Deriva del Documento de Análisis Funcional v1.1 (16-Oct-26) y del brief de diseño de la misma fecha. Las historias de usuario referencian los códigos UX-XX de este documento en sus criterios de aceptación."
     }
    ]
   },
   {
    "type": "paragraph",
-   "text": "Prototipo navegable: https://claude.ai/artifact/2jZdXEfCaLtmLW7zTrtqnV (privado; se comparte desde su menú Compartir). Permite recorrer las 12 pantallas, ver los estados normal, vacío, carga y error de cada una y cambiar entre la arquitectura A y la B. Los datos que muestra son de ejemplo."
+   "text": "Prototipo navegable: https://claude.ai/artifact/2jZdXEfCaLtmLW7zTrtqnV (privado; se comparte desde su menú Compartir). Permite recorrer las 15 pantallas, ver los estados normal, vacío, carga y error de cada una y cambiar entre la arquitectura A y la B. Los datos que muestra son de ejemplo."
   },
   {
    "type": "paragraph",
-   "text": "Alcance del diseño: dos superficies. El configurador web (UX-01 a UX-10), que usa el Consultor implementador, y las plantillas de Excel con EPM add-in (UX-11 y UX-12), que usa el Usuario financiero."
+   "text": "Alcance del diseño: dos superficies. El configurador web (UX-01 a UX-10), que usa el Consultor implementador, y las plantillas de Excel con EPM add-in y las funciones de BPC (UX-11 a UX-15), que usa el Usuario financiero."
   },
   {
    "type": "heading",
@@ -188,7 +194,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D0_navegacion.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/diagramas/D0_navegacion.png",
    "width_cm": 9,
    "align": "center"
   },
@@ -208,7 +214,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D1_implementacion.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/diagramas/D1_implementacion.png",
    "width_cm": 4.6,
    "align": "center"
   },
@@ -223,7 +229,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D2_reintento.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/diagramas/D2_reintento.png",
    "width_cm": 12.5,
    "align": "center"
   },
@@ -238,7 +244,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D3_reporte.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/diagramas/D3_reporte.png",
    "width_cm": 11,
    "align": "center"
   },
@@ -253,8 +259,23 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D4_presupuesto.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/diagramas/D4_presupuesto.png",
    "width_cm": 10,
+   "align": "center"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "4.5 Cierre mensual del grupo (Usuario financiero)"
+  },
+  {
+   "type": "paragraph",
+   "text": "Desde el estado del cierre revisa participaciones, cuadre y conciliación intercompañía; registra asientos de ajuste cuadrados, consolida y bloquea las sociedades."
+  },
+  {
+   "type": "image",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/diagramas/D5_cierre.png",
+   "width_cm": 9,
    "align": "center"
   },
   {
@@ -297,14 +318,14 @@
      "UX-04",
      "Módulos",
      "Consultor implementador",
-     "RF-05, RF-23, RF-24, RF-25",
+     "RF-05, RF-23, RF-24, RF-25, RF-39",
      "Alta"
     ],
     [
      "UX-05",
      "Sociedades del grupo",
      "Consultor implementador",
-     "RF-06, RF-13",
+     "RF-06, RF-13, RF-31",
      "Alta"
     ],
     [
@@ -325,36 +346,57 @@
      "UX-08",
      "Plan de generación",
      "Consultor implementador",
-     "RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26",
+     "RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26, RF-31, RF-32, RF-33, RF-35, RF-36, RF-37, RF-38, RF-39",
      "Alta"
     ],
     [
      "UX-09",
      "Ejecución y registro",
      "Consultor implementador",
-     "RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26",
+     "RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26, RF-32, RF-33, RF-36",
      "Alta"
     ],
     [
      "UX-10",
      "Reportes",
      "Consultor implementador",
-     "RF-20, RF-27, RF-29",
+     "RF-20, RF-27, RF-29, RF-34",
      "Alta"
     ],
     [
      "UX-11",
      "Plantilla de reporte EPM",
      "Usuario financiero",
-     "RF-20, RF-21, RF-22, RF-27",
+     "RF-20, RF-21, RF-22, RF-27, RF-34, RF-36, RF-39",
      "Alta"
     ],
     [
      "UX-12",
      "Captura de presupuesto",
      "Usuario financiero",
-     "RF-28",
+     "RF-28, RF-39",
      "Alta"
+    ],
+    [
+     "UX-13",
+     "Participaciones y métodos",
+     "Usuario financiero",
+     "RF-31",
+     "Alta"
+    ],
+    [
+     "UX-14",
+     "Asientos de ajuste",
+     "Usuario financiero",
+     "RF-35",
+     "Alta"
+    ],
+    [
+     "UX-15",
+     "Estado del cierre",
+     "Usuario financiero",
+     "RF-37, RF-38",
+     "Media"
     ]
    ],
    "col_widths": [
@@ -399,7 +441,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-01.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-01.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -496,7 +538,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-02.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-02.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -605,7 +647,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-03.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-03.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -701,13 +743,13 @@
      "bold": true
     },
     {
-     "text": "RF-05, RF-23, RF-24, RF-25"
+     "text": "RF-05, RF-23, RF-24, RF-25, RF-39"
     }
    ]
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-04.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-04.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -723,6 +765,11 @@
      "Tarjetas de módulo",
      "Consolidación, Presupuesto, Activos fijos y Deterioros, cada una con casilla y lo que genera.",
      "RF-05, RF-23, RF-24, RF-25"
+    ],
+    [
+     "Versiones de presupuesto",
+     "En la tarjeta de Presupuesto: presupuesto anual y proyecciones 3+9, 6+6 y 9+3, editables.",
+     "RF-39"
     ],
     [
      "Resumen",
@@ -798,13 +845,13 @@
      "bold": true
     },
     {
-     "text": "RF-06, RF-13"
+     "text": "RF-06, RF-13, RF-31"
     }
    ]
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-05.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-05.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -818,8 +865,8 @@
     ],
     [
      "Tabla de sociedades",
-     "Código, nombre, en SAP (interruptor), moneda local, sociedad matriz y plan de cuentas.",
-     "RF-06, RF-13"
+     "Código, nombre, en SAP (interruptor), moneda local, sociedad matriz, plan de cuentas, % de propiedad y método inicial.",
+     "RF-06, RF-13, RF-31"
     ],
     [
      "Agregar sociedad",
@@ -863,7 +910,8 @@
     "Solo sociedades del grupo; clientes y proveedores no son entidades de consolidación (RN-07).",
     "Cada sociedad puede tener su propio plan de cuentas (RN-05).",
     "Siempre se informa: «La consolidación se presenta en moneda local y en dólares» (RN-06).",
-    "Una sociedad marcada como no SAP habilita UX-07."
+    "Una sociedad marcada como no SAP habilita UX-07.",
+    "El % de propiedad (0 a 100) y el método son la estructura inicial; luego se mantienen por periodo en UX-13 (RN-13, RN-14)."
    ]
   },
   {
@@ -904,7 +952,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-06.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-06.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -1012,7 +1060,7 @@
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-07.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-07.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -1110,13 +1158,13 @@
      "bold": true
     },
     {
-     "text": "RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26"
+     "text": "RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26, RF-31, RF-32, RF-33, RF-35, RF-36, RF-37, RF-38, RF-39"
     }
    ]
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-08.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-08.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -1135,13 +1183,13 @@
     ],
     [
      "Sección SAP BPC",
-     "Modelo de consolidación, script en la variante de la arquitectura, importación (solo A) y modelo de presupuesto.",
-     "RF-16, RF-18, RF-23"
+     "Modelo de consolidación, script en la variante de la arquitectura, importación (solo A), modelo de propiedad y plantilla C02, reglas de eliminación de inversión e interés minoritario, validación de cuadre, asientos de ajuste, bloqueo por sociedad, flujo de cierre y modelo de presupuesto con sus versiones.",
+     "RF-16, RF-18, RF-23, RF-31, RF-32, RF-35 a RF-39"
     ],
     [
      "Monedas y tasas",
-     "Moneda local por sociedad, presentación en moneda local y dólares, tipos de tasa.",
-     "RF-26"
+     "Moneda local por sociedad, presentación en moneda local y dólares, tipos de tasa y cuenta de patrimonio para la diferencia en conversión.",
+     "RF-26, RF-33"
     ],
     [
      "Generar",
@@ -1181,7 +1229,8 @@
     "Scripts en variante de modelo estándar o embebido (RN-02).",
     "Full inicial y luego delta cada noche (RN-04).",
     "Tasas: cierre, promedio e histórica (RN-11, por confirmar en la pregunta 3 del DAF).",
-    "Activos fijos y deterioros solo en BW (RN-12)."
+    "Activos fijos y deterioros solo en BW (RN-12).",
+    "Método por sociedad y periodo (RN-13); solo se importan sociedades cuadradas (RN-16); asientos solo cuadrados (RN-15); diferencia en conversión en patrimonio (RN-18)."
    ]
   },
   {
@@ -1216,13 +1265,13 @@
      "bold": true
     },
     {
-     "text": "RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26"
+     "text": "RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26, RF-32, RF-33, RF-36"
     }
    ]
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-09.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-09.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -1236,8 +1285,8 @@
     ],
     [
      "Línea de pasos",
-     "Objetos BW y carga full inicial, planes de cuentas, CeCo y CeBe, monedas y tasas, jerarquía, activos fijos y deterioros en BW (si se eligieron), modelo BPC y scripts, importación a BPC (solo A), modelo de presupuesto (si se eligió), consolidación y conversión a dólares, con estado y duración.",
-     "RF-08, RF-10, RF-11 a RF-14, RF-16 a RF-19, RF-23 a RF-26"
+     "Objetos BW y carga full inicial, planes de cuentas, CeCo y CeBe, monedas y tasas, jerarquía, activos fijos y deterioros en BW (si se eligieron), modelo BPC, propiedad y scripts, validación de cuadre, importación a BPC (solo A), modelo de presupuesto (si se eligió), consolidación, eliminación de inversión e interés minoritario, y conversión a dólares con diferencia en conversión, con estado y duración.",
+     "RF-08, RF-10, RF-11 a RF-14, RF-16 a RF-19, RF-23 a RF-26, RF-32, RF-33, RF-36"
     ],
     [
      "Paso con error",
@@ -1320,13 +1369,13 @@
      "bold": true
     },
     {
-     "text": "RF-20, RF-27, RF-29"
+     "text": "RF-20, RF-27, RF-29, RF-34"
     }
    ]
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-10.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-10.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -1345,8 +1394,8 @@
     ],
     [
      "Catálogo",
-     "ID, reporte, módulo, fuente (BPC o BW), ola y estado; clic en el ID abre la vista previa (UX-11).",
-     "RF-20, RF-27, RF-29"
+     "ID, reporte, módulo, fuente (BPC o BW), ola y estado, incluidos C01 a C04; clic en el ID abre la vista previa (UX-11, UX-13 o UX-15).",
+     "RF-20, RF-27, RF-29, RF-34"
     ],
     [
      "Generar seleccionados / Descargar reportes (.zip)",
@@ -1368,7 +1417,7 @@
   {
    "type": "bullets",
    "items": [
-    "Normal: 30 reportes con su estado.",
+    "Normal: 34 reportes y plantillas con su estado.",
     "Vacío: «Ejecuta la generación para habilitar los reportes».",
     "Carga: progreso por reporte.",
     "Error: reporte con error y su causa."
@@ -1417,13 +1466,13 @@
      "bold": true
     },
     {
-     "text": "RF-20, RF-21, RF-22, RF-27"
+     "text": "RF-20, RF-21, RF-22, RF-27, RF-34, RF-36, RF-39"
     }
    ]
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-11.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-11.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -1452,8 +1501,18 @@
     ],
     [
      "Hojas",
-     "R07 Efectivo y P01 Presupuesto frente a ejecución como modelos de la estructura común.",
-     "RF-20, RF-27"
+     "R07 Efectivo y P01 Presupuesto frente a ejecución como modelos de la estructura común; P01 permite elegir la versión del presupuesto.",
+     "RF-20, RF-27, RF-39"
+    ],
+    [
+     "C01 Conciliación intercompañía",
+     "Por pareja de sociedades y cuentas: lo que registra cada parte, la diferencia y si supera el umbral.",
+     "RF-34"
+    ],
+    [
+     "C03 Validación de cuadre",
+     "Por sociedad: diferencia de balance, diferencia entre utilidad y resultado del ejercicio, cuentas mapeadas e importada o no.",
+     "RF-36"
     ]
    ],
    "col_widths": [
@@ -1486,7 +1545,9 @@
    "items": [
     "Incluir filiales cambia entre una sociedad y la sociedad con sus filiales (RN-09).",
     "Moneda solo local o dólares (RN-06).",
-    "Cada valor es la suma de las cuentas mapeadas (RN-10)."
+    "Cada valor es la suma de las cuentas mapeadas (RN-10).",
+    "C01 solo incluye sociedades del grupo (RN-07); el umbral sigue la pregunta 14 del DAF.",
+    "C03: una sociedad sin cuadre o con cuentas sin mapear no se importa (RN-16)."
    ]
   },
   {
@@ -1521,13 +1582,13 @@
      "bold": true
     },
     {
-     "text": "RF-28"
+     "text": "RF-28, RF-39"
     }
    ]
   },
   {
    "type": "image",
-   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-12.png",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-12.png",
    "width_cm": 15.5,
    "align": "center"
   },
@@ -1541,8 +1602,8 @@
     ],
     [
      "Parámetros",
-     "Sociedad, versión y año.",
-     "RF-28"
+     "Sociedad, versión (presupuesto anual, 3+9, 6+6 o 9+3) y año.",
+     "RF-28, RF-39"
     ],
     [
      "Grilla de captura",
@@ -1596,6 +1657,323 @@
   {
    "type": "paragraph",
    "text": "Excel de escritorio; no aplica responsive. Las celdas con error se marcan con color y borde, no solo con color."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.13 UX-13 Participaciones y métodos"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Usuario financiero"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-31"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-13.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Parámetros",
+     "Grupo y periodo.",
+     "RF-31"
+    ],
+    [
+     "Grilla C02",
+     "Por sociedad: % control, % consolidación, % propiedad (editables) y método (lista: matriz, integración global, participación, fuera del perímetro).",
+     "RF-31, RN-13"
+    ],
+    [
+     "Cambio frente al periodo anterior",
+     "Muestra qué valor cambió y su valor anterior.",
+     "RN-14, RNF-Aud-02"
+    ],
+    [
+     "Copiar del periodo anterior / Guardar datos",
+     "Copia las participaciones del periodo anterior; Guardar escribe en el modelo de propiedad de BPC.",
+     "RF-31"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: grilla con las sociedades del grupo.",
+    "Vacío: «Sin participaciones para este periodo: copia las del periodo anterior o ingrésalas».",
+    "Carga: Guardando… en la cinta.",
+    "Error: «No se guardó la fila 2000. Los porcentajes deben estar entre 0 y 100», con la celda marcada."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Porcentajes entre 0 y 100.",
+    "Método obligatorio por sociedad (RN-13).",
+    "Un cambio aplica desde el periodo elegido y no altera los anteriores (RN-14).",
+    "Cada cambio queda registrado con usuario, fecha, valor anterior y nuevo (RNF-Aud-02)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "Excel de escritorio; no aplica responsive. Las celdas con error se marcan con color y borde."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.14 UX-14 Asientos de ajuste"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Usuario financiero"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-35"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-14.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Encabezado",
+     "Grupo, periodo y moneda del asiento.",
+     "RF-35"
+    ],
+    [
+     "Líneas",
+     "Sociedad, cuenta, intercompañía, débito, crédito y observación; Agregar línea.",
+     "RF-35"
+    ],
+    [
+     "Totales",
+     "Suma de débitos y créditos e indicador Cuadrado o Descuadrado con la diferencia.",
+     "RN-15"
+    ],
+    [
+     "Guardar asiento",
+     "Habilitado solo si el asiento cuadra.",
+     "RN-15"
+    ],
+    [
+     "Asientos del periodo",
+     "Número, descripción, usuario, fecha, valor y estado.",
+     "RNF-Aud-02"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: asiento cuadrado y lista de asientos del periodo.",
+    "Vacío: «Aún no hay líneas: usa Agregar línea».",
+    "Carga: Guardando… en la cinta.",
+    "Error: «El asiento no cuadra» y aviso si una línea es de una sociedad bloqueada."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Débitos iguales a créditos para guardar (RN-15).",
+    "No se aceptan líneas de sociedades bloqueadas en el periodo (RN-17).",
+    "Cada asiento queda con usuario y fecha (RNF-Aud-02)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "Excel o cliente web de BPC de escritorio; no aplica responsive. El estado Descuadrado usa texto e ícono, no solo color."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.15 UX-15 Estado del cierre"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Usuario financiero"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-37, RF-38"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "/Users/luismaury/Codes/sap/german/docs/03-diseno-ux/capturas/UX-15.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Matriz C04",
+     "Por sociedad, el estado de cada paso del cierre en orden: carga, cuadre, conciliación intercompañía, conversión, consolidación y reportes.",
+     "RF-38"
+    ],
+    [
+     "Paso con error",
+     "Enlace al reporte que explica la causa (p. ej. C03 para cuadre).",
+     "RF-38, RF-36"
+    ],
+    [
+     "Bloquear / Desbloquear",
+     "Bloquea o desbloquea una sociedad en el periodo sin afectar a las demás.",
+     "RF-37, RN-17"
+    ],
+    [
+     "Hojas",
+     "Acceso a C02 Participaciones (UX-13) y a Asientos (UX-14).",
+     "RF-38"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: matriz con el avance del periodo.",
+    "Vacío: «El cierre de Sep-2026 aún no ha iniciado».",
+    "Carga: «Consultando el estado del cierre…».",
+    "Error: aviso de sociedades que no cuadran, con el paso marcado y el enlace a C03."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Una sociedad bloqueada no admite cargas, asientos ni reprocesos del periodo (RN-17).",
+    "Cada bloqueo y desbloqueo queda registrado (RNF-Aud-02)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "Excel de escritorio; no aplica responsive. Estados con ícono y texto, no solo color."
   },
   {
    "type": "page_break"
@@ -1727,6 +2105,42 @@
     [
      "RF-29",
      "UX-10"
+    ],
+    [
+     "RF-31",
+     "UX-05, UX-08, UX-13"
+    ],
+    [
+     "RF-32",
+     "UX-08, UX-09"
+    ],
+    [
+     "RF-33",
+     "UX-08, UX-09"
+    ],
+    [
+     "RF-34",
+     "UX-10, UX-11"
+    ],
+    [
+     "RF-35",
+     "UX-08, UX-14"
+    ],
+    [
+     "RF-36",
+     "UX-08, UX-09, UX-11"
+    ],
+    [
+     "RF-37",
+     "UX-08, UX-15"
+    ],
+    [
+     "RF-38",
+     "UX-08, UX-15"
+    ],
+    [
+     "RF-39",
+     "UX-04, UX-08, UX-11, UX-12"
     ]
    ],
    "col_widths": [
@@ -1780,7 +2194,7 @@
   },
   {
    "type": "paragraph",
-   "text": "RF sin interfaz: RF-30 (la información de activos fijos y deterioros alimenta R08, R10 y R11 de forma automática; se ve en esos reportes). Los 29 RF con interfaz tienen al menos una pantalla."
+   "text": "RF sin interfaz: RF-30 (la información de activos fijos y deterioros alimenta R08, R10 y R11 de forma automática; se ve en esos reportes). Los 38 RF con interfaz tienen al menos una pantalla."
   },
   {
    "type": "heading",
@@ -1830,6 +2244,20 @@
      "UX-11 y UX-12 suponen EPM add-in también en la arquitectura B (DAF, pregunta 13).",
      "No",
      "CM Consulting – Arquitectura",
+     "30-Oct-26"
+    ],
+    [
+     "6",
+     "UX-14 y UX-15 suponen asientos, bloqueo y flujo de cierre disponibles en la arquitectura B (DAF, pregunta 17).",
+     "No",
+     "CM Consulting – Arquitectura",
+     "30-Oct-26"
+    ],
+    [
+     "7",
+     "Umbral de la conciliación (C01) y tolerancia de cuadre (C03); el prototipo usa valores de ejemplo (DAF, pregunta 14).",
+     "No",
+     "Consultor SAP BPC",
      "30-Oct-26"
     ]
    ],

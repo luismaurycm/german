@@ -46,6 +46,12 @@
           "CM Consulting",
           "16-Oct-26",
           "Versión para aprobación: incorpora las respuestas 7 y 8 de CM; sin preguntas críticas abiertas."
+        ],
+        [
+          "1.1",
+          "CM Consulting",
+          "16-Oct-26",
+          "Amplía las reglas de consolidación y el control del cierre (RF-31 a RF-39, RN-13 a RN-18, RNF-Comp-05, RNF-Aud-02, reportes C01 a C04) y agrega la variante BW/4HANA con BPC 2021. Sin preguntas críticas abiertas."
         ]
       ],
       "col_widths": [
@@ -171,6 +177,14 @@
           "Decisiones confirmadas por CM Consulting: producto interno, solo EPM, 20 reportes iniciales, código Z permitido, mecanismo RFC con paquete Z, y respuestas a las preguntas críticas de la versión 0.1: 1 a 6 (alcance formalizado, todos los módulos, configurador web, varias versiones, moneda local y dólares) y 7 y 8 (fuentes y alcance de presupuesto, activos fijos y deterioros; reportes propuestos por CM por selección delegada)."
         ],
         [
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1)",
+          "Decisión de CM Consulting de ampliar la línea base con las reglas de consolidación y el control del cierre, y de agregar la variante BW/4HANA con BPC 2021, tras revisar el caso de referencia."
+        ],
+        [
+          "Caso de referencia BW 7.5/BPC 10.1",
+          "Diagnóstico técnico y propuesta de mejora de un grupo empresarial multinacional que consolida en BW 7.5 y BPC 10.1, revisados por CM Consulting el 16-Oct-26. Son documentos confidenciales de terceros: no se incluyen y solo se cita el hallazgo entre paréntesis."
+        ],
+        [
           "Borrador de solución v3",
           "Página de solución elaborada por CM Consulting el 16-Oct-26; usada como referencia de alcance en la sección 11."
         ],
@@ -203,8 +217,10 @@
         "Generación de la bodega en BW cuando no existe, incluidos campos Z y cadenas de proceso con carga full y delta.",
         "Carga de datos maestros: planes de cuentas, CeCo y CeBe, monedas, jerarquías y sociedades no SAP.",
         "Configuración del modelo BPC, despliegue de scripts y ejecución de la consolidación.",
-        "30 reportes iniciales en Excel con EPM add-in: 20 de consolidación (tabla 5.6.1) y 10 de presupuesto, activos fijos y deterioros (tabla 5.8.1).",
-        "Soporte de dos arquitecturas: A (BW 7.5 con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido; varias versiones por arquitectura, RNF-Comp-04)."
+        "Reglas de consolidación: participaciones y métodos por periodo, eliminación de inversión, interés minoritario, diferencia en conversión, conciliación intercompañía y asientos de ajuste.",
+        "Control del cierre: validación de cuadre antes de importar, bloqueo por sociedad y flujo de cierre con su estado.",
+        "34 reportes y plantillas iniciales en Excel con EPM add-in: 20 de consolidación (tabla 5.6.1), 10 de presupuesto, activos fijos y deterioros (tabla 5.8.1) y 4 de control de consolidación (tabla 5.9.1).",
+        "Soporte de dos arquitecturas: A (BW 7.5 o BW/4HANA con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido; varias versiones por arquitectura, RNF-Comp-04)."
       ]
     },
     {
@@ -216,6 +232,7 @@
       "type": "bullets",
       "items": [
         "Reportes en Analysis for Office.",
+        "Mejorar, migrar u optimizar un modelo BW/BPC existente del cliente (cadenas, código ABAP, migración de base de datos a HANA): el acelerador parte de lo existente (RN-03) pero no lo corrige.",
         "Los reportes del catálogo existente que no están en la tabla 5.6.1 (entre 30 y 38, según la pregunta abierta 6).",
         "Licencias de SAP ERP, BW, BPC y EPM, que aporta cada cliente."
       ]
@@ -364,7 +381,7 @@
         [
           "RF-04",
           "Identificar la arquitectura",
-          "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes.",
+          "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 o BW/4HANA y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes.",
           "RN-02",
           "Alta",
           "Sesión técnica 16-Oct-26, G6 00:00-00:43; Sesión técnica 16-Oct-26, G7 12:31-13:21"
@@ -588,8 +605,8 @@
         [
           "RF-19",
           "Ejecutar la consolidación",
-          "El sistema ejecuta la consolidación del grupo eliminando las transacciones entre sociedades del grupo, y deja el resultado consultable en el modelo BPC.",
-          "RN-06, RN-07",
+          "El sistema ejecuta la consolidación del grupo eliminando las transacciones entre sociedades del grupo, aplica según el método de cada sociedad las reglas de RF-32 y RF-33, y deja el resultado consultable en el modelo BPC.",
+          "RN-06, RN-07, RN-13",
           "Alta",
           "Sesión técnica 16-Oct-26, G7 03:50-04:00; 06:37-06:40"
         ],
@@ -1025,6 +1042,160 @@
     },
     {
       "type": "heading",
+      "level": 2,
+      "text": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "type": "table",
+      "rows": [
+        [
+          "Código",
+          "Nombre",
+          "Descripción",
+          "Reglas",
+          "Prioridad",
+          "Origen"
+        ],
+        [
+          "RF-31",
+          "Generar el modelo de propiedad",
+          "El sistema genera en BPC el modelo de propiedad y la plantilla C02, en la que el Usuario financiero registra por periodo, para cada sociedad y grupo, el porcentaje de control, el de consolidación, el de propiedad y el método de consolidación. El Consultor implementador registra la estructura inicial en el configurador.",
+          "RN-13, RN-14",
+          "Alta",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (participaciones y métodos)"
+        ],
+        [
+          "RF-32",
+          "Eliminar inversión y calcular interés minoritario",
+          "El sistema despliega en BPC las reglas que, para las sociedades con método de integración global, eliminan la inversión de la matriz contra el patrimonio de la subsidiaria y calculan el interés minoritario con los porcentajes del periodo registrados en RF-31.",
+          "RN-13, RN-14",
+          "Alta",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (eliminación de inversiones y capital)"
+        ],
+        [
+          "RF-33",
+          "Registrar diferencia en conversión",
+          "Al convertir los saldos (RF-26), el sistema calcula la diferencia que resulta de aplicar tasas distintas a balance, resultados y patrimonio, y la registra en la cuenta de patrimonio definida para ello.",
+          "RN-11, RN-18",
+          "Alta",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (diferencial cambiario)"
+        ],
+        [
+          "RF-34",
+          "Conciliar saldos intercompañía",
+          "El sistema entrega el reporte C01, que compara por pareja de sociedades y cuenta intercompañía los saldos que registra cada parte, muestra la diferencia y marca las parejas que superan el umbral definido, antes de ejecutar la eliminación (RF-19).",
+          "RN-07",
+          "Alta",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (modelo de conciliación)"
+        ],
+        [
+          "RF-35",
+          "Registrar asientos de ajuste",
+          "El sistema configura en BPC los asientos de ajuste de consolidación, en los que el Usuario financiero registra por grupo, periodo y moneda líneas con sociedad, cuenta, intercompañía, débito, crédito y observación.",
+          "RN-15",
+          "Alta",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (asientos de ajuste)"
+        ],
+        [
+          "RF-36",
+          "Validar cuadre antes de importar",
+          "Los paquetes de importación que genera el sistema (RF-17) y la carga de sociedades no SAP (RF-15) validan cada sociedad y periodo antes de pasar los datos a BPC; las sociedades que no cumplen no se importan y aparecen en el reporte C03 con la diferencia encontrada.",
+          "RN-16",
+          "Alta",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (descuadres en saldos individuales)"
+        ],
+        [
+          "RF-37",
+          "Bloquear saldos por sociedad",
+          "El sistema configura en BPC el bloqueo de datos por sociedad y periodo, de modo que el Usuario financiero bloquea o desbloquea una sociedad sin afectar a las demás sociedades del grupo.",
+          "RN-17",
+          "Media",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (bloqueo solo por grupo)"
+        ],
+        [
+          "RF-38",
+          "Generar el flujo de cierre",
+          "El sistema genera en BPC el flujo del cierre mensual con sus pasos en orden (carga, validación de cuadre, conciliación, conversión, consolidación y reportes) y el reporte C04, que muestra por sociedad y periodo qué pasos están completos, pendientes o con error.",
+          "—",
+          "Media",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (sin control del proceso de consolidación)"
+        ],
+        [
+          "RF-39",
+          "Gestionar versiones de presupuesto",
+          "Cuando el módulo de presupuesto está seleccionado (RF-05), el Consultor implementador define las versiones del modelo de planeación (presupuesto anual y proyecciones de cierre como 3+9, 6+6 y 9+3), y los reportes P01 a P05 permiten elegir la versión.",
+          "—",
+          "Media",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (escenarios de presupuesto y proyección)"
+        ]
+      ],
+      "col_widths": [
+        900,
+        1500,
+        3238,
+        900,
+        900,
+        1400
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "5.9.1 Reportes y plantillas de control de consolidación"
+    },
+    {
+      "type": "table",
+      "rows": [
+        [
+          "ID",
+          "Reporte o plantilla",
+          "Tipo",
+          "Fuente de datos",
+          "RF"
+        ],
+        [
+          "C01",
+          "Conciliación intercompañía por pareja de sociedades",
+          "Reporte",
+          "BPC (consolidación)",
+          "RF-34"
+        ],
+        [
+          "C02",
+          "Participaciones y métodos de consolidación por periodo",
+          "Plantilla de captura",
+          "BPC (propiedad)",
+          "RF-31"
+        ],
+        [
+          "C03",
+          "Validación de cuadre por sociedad",
+          "Reporte",
+          "BPC (consolidación)",
+          "RF-36"
+        ],
+        [
+          "C04",
+          "Estado del cierre por sociedad y paso",
+          "Reporte",
+          "BPC (consolidación)",
+          "RF-38"
+        ]
+      ],
+      "col_widths": [
+        800,
+        3838,
+        1600,
+        1700,
+        900
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Agregados en la versión 1.1 (Sesión interna CM 16-Oct-26, ampliación v1.1)."
+    },
+    {
+      "type": "heading",
       "level": 1,
       "text": "6. Requerimientos no funcionales"
     },
@@ -1041,7 +1212,7 @@
         [
           "RNF-Comp-01",
           "Comp",
-          "El acelerador soporta las dos arquitecturas: A (BW 7.5 con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido).",
+          "El acelerador soporta las dos arquitecturas: A (BW 7.5 o BW/4HANA con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido).",
           "Todos los RF aplicables a cada arquitectura se ejecutan completos en un ambiente de prueba de esa arquitectura (2 de 2).",
           "Sesión técnica 16-Oct-26, G7 12:47-12:57"
         ],
@@ -1049,7 +1220,7 @@
           "RNF-Comp-02",
           "Comp",
           "Los reportes funcionan con el EPM add-in de Excel. Analysis for Office no se soporta en esta versión.",
-          "20 de 20 reportes abren y actualizan datos con EPM add-in.",
+          "34 de 34 reportes y plantillas (tablas 5.6.1, 5.8.1 y 5.9.1) abren y actualizan datos con EPM add-in.",
           "Sesión interna CM 16-Oct-26"
         ],
         [
@@ -1065,6 +1236,13 @@
           "El acelerador admite varias versiones de BW y BPC dentro de cada arquitectura; agregar una versión nueva solo agrega una variante de los generadores.",
           "Agregar una versión requiere 0 cambios en la configuración de los clientes y 0 cambios en las variantes existentes.",
           "Sesión interna CM 16-Oct-26 (respuesta 5)"
+        ],
+        [
+          "RNF-Comp-05",
+          "Comp",
+          "La matriz de soporte de la arquitectura A incluye, además de BW 7.5, la variante BW/4HANA con BPC 2021 modelo estándar, en la que los InfoProviders se generan como aDSO.",
+          "Todos los RF de la arquitectura A se ejecutan completos en un ambiente BW/4HANA con BPC 2021 modelo estándar; 0 InfoCubos generados en esa variante.",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (fin de mantenimiento de BW 7.5)"
         ],
         [
           "RNF-Rend-01",
@@ -1100,6 +1278,13 @@
           "Cada ejecución del acelerador queda registrada: usuario, fecha y hora, sistema destino, paso, objetos creados o modificados y resultado.",
           "100 % de las ejecuciones con registro; retención mínima de 12 meses.",
           "Playbook CM §7.1 (observabilidad)"
+        ],
+        [
+          "RNF-Aud-02",
+          "Aud",
+          "Los cambios en participaciones y métodos (RF-31), asientos de ajuste (RF-35) y bloqueos (RF-37) quedan registrados con usuario, fecha y hora, valor anterior y valor nuevo.",
+          "100 % de los cambios con registro consultable en BPC; retención mínima de 12 meses.",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (sin registro de modificaciones)"
         ],
         [
           "RNF-Usa-01",
@@ -1170,7 +1355,7 @@
         [
           "RN-07",
           "Solo las sociedades del grupo participan como entidades de la consolidación; clientes y proveedores no.",
-          "RF-06, RF-19",
+          "RF-06, RF-19, RF-34",
           "Sesión técnica 16-Oct-26, G7 03:55-04:00"
         ],
         [
@@ -1194,7 +1379,7 @@
         [
           "RN-11",
           "La conversión usa tasa de cierre para cuentas de balance, tasa promedio para resultados y tasa histórica para patrimonio.",
-          "RF-26",
+          "RF-26, RF-33",
           "NIC 21 (por confirmar en la pregunta abierta 3)"
         ],
         [
@@ -1202,6 +1387,42 @@
           "Activos fijos y deterioros se quedan en BW: no tienen modelo en BPC y sus reportes leen de BW.",
           "RF-24, RF-25, RF-29, RF-30",
           "Sesión interna CM 16-Oct-26 (respuesta 8)"
+        ],
+        [
+          "RN-13",
+          "Cada sociedad tiene en cada periodo un método de consolidación: matriz, integración global, participación (coligada) o fuera del perímetro. La integración global elimina inversión y patrimonio y calcula interés minoritario; la participación reconoce la proporción del resultado y no elimina transacciones intercompañía.",
+          "RF-19, RF-31, RF-32",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); NIIF 10 y NIC 28 (por confirmar en la pregunta abierta 15)"
+        ],
+        [
+          "RN-14",
+          "Los porcentajes y el método se registran por periodo; un cambio aplica desde el periodo en que se registra y no altera los periodos anteriores.",
+          "RF-31, RF-32",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (pérdida del porcentaje anterior)"
+        ],
+        [
+          "RN-15",
+          "Un asiento de ajuste solo se guarda si la suma de sus débitos es igual a la suma de sus créditos.",
+          "RF-35",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1)"
+        ],
+        [
+          "RN-16",
+          "Una sociedad solo se importa a BPC si en el periodo el activo es igual al pasivo más el patrimonio, la utilidad del estado de resultados es igual al resultado del ejercicio del balance y todas sus cuentas con saldo están mapeadas; la tolerancia de redondeo se define en la pregunta abierta 14.",
+          "RF-36",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (validaciones de cuadre)"
+        ],
+        [
+          "RN-17",
+          "Una sociedad bloqueada en un periodo no admite cargas, asientos de ajuste ni reprocesos de ese periodo hasta que se desbloquee.",
+          "RF-37",
+          "Sesión interna CM 16-Oct-26 (ampliación v1.1)"
+        ],
+        [
+          "RN-18",
+          "La diferencia en conversión se registra en el patrimonio y no en el estado de resultados.",
+          "RF-33",
+          "NIC 21 (por confirmar en la pregunta abierta 3)"
         ]
       ],
       "col_widths": [
@@ -1305,7 +1526,7 @@
           "Confidencial",
           "SAP ERP",
           "Transmite y almacena (en SAP del cliente)",
-          "Información financiera no publicada; base de los 20 reportes."
+          "Información financiera no publicada; base de los reportes de consolidación."
         ],
         [
           "Estructura del grupo: sociedades, filiales, CeCo y CeBe",
@@ -1376,6 +1597,20 @@
           "SAP ERP",
           "Transmite y almacena",
           "—"
+        ],
+        [
+          "Participaciones y métodos de consolidación",
+          "Confidencial",
+          "Usuario financiero (C02); configuración",
+          "Captura, almacena, transmite",
+          "Estructura societaria no publicada; cambios auditados (RNF-Aud-02)."
+        ],
+        [
+          "Asientos de ajuste de consolidación",
+          "Confidencial",
+          "Usuario financiero",
+          "Captura y almacena (en BPC del cliente)",
+          "Incluyen usuario y observación; cambios auditados (RNF-Aud-02)."
         ],
         [
           "Credenciales de conexión a SAP",
@@ -1467,6 +1702,24 @@
           "Interna"
         ],
         [
+          "Participación",
+          "Sociedad, grupo, periodo, % control, % consolidación, % propiedad, método",
+          "Texto; fecha; decimal",
+          "Confidencial"
+        ],
+        [
+          "Asiento de ajuste",
+          "Número, grupo, periodo, moneda, líneas (sociedad, cuenta, intercompañía, débito, crédito, observación), usuario, fecha",
+          "Texto; fecha; decimal",
+          "Confidencial"
+        ],
+        [
+          "Versión de presupuesto",
+          "Código (p. ej. presupuesto anual, 3+9), descripción, año",
+          "Texto",
+          "Interna"
+        ],
+        [
           "Módulo",
           "Nombre, seleccionado (sí/no)",
           "Texto; booleano",
@@ -1474,7 +1727,7 @@
         ],
         [
           "Reporte",
-          "ID (R01-R20), nombre, parámetros (sociedad, filiales)",
+          "ID (R01-R20, P01-P05, A01-A03, D01-D02, C01-C04), nombre, parámetros (sociedad, filiales, moneda, versión)",
           "Texto",
           "Interna"
         ],
@@ -1499,7 +1752,7 @@
     },
     {
       "type": "paragraph",
-      "text": "Componentes del borrador de solución v3, formalizado como alcance por CM Consulting. Todos los RF quedan cubiertos por un componente; no hay candidatos a control de cambios."
+      "text": "Componentes del borrador de solución v3, formalizado como alcance por CM Consulting. Todos los RF quedan cubiertos por un componente. La versión 1.1 amplía M2, M5 y M6 con RF-31 a RF-39 por decisión de CM Consulting (Sesión interna CM 16-Oct-26, ampliación v1.1); al ser un producto interno, no hay candidatos a control de cambios frente a un cliente."
     },
     {
       "type": "table",
@@ -1514,7 +1767,7 @@
         ],
         [
           "M2 Configurador de alcance",
-          "RF-05, RF-06, RF-07"
+          "RF-05, RF-06, RF-07, RF-39"
         ],
         [
           "M3 Generador de bodega BW",
@@ -1526,11 +1779,11 @@
         ],
         [
           "M5 Generador de modelo BPC",
-          "RF-16, RF-17, RF-18, RF-19, RF-23, RF-26"
+          "RF-16, RF-17, RF-18, RF-19, RF-23, RF-26, RF-31, RF-32, RF-33, RF-35, RF-36, RF-37, RF-38"
         ],
         [
-          "M6 Reportes EPM (30 iniciales)",
-          "RF-20, RF-21, RF-22, RF-27, RF-28, RF-29, RF-30"
+          "M6 Reportes EPM (34 iniciales)",
+          "RF-20, RF-21, RF-22, RF-27, RF-28, RF-29, RF-30, RF-34"
         ]
       ],
       "col_widths": [
@@ -1557,7 +1810,8 @@
         "La información se levantó en una sola sesión técnica grabada; los nombres técnicos inferidos de la transcripción están sujetos a las preguntas abiertas 2 y 11.",
         "El mecanismo de inyección es RFC con paquete Z y transportes, con respaldo UJBR para el modelo estándar (Sesión interna CM 16-Oct-26). Se valida con una prueba técnica en la arquitectura A antes del desarrollo.",
         "La matriz de soporte inicial son las versiones de los dos ambientes disponibles; otras versiones se agregan como variantes (RNF-Comp-04).",
-        "Las tasas de cambio se toman de SAP y siguen NIC 21 (RN-11), sujeto a la pregunta abierta 3."
+        "Las tasas de cambio se toman de SAP y siguen NIC 21 (RN-11), sujeto a la pregunta abierta 3.",
+        "Las reglas de consolidación de la sección 5.9 se generan con las funciones estándar de BPC (modelo de propiedad, reglas de negocio, asientos, bloqueo y flujo de proceso); su disponibilidad en la arquitectura B se confirma en la pregunta abierta 17."
       ]
     },
     {
@@ -1603,6 +1857,12 @@
           "CM Consulting – Dirección",
           "Por definir",
           "Bloquea RNF-Comp-01 para la segunda arquitectura."
+        ],
+        [
+          "Ambiente BW/4HANA con BPC 2021 modelo estándar para pruebas",
+          "CM Consulting – Dirección",
+          "Por definir",
+          "Bloquea RNF-Comp-05."
         ]
       ],
       "col_widths": [
@@ -1716,6 +1976,41 @@
           "¿EPM add-in sirve como herramienta de reportes con BPC modelo embebido (arquitectura B), donde SAP orienta hacia Analysis for Office?",
           "No",
           "CM Consulting – Arquitectura",
+          "30-Oct-26"
+        ],
+        [
+          "14",
+          "Tolerancia de redondeo para la validación de cuadre (RN-16) y umbral de diferencia que marca una pareja en la conciliación intercompañía (RF-34). ¿Fijos o configurables por cliente?",
+          "No",
+          "Consultor SAP BPC",
+          "30-Oct-26"
+        ],
+        [
+          "15",
+          "Confirmar los métodos de consolidación de RN-13 y su tratamiento, y si las cuentas de destino de la eliminación de inversión, el interés minoritario y la diferencia en conversión se configuran por cliente.",
+          "No",
+          "Consultor SAP BPC",
+          "30-Oct-26"
+        ],
+        [
+          "16",
+          "¿La moneda de presentación del grupo debe poder configurarse (p. ej. peso chileno o peso colombiano) o siempre es el dólar (RN-06)?",
+          "No",
+          "CM Consulting – Dirección",
+          "30-Oct-26"
+        ],
+        [
+          "17",
+          "¿Los asientos de ajuste (RF-35), el bloqueo por sociedad (RF-37) y el flujo de cierre (RF-38) están disponibles en BPC modelo embebido (arquitectura B) en las versiones de la matriz de soporte?",
+          "No",
+          "CM Consulting – Arquitectura",
+          "30-Oct-26"
+        ],
+        [
+          "18",
+          "Versiones exactas de BW/4HANA y BPC 2021 para la variante de RNF-Comp-05 y ambiente disponible para probarla.",
+          "No",
+          "CM Consulting – Dirección",
           "30-Oct-26"
         ]
       ],

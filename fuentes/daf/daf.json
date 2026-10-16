@@ -34,7 +34,7 @@
     {
       "codigo": "RF-04",
       "nombre": "Identificar la arquitectura",
-      "descripcion": "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes.",
+      "descripcion": "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 o BW/4HANA y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes.",
       "reglas": [
         "RN-02"
       ],
@@ -185,10 +185,11 @@
     {
       "codigo": "RF-19",
       "nombre": "Ejecutar la consolidación",
-      "descripcion": "El sistema ejecuta la consolidación del grupo eliminando las transacciones entre sociedades del grupo, y deja el resultado consultable en el modelo BPC.",
+      "descripcion": "El sistema ejecuta la consolidación del grupo eliminando las transacciones entre sociedades del grupo, aplica según el método de cada sociedad las reglas de RF-32 y RF-33, y deja el resultado consultable en el modelo BPC.",
       "reglas": [
         "RN-06",
-        "RN-07"
+        "RN-07",
+        "RN-13"
       ],
       "prioridad": "Alta",
       "origen": "Sesión técnica 16-Oct-26, G7 03:50-04:00; 06:37-06:40",
@@ -314,13 +315,111 @@
       "prioridad": "Media",
       "origen": "Sesión interna CM 16-Oct-26 (respuesta 8)",
       "modulo": "5.8 Reportes de presupuesto, activos fijos y deterioros"
+    },
+    {
+      "codigo": "RF-31",
+      "nombre": "Generar el modelo de propiedad",
+      "descripcion": "El sistema genera en BPC el modelo de propiedad y la plantilla C02, en la que el Usuario financiero registra por periodo, para cada sociedad y grupo, el porcentaje de control, el de consolidación, el de propiedad y el método de consolidación. El Consultor implementador registra la estructura inicial en el configurador.",
+      "reglas": [
+        "RN-13",
+        "RN-14"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (participaciones y métodos)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "codigo": "RF-32",
+      "nombre": "Eliminar inversión y calcular interés minoritario",
+      "descripcion": "El sistema despliega en BPC las reglas que, para las sociedades con método de integración global, eliminan la inversión de la matriz contra el patrimonio de la subsidiaria y calculan el interés minoritario con los porcentajes del periodo registrados en RF-31.",
+      "reglas": [
+        "RN-13",
+        "RN-14"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (eliminación de inversiones y capital)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "codigo": "RF-33",
+      "nombre": "Registrar diferencia en conversión",
+      "descripcion": "Al convertir los saldos (RF-26), el sistema calcula la diferencia que resulta de aplicar tasas distintas a balance, resultados y patrimonio, y la registra en la cuenta de patrimonio definida para ello.",
+      "reglas": [
+        "RN-11",
+        "RN-18"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (diferencial cambiario)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "codigo": "RF-34",
+      "nombre": "Conciliar saldos intercompañía",
+      "descripcion": "El sistema entrega el reporte C01, que compara por pareja de sociedades y cuenta intercompañía los saldos que registra cada parte, muestra la diferencia y marca las parejas que superan el umbral definido, antes de ejecutar la eliminación (RF-19).",
+      "reglas": [
+        "RN-07"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (modelo de conciliación)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "codigo": "RF-35",
+      "nombre": "Registrar asientos de ajuste",
+      "descripcion": "El sistema configura en BPC los asientos de ajuste de consolidación, en los que el Usuario financiero registra por grupo, periodo y moneda líneas con sociedad, cuenta, intercompañía, débito, crédito y observación.",
+      "reglas": [
+        "RN-15"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (asientos de ajuste)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "codigo": "RF-36",
+      "nombre": "Validar cuadre antes de importar",
+      "descripcion": "Los paquetes de importación que genera el sistema (RF-17) y la carga de sociedades no SAP (RF-15) validan cada sociedad y periodo antes de pasar los datos a BPC; las sociedades que no cumplen no se importan y aparecen en el reporte C03 con la diferencia encontrada.",
+      "reglas": [
+        "RN-16"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (descuadres en saldos individuales)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "codigo": "RF-37",
+      "nombre": "Bloquear saldos por sociedad",
+      "descripcion": "El sistema configura en BPC el bloqueo de datos por sociedad y periodo, de modo que el Usuario financiero bloquea o desbloquea una sociedad sin afectar a las demás sociedades del grupo.",
+      "reglas": [
+        "RN-17"
+      ],
+      "prioridad": "Media",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (bloqueo solo por grupo)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "codigo": "RF-38",
+      "nombre": "Generar el flujo de cierre",
+      "descripcion": "El sistema genera en BPC el flujo del cierre mensual con sus pasos en orden (carga, validación de cuadre, conciliación, conversión, consolidación y reportes) y el reporte C04, que muestra por sociedad y periodo qué pasos están completos, pendientes o con error.",
+      "reglas": [],
+      "prioridad": "Media",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (sin control del proceso de consolidación)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
+    },
+    {
+      "codigo": "RF-39",
+      "nombre": "Gestionar versiones de presupuesto",
+      "descripcion": "Cuando el módulo de presupuesto está seleccionado (RF-05), el Consultor implementador define las versiones del modelo de planeación (presupuesto anual y proyecciones de cierre como 3+9, 6+6 y 9+3), y los reportes P01 a P05 permiten elegir la versión.",
+      "reglas": [],
+      "prioridad": "Media",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (escenarios de presupuesto y proyección)",
+      "modulo": "5.9 Reglas de consolidación y control del cierre"
     }
   ],
   "rnf": [
     {
       "codigo": "RNF-Comp-01",
       "categoria": "Comp",
-      "requerimiento": "El acelerador soporta las dos arquitecturas: A (BW 7.5 con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido).",
+      "requerimiento": "El acelerador soporta las dos arquitecturas: A (BW 7.5 o BW/4HANA con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido).",
       "metrica": "Todos los RF aplicables a cada arquitectura se ejecutan completos en un ambiente de prueba de esa arquitectura (2 de 2).",
       "origen": "Sesión técnica 16-Oct-26, G7 12:47-12:57"
     },
@@ -328,7 +427,7 @@
       "codigo": "RNF-Comp-02",
       "categoria": "Comp",
       "requerimiento": "Los reportes funcionan con el EPM add-in de Excel. Analysis for Office no se soporta en esta versión.",
-      "metrica": "20 de 20 reportes abren y actualizan datos con EPM add-in.",
+      "metrica": "34 de 34 reportes y plantillas (tablas 5.6.1, 5.8.1 y 5.9.1) abren y actualizan datos con EPM add-in.",
       "origen": "Sesión interna CM 16-Oct-26"
     },
     {
@@ -344,6 +443,13 @@
       "requerimiento": "El acelerador admite varias versiones de BW y BPC dentro de cada arquitectura; agregar una versión nueva solo agrega una variante de los generadores.",
       "metrica": "Agregar una versión requiere 0 cambios en la configuración de los clientes y 0 cambios en las variantes existentes.",
       "origen": "Sesión interna CM 16-Oct-26 (respuesta 5)"
+    },
+    {
+      "codigo": "RNF-Comp-05",
+      "categoria": "Comp",
+      "requerimiento": "La matriz de soporte de la arquitectura A incluye, además de BW 7.5, la variante BW/4HANA con BPC 2021 modelo estándar, en la que los InfoProviders se generan como aDSO.",
+      "metrica": "Todos los RF de la arquitectura A se ejecutan completos en un ambiente BW/4HANA con BPC 2021 modelo estándar; 0 InfoCubos generados en esa variante.",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (fin de mantenimiento de BW 7.5)"
     },
     {
       "codigo": "RNF-Rend-01",
@@ -379,6 +485,13 @@
       "requerimiento": "Cada ejecución del acelerador queda registrada: usuario, fecha y hora, sistema destino, paso, objetos creados o modificados y resultado.",
       "metrica": "100 % de las ejecuciones con registro; retención mínima de 12 meses.",
       "origen": "Playbook CM §7.1 (observabilidad)"
+    },
+    {
+      "codigo": "RNF-Aud-02",
+      "categoria": "Aud",
+      "requerimiento": "Los cambios en participaciones y métodos (RF-31), asientos de ajuste (RF-35) y bloqueos (RF-37) quedan registrados con usuario, fecha y hora, valor anterior y valor nuevo.",
+      "metrica": "100 % de los cambios con registro consultable en BPC; retención mínima de 12 meses.",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (sin registro de modificaciones)"
     },
     {
       "codigo": "RNF-Usa-01",
@@ -448,6 +561,36 @@
       "codigo": "RN-12",
       "regla": "Activos fijos y deterioros se quedan en BW: no tienen modelo en BPC y sus reportes leen de BW.",
       "origen": "Sesión interna CM 16-Oct-26 (respuesta 8)"
+    },
+    {
+      "codigo": "RN-13",
+      "regla": "Cada sociedad tiene en cada periodo un método de consolidación: matriz, integración global, participación (coligada) o fuera del perímetro. La integración global elimina inversión y patrimonio y calcula interés minoritario; la participación reconoce la proporción del resultado y no elimina transacciones intercompañía.",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); NIIF 10 y NIC 28 (por confirmar en la pregunta abierta 15)"
+    },
+    {
+      "codigo": "RN-14",
+      "regla": "Los porcentajes y el método se registran por periodo; un cambio aplica desde el periodo en que se registra y no altera los periodos anteriores.",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (pérdida del porcentaje anterior)"
+    },
+    {
+      "codigo": "RN-15",
+      "regla": "Un asiento de ajuste solo se guarda si la suma de sus débitos es igual a la suma de sus créditos.",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1)"
+    },
+    {
+      "codigo": "RN-16",
+      "regla": "Una sociedad solo se importa a BPC si en el periodo el activo es igual al pasivo más el patrimonio, la utilidad del estado de resultados es igual al resultado del ejercicio del balance y todas sus cuentas con saldo están mapeadas; la tolerancia de redondeo se define en la pregunta abierta 14.",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1); Caso de referencia BW 7.5/BPC 10.1 (validaciones de cuadre)"
+    },
+    {
+      "codigo": "RN-17",
+      "regla": "Una sociedad bloqueada en un periodo no admite cargas, asientos de ajuste ni reprocesos de ese periodo hasta que se desbloquee.",
+      "origen": "Sesión interna CM 16-Oct-26 (ampliación v1.1)"
+    },
+    {
+      "codigo": "RN-18",
+      "regla": "La diferencia en conversión se registra en el patrimonio y no en el estado de resultados.",
+      "origen": "NIC 21 (por confirmar en la pregunta abierta 3)"
     }
   ],
   "int": [
@@ -494,7 +637,7 @@
     "M3 Generador de bodega BW",
     "M4 Cargador de datos maestros",
     "M5 Generador de modelo BPC",
-    "M6 Reportes EPM (30 iniciales)"
+    "M6 Reportes EPM (34 iniciales)"
   ],
   "matriz_alcance": {
     "M1 Conector y escáner": [
@@ -506,7 +649,8 @@
     "M2 Configurador de alcance": [
       "RF-05",
       "RF-06",
-      "RF-07"
+      "RF-07",
+      "RF-39"
     ],
     "M3 Generador de bodega BW": [
       "RF-08",
@@ -528,16 +672,24 @@
       "RF-18",
       "RF-19",
       "RF-23",
-      "RF-26"
+      "RF-26",
+      "RF-31",
+      "RF-32",
+      "RF-33",
+      "RF-35",
+      "RF-36",
+      "RF-37",
+      "RF-38"
     ],
-    "M6 Reportes EPM (30 iniciales)": [
+    "M6 Reportes EPM (34 iniciales)": [
       "RF-20",
       "RF-21",
       "RF-22",
       "RF-27",
       "RF-28",
       "RF-29",
-      "RF-30"
+      "RF-30",
+      "RF-34"
     ]
   },
   "clasificacion_datos": [
@@ -584,6 +736,14 @@
     {
       "grupo": "Tasas de cambio",
       "categoria": "Interna"
+    },
+    {
+      "grupo": "Participaciones y métodos de consolidación",
+      "categoria": "Confidencial"
+    },
+    {
+      "grupo": "Asientos de ajuste de consolidación",
+      "categoria": "Confidencial"
     },
     {
       "grupo": "Credenciales de conexión a SAP",
@@ -646,6 +806,26 @@
     },
     {
       "texto": "¿EPM add-in sirve como herramienta de reportes con BPC modelo embebido (arquitectura B), donde SAP orienta hacia Analysis for Office?",
+      "critica": false
+    },
+    {
+      "texto": "Tolerancia de redondeo para la validación de cuadre (RN-16) y umbral de diferencia que marca una pareja en la conciliación intercompañía (RF-34). ¿Fijos o configurables por cliente?",
+      "critica": false
+    },
+    {
+      "texto": "Confirmar los métodos de consolidación de RN-13 y su tratamiento, y si las cuentas de destino de la eliminación de inversión, el interés minoritario y la diferencia en conversión se configuran por cliente.",
+      "critica": false
+    },
+    {
+      "texto": "¿La moneda de presentación del grupo debe poder configurarse (p. ej. peso chileno o peso colombiano) o siempre es el dólar (RN-06)?",
+      "critica": false
+    },
+    {
+      "texto": "¿Los asientos de ajuste (RF-35), el bloqueo por sociedad (RF-37) y el flujo de cierre (RF-38) están disponibles en BPC modelo embebido (arquitectura B) en las versiones de la matriz de soporte?",
+      "critica": false
+    },
+    {
+      "texto": "Versiones exactas de BW/4HANA y BPC 2021 para la variante de RNF-Comp-05 y ambiente disponible para probarla.",
       "critica": false
     }
   ]

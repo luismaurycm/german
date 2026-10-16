@@ -28,7 +28,16 @@
     "RF-26",
     "RF-27",
     "RF-28",
-    "RF-29"
+    "RF-29",
+    "RF-31",
+    "RF-32",
+    "RF-33",
+    "RF-34",
+    "RF-35",
+    "RF-36",
+    "RF-37",
+    "RF-38",
+    "RF-39"
   ],
   "rf_sin_interfaz": [
     "RF-30"
@@ -111,7 +120,8 @@
         "RF-05",
         "RF-23",
         "RF-24",
-        "RF-25"
+        "RF-25",
+        "RF-39"
       ],
       "estados": [
         "normal",
@@ -132,7 +142,8 @@
       "rol": "Consultor implementador",
       "rf": [
         "RF-06",
-        "RF-13"
+        "RF-13",
+        "RF-31"
       ],
       "estados": [
         "normal",
@@ -146,7 +157,9 @@
       "validaciones": [
         "RN-05",
         "RN-06",
-        "RN-07"
+        "RN-07",
+        "RN-13",
+        "RN-14"
       ]
     },
     {
@@ -205,7 +218,15 @@
         "RF-23",
         "RF-24",
         "RF-25",
-        "RF-26"
+        "RF-26",
+        "RF-31",
+        "RF-32",
+        "RF-33",
+        "RF-35",
+        "RF-36",
+        "RF-37",
+        "RF-38",
+        "RF-39"
       ],
       "estados": [
         "normal",
@@ -222,7 +243,11 @@
         "RN-03",
         "RN-04",
         "RN-11",
-        "RN-12"
+        "RN-12",
+        "RN-13",
+        "RN-15",
+        "RN-16",
+        "RN-18"
       ]
     },
     {
@@ -243,7 +268,10 @@
         "RF-23",
         "RF-24",
         "RF-25",
-        "RF-26"
+        "RF-26",
+        "RF-32",
+        "RF-33",
+        "RF-36"
       ],
       "estados": [
         "normal",
@@ -268,7 +296,8 @@
       "rf": [
         "RF-20",
         "RF-27",
-        "RF-29"
+        "RF-29",
+        "RF-34"
       ],
       "estados": [
         "normal",
@@ -277,7 +306,7 @@
         "error"
       ],
       "componentes": [
-        "catálogo de 30 reportes"
+        "catálogo de 34 reportes y plantillas"
       ],
       "validaciones": [
         "RN-08",
@@ -292,7 +321,10 @@
         "RF-20",
         "RF-21",
         "RF-22",
-        "RF-27"
+        "RF-27",
+        "RF-34",
+        "RF-36",
+        "RF-39"
       ],
       "estados": [
         "normal",
@@ -307,7 +339,9 @@
       "validaciones": [
         "RN-06",
         "RN-09",
-        "RN-10"
+        "RN-10",
+        "RN-07",
+        "RN-16"
       ]
     },
     {
@@ -315,7 +349,8 @@
       "nombre": "Captura de presupuesto",
       "rol": "Usuario financiero",
       "rf": [
-        "RF-28"
+        "RF-28",
+        "RF-39"
       ],
       "estados": [
         "normal",
@@ -329,6 +364,78 @@
       ],
       "validaciones": [
         "RN-08"
+      ]
+    },
+    {
+      "codigo": "UX-13",
+      "nombre": "Participaciones y métodos",
+      "rol": "Usuario financiero",
+      "rf": [
+        "RF-31"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "parámetros",
+        "grilla C02 de porcentajes y método",
+        "copiar del periodo anterior"
+      ],
+      "validaciones": [
+        "RN-13",
+        "RN-14",
+        "RNF-Aud-02"
+      ]
+    },
+    {
+      "codigo": "UX-14",
+      "nombre": "Asientos de ajuste",
+      "rol": "Usuario financiero",
+      "rf": [
+        "RF-35"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "encabezado",
+        "líneas débito/crédito",
+        "totales y estado de cuadre",
+        "asientos del periodo"
+      ],
+      "validaciones": [
+        "RN-15",
+        "RN-17",
+        "RNF-Aud-02"
+      ]
+    },
+    {
+      "codigo": "UX-15",
+      "nombre": "Estado del cierre",
+      "rol": "Usuario financiero",
+      "rf": [
+        "RF-37",
+        "RF-38"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "matriz C04 sociedad × paso",
+        "bloquear/desbloquear"
+      ],
+      "validaciones": [
+        "RN-17",
+        "RNF-Aud-02"
       ]
     }
   ],
@@ -368,6 +475,16 @@
         "UX-12",
         "UX-11"
       ]
+    },
+    {
+      "nombre": "Cierre mensual del grupo",
+      "pantallas": [
+        "UX-15",
+        "UX-13",
+        "UX-11",
+        "UX-14",
+        "UX-15"
+      ]
     }
   ],
   "preguntas_abiertas": [
@@ -377,6 +494,14 @@
     },
     {
       "texto": "Cantidad típica de sociedades y cuentas por cliente para dimensionar tablas (DAF pregunta 7)",
+      "critica": false
+    },
+    {
+      "texto": "Asientos, bloqueo y flujo de cierre en arquitectura B (DAF pregunta 17)",
+      "critica": false
+    },
+    {
+      "texto": "Umbral de conciliación y tolerancia de cuadre (DAF pregunta 14)",
       "critica": false
     }
   ]

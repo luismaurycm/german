@@ -123,7 +123,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font); font-s
 .rub { display: flex; justify-content: space-between; gap: 8px; width: 100%; font: inherit; font-size: 14px; text-align: left; background: none; border: 0; border-radius: 6px; padding: 10px; cursor: pointer; min-height: 44px; color: var(--a-fg); }
 .rub[aria-pressed="true"] { background: var(--a-blue-l); color: var(--a-blue); font-weight: 700; }
 /* Excel simulado */
-.xl { background: #fff; display: flex; flex-direction: column; min-height: 760px; font-family: "Segoe UI", var(--font); }
+.xl { color-scheme: light; color: #1f2a37; background: #fff; display: flex; flex-direction: column; min-height: 760px; font-family: "Segoe UI", var(--font); }
 .xl-title { background: var(--a-xl-green); color: #fff; padding: 8px 16px; font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .xl-tabs { display: flex; flex-wrap: wrap; gap: 2px; background: var(--a-xl-head); border-bottom: 1px solid var(--a-xl-grid); padding: 0 8px; }
 .xl-tabs span { padding: 8px 12px; font-size: 13px; color: #3c4450; }
@@ -144,7 +144,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font); font-s
 .xl-grid td.p { background: #FFF8E1; }
 .xl-grid td.p select { min-height: 30px; padding: 0 6px; font-size: 13px; border-color: #c9b26a; }
 .xl-grid td.ed { background: #FFFBEA; padding: 0; }
-.xl-grid td.ed input { width: 84px; border: 0; background: transparent; font: inherit; text-align: right; padding: 5px 8px; font-variant-numeric: tabular-nums; }
+.xl-grid td.ed input { color: #1f2a37; width: 84px; border: 0; background: transparent; font: inherit; text-align: right; padding: 5px 8px; font-variant-numeric: tabular-nums; }
 .xl-grid td.ed.bad { background: var(--a-err-bg); outline: 2px solid var(--a-err-i); outline-offset: -2px; }
 .xl-sheets { display: flex; flex-wrap: wrap; gap: 2px; padding: 0 8px; background: var(--a-xl-head); border-top: 1px solid var(--a-xl-grid); }
 .xl-sheets button { font: inherit; font-size: 13px; padding: 8px 14px; border: 0; background: none; cursor: pointer; color: #3c4450; min-height: 40px; }
@@ -164,7 +164,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font); font-s
 <div class="wrap">
   <div class="top">
     <h1>Prototipo · Acelerador de consolidación SAP BW/BPC</h1>
-    <p>12 pantallas del brief de diseño F4. Datos de ejemplo.</p>
+    <p>15 pantallas del diseño F4 (v1.1). Datos de ejemplo.</p>
   </div>
   <div class="ctl" role="group" aria-label="Controles del prototipo">
     <div class="ctl-row"><span class="ctl-lbl" id="l-scr">Pantalla</span><div class="chips" id="c-scr" role="group" aria-labelledby="l-scr"></div></div>
@@ -184,15 +184,18 @@ const SCREENS = [
   ['UX-01', 'Clientes', 'Consultor implementador', 'RF-01, RF-04'],
   ['UX-02', 'Conexiones', 'Consultor implementador', 'RF-01, RF-02, RF-04'],
   ['UX-03', 'Diagnóstico e inventario', 'Consultor implementador', 'RF-03, RF-04, RF-09'],
-  ['UX-04', 'Módulos', 'Consultor implementador', 'RF-05, RF-23, RF-24, RF-25'],
-  ['UX-05', 'Sociedades del grupo', 'Consultor implementador', 'RF-06, RF-13'],
+  ['UX-04', 'Módulos', 'Consultor implementador', 'RF-05, RF-23, RF-24, RF-25, RF-39'],
+  ['UX-05', 'Sociedades del grupo', 'Consultor implementador', 'RF-06, RF-13, RF-31'],
   ['UX-06', 'Mapeo de cuentas', 'Consultor implementador', 'RF-07'],
   ['UX-07', 'Carga de sociedades no SAP', 'Consultor implementador', 'RF-15'],
-  ['UX-08', 'Plan de generación', 'Consultor implementador', 'RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26'],
-  ['UX-09', 'Ejecución y registro', 'Consultor implementador', 'RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26'],
-  ['UX-10', 'Reportes', 'Consultor implementador', 'RF-20, RF-27, RF-29'],
-  ['UX-11', 'Plantilla de reporte EPM', 'Usuario financiero', 'RF-20, RF-21, RF-22, RF-27'],
-  ['UX-12', 'Captura de presupuesto', 'Usuario financiero', 'RF-28']
+  ['UX-08', 'Plan de generación', 'Consultor implementador', 'RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26, RF-31, RF-32, RF-33, RF-35, RF-36, RF-37, RF-38, RF-39'],
+  ['UX-09', 'Ejecución y registro', 'Consultor implementador', 'RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26, RF-32, RF-33, RF-36'],
+  ['UX-10', 'Reportes', 'Consultor implementador', 'RF-20, RF-27, RF-29, RF-34'],
+  ['UX-11', 'Plantilla de reporte EPM', 'Usuario financiero', 'RF-20, RF-21, RF-22, RF-27, RF-34, RF-36, RF-39'],
+  ['UX-12', 'Captura de presupuesto', 'Usuario financiero', 'RF-28, RF-39'],
+  ['UX-13', 'Participaciones y métodos', 'Usuario financiero', 'RF-31'],
+  ['UX-14', 'Asientos de ajuste', 'Usuario financiero', 'RF-35'],
+  ['UX-15', 'Estado del cierre', 'Usuario financiero', 'RF-37, RF-38']
 ];
 const STEPS = [['UX-02','Conexiones'],['UX-03','Diagnóstico'],['UX-04','Módulos'],['UX-05','Sociedades'],['UX-06','Mapeo de cuentas'],['UX-07','Sociedades no SAP'],['UX-08','Plan de generación'],['UX-09','Ejecución'],['UX-10','Reportes']];
 const ESTADOS = [['normal','Normal'],['vacio','Vacío'],['carga','Carga'],['error','Error']];
@@ -209,8 +212,9 @@ const CAP0 = [
 const S = {
   screen: 'UX-01', estado: 'normal', arch: 'A', dlg: false, cred: false, tab: 0, confirm: false,
   mods: { cons: true, pres: true, af: true, det: true }, rubro: 0, filtro: 'Todos', sheet: 'R07', busy: false,
-  rep: { soc: '1000', fil: 'Sí', mon: 'Moneda local', per: 'Sep-2026' },
-  pend: { soc: '1000', fil: 'Sí', mon: 'Moneda local', per: 'Sep-2026' },
+  jl: [['2000','21050501','1000','0','12.400.000','Reclasificación préstamo matriz'],['1000','13050501','2000','12.400.000','0','Reclasificación préstamo matriz']], locks: { '1000': false, '2000': true, '3000': false, '9000': false },
+  rep: { soc: '1000', fil: 'Sí', mon: 'Moneda local', per: 'Sep-2026', ver: 'Presupuesto anual 2027' },
+  pend: { soc: '1000', fil: 'Sí', mon: 'Moneda local', per: 'Sep-2026', ver: 'Presupuesto anual 2027' },
   cap: CAP0.map(r => MESES.map((m, i) => String(r[4] + (i % 3) * 2))), capBad: {}, saved: null
 };
 try { const h = (location.hash || '').slice(1); if (SCREENS.some(s => s[0] === h)) S.screen = h; } catch (e) {}
@@ -229,7 +233,7 @@ const ic = {
   save: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h10l3 3v11H4z M7 3v5h6V3 M7 17v-5h7v5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>'
 };
 const pill = (c, t) => `<span class="pill ${c}">${t}</span>`;
-const archTxt = () => S.arch === 'A' ? 'Arquitectura A · BW 7.5 + BPC estándar' : 'Arquitectura B · S/4HANA, BW y BPC embebidos';
+const archTxt = () => S.arch === 'A' ? 'Arquitectura A · BW 7.5 o BW/4HANA + BPC estándar' : 'Arquitectura B · S/4HANA, BW y BPC embebidos';
 const ph = (title, sub, right) => `<div class="ph"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ''}</div>${right ? `<div class="row">${right}</div>` : ''}</div>`;
 const skel = (label) => `<div class="card" aria-busy="true" style="display:grid;gap:14px"><p style="margin:0;color:var(--a-muted)" class="row"><span class="spin" style="color:#144E8C"></span>${label}</p><div class="sk" style="height:18px;width:38%"></div><div class="sk" style="height:44px"></div><div class="sk" style="height:44px"></div><div class="sk" style="height:44px"></div></div>`;
 const errBox = (t, d, btn) => `<div role="alert" class="note e" style="align-items:center;flex-wrap:wrap;padding:16px">${ic.err}<div style="flex:1;min-width:200px"><b style="color:var(--a-err)">${t}</b><br>${d}</div>${btn || '<button class="btn btn-s" type="button" data-act="toast" data-msg="Reintentando…">Reintentar</button>'}</div>`;
@@ -330,7 +334,7 @@ function ux03() {
 }
 
 /* ---------- UX-04 ---------- */
-const MODS = [['cons','Consolidación','Bodega BW + modelo BPC de consolidación + 20 reportes',20,''],['pres','Presupuesto','Carga desde 0FI_GL_14 + modelo de planeación BPC + 5 reportes',5,''],['af','Activos fijos','Carga en BW + 3 reportes',3,'Se queda en BW; no crea modelo en BPC. RN-12'],['det','Deterioros','Carga en BW + 2 reportes',2,'Se queda en BW; no crea modelo en BPC. RN-12']];
+const MODS = [['cons','Consolidación','Bodega BW + modelo BPC de consolidación y de propiedad + 20 reportes + 4 de control (C01 a C04)',24,''],['pres','Presupuesto','Carga desde 0FI_GL_14 + modelo de planeación BPC + 5 reportes · Versiones: presupuesto anual, 3+9, 6+6 y 9+3 (editables)',5,''],['af','Activos fijos','Carga en BW + 3 reportes',3,'Se queda en BW; no crea modelo en BPC. RN-12'],['det','Deterioros','Carga en BW + 2 reportes',2,'Se queda en BW; no crea modelo en BPC. RN-12']];
 function ux04() {
   const e = S.estado;
   if (e === 'carga') return shell(ph('Módulos', '') + `<div class="grid2">${'<div class="card sk" style="height:150px"></div>'.repeat(4)}</div>`);
@@ -351,12 +355,12 @@ function ux05() {
   else if (e === 'carga') body = skel('Cargando sociedades…');
   else if (e === 'error') body = errBox('No se pudieron guardar las sociedades.', 'La sociedad 3000 no tiene moneda local. Complétala e inténtalo de nuevo.');
   else {
-    const rows = [['1000','Matriz','Sí','COP','—','PCCO'],['2000','Filial Colombia','Sí','COP','1000','PCCO'],['3000','Filial Panamá','Sí','USD','1000','PCPA'],['9000','Filial no SAP','No','COP','1000','—']];
+    const rows = [['1000','Matriz','Sí','COP','—','PCCO','100','Matriz'],['2000','Filial Colombia','Sí','COP','1000','PCCO','80','Integración global'],['3000','Filial Panamá','Sí','USD','1000','PCPA','100','Integración global'],['9000','Filial no SAP','No','COP','1000','—','35','Participación (coligada)']];
     body = `<div class="note">${ic.info}<div>La consolidación se presenta en moneda local y en dólares. <span class="rn">RN-06</span></div></div>
-    <div class="tblw"><table class="tbl cards"><thead><tr><th>Código</th><th>Nombre</th><th>En SAP</th><th>Moneda local</th><th>Sociedad matriz</th><th>Plan de cuentas</th></tr></thead><tbody>
-    ${rows.map(r => `<tr><td data-l="Código" class="mono"><b>${r[0]}</b></td><td data-l="Nombre">${r[1]}</td><td data-l="En SAP"><button type="button" role="switch" aria-checked="${r[2] === 'Sí'}" class="pill ${r[2] === 'Sí' ? 'ok' : 'warn'}" style="border:0;cursor:pointer;font-family:inherit;min-height:32px" data-act="toast" data-msg="Sociedad ${r[0]}: cambia En SAP">${r[2]}</button></td><td data-l="Moneda local" class="mono">${r[3]}</td><td data-l="Matriz" class="mono">${r[4]}</td><td data-l="Plan de cuentas" class="mono">${r[5]}</td></tr>`).join('')}
+    <div class="tblw"><table class="tbl cards"><thead><tr><th>Código</th><th>Nombre</th><th>En SAP</th><th>Moneda local</th><th>Sociedad matriz</th><th>Plan de cuentas</th><th class="num">% propiedad</th><th>Método inicial</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td data-l="Código" class="mono"><b>${r[0]}</b></td><td data-l="Nombre">${r[1]}</td><td data-l="En SAP"><button type="button" role="switch" aria-checked="${r[2] === 'Sí'}" class="pill ${r[2] === 'Sí' ? 'ok' : 'warn'}" style="border:0;cursor:pointer;font-family:inherit;min-height:32px" data-act="toast" data-msg="Sociedad ${r[0]}: cambia En SAP">${r[2]}</button></td><td data-l="Moneda local" class="mono">${r[3]}</td><td data-l="Matriz" class="mono">${r[4]}</td><td data-l="Plan de cuentas" class="mono">${r[5]}</td><td data-l="% propiedad" class="num">${r[6]} %</td><td data-l="Método">${r[7]}</td></tr>`).join('')}
     </tbody></table></div>
-    <p style="margin:0;font-size:14px;color:var(--a-muted)">4 sociedades · 1 no SAP. Cada sociedad puede tener su propio plan de cuentas. <span class="rn">RN-05</span></p>`;
+    <p style="margin:0;font-size:14px;color:var(--a-muted)">4 sociedades · 1 no SAP. Cada sociedad puede tener su propio plan de cuentas. <span class="rn">RN-05</span> · El % de propiedad y el método son la estructura inicial; después el Usuario financiero los mantiene por periodo en C02 (UX-13). <span class="rn">RN-13 · RN-14</span></p>`;
   }
   return shell(`${ph('Sociedades del grupo', 'Clientes y proveedores no son entidades de consolidación: solo las sociedades del grupo. <span class="rn">RN-07</span>', e === 'normal' ? `<button class="btn btn-s" type="button" data-act="toast" data-msg="Fila nueva agregada">${ic.plus}Agregar sociedad</button>` : '')}${body}
     <div class="row" style="justify-content:flex-end"><button class="btn btn-p" type="button" data-go="UX-06" ${e === 'normal' ? '' : 'disabled'}>Continuar al mapeo</button></div>`);
@@ -425,21 +429,29 @@ function ux08() {
     m.cons ? ['Modelo de consolidación · dimensiones: cuentas, terceros y las definidas en arquitectura', nv] : null,
     m.cons ? [`Script de consolidación · Variante para modelo ${B ? 'embebido' : 'estándar'}`, nv] : null,
     m.cons && !B ? ['Importación desde InfoCubo de BW', nv] : null,
-    m.pres ? ['Modelo de planeación de presupuesto', nv] : null
+    m.cons ? ['Modelo de propiedad y plantilla C02 de participaciones', nv] : null,
+    m.cons ? ['Reglas: eliminación de inversión e interés minoritario (integración global)', nv] : null,
+    m.cons ? ['Regla: diferencia en conversión a la cuenta de patrimonio 3805 (ejemplo)', nv] : null,
+    m.cons ? ['Validación de cuadre en los paquetes de importación (reporte C03)', nv] : null,
+    m.cons ? ['Asientos de ajuste de consolidación', nv] : null,
+    m.cons ? ['Bloqueo de datos por sociedad y periodo', nv] : null,
+    m.cons ? ['Flujo del cierre mensual y reporte C04', nv] : null,
+    m.pres ? ['Modelo de planeación de presupuesto · versiones: anual, 3+9, 6+6, 9+3', nv] : null
   ].filter(Boolean);
   const total = bw.concat(bpc).filter(x => x[1] === nv).length;
   const li = arr => arr.map(x => `<div class="li"><span>${x[0]}</span>${x[1]}</div>`).join('');
   const dlg = S.confirm ? `<div role="dialog" aria-modal="true" aria-labelledby="dlg8" class="card dlg"><h3 id="dlg8" style="font-size:20px">¿Generar?</h3><p style="margin:0">Se crearán <b>${total} objetos</b> en el sistema del cliente.</p><div class="row" style="justify-content:flex-end"><button class="btn btn-s" type="button" data-act="conf0">Cancelar</button><button class="btn btn-p" type="button" data-go="UX-09">Generar</button></div></div>` : '';
   return shell(`${ph('Plan de generación', 'Revisa todo lo que se va a crear antes de ejecutar.', `<b>${total} objetos a crear</b><button class="btn btn-p" type="button" data-act="conf1">Generar</button>`)}${dlg}
     <details class="sec" open><summary>SAP BW ${pill('neu', bw.length + ' objetos')}</summary><div class="in">${li(bw)}<span class="rn">Después de la carga full inicial, las siguientes cargas son delta cada noche. RN-04 · Si la bodega existe no se recrea. RN-03${m.af || m.det ? ' · Activos fijos y deterioros solo en BW. RN-12' : ''}</span></div></details>
-    <details class="sec" open><summary>SAP BPC ${pill('neu', bpc.length + ' objetos')}</summary><div class="in">${li(bpc)}<span class="rn">Cada arquitectura usa su variante de scripts. RN-02</span></div></details>
+    <details class="sec" open><summary>SAP BPC ${pill('neu', bpc.length + ' objetos')}</summary><div class="in">${li(bpc)}<span class="rn">Cada arquitectura usa su variante de scripts. RN-02 · Método por sociedad y periodo. RN-13 · Solo se importan sociedades cuadradas. RN-16 · Asientos solo cuadrados. RN-15</span></div></details>
     <details class="sec" open><summary>Monedas y tasas</summary><div class="in">
       <div class="li"><span>Moneda local: COP (1000, 2000, 9000) · USD (3000)</span>${pill('neu','De SAP')}</div>
       <div class="li"><span>Presentación de la consolidación</span><span>Moneda local y dólares</span></div>
       <div class="li"><span>Tasa de cierre</span><span>Cuentas de balance</span></div>
       <div class="li"><span>Tasa promedio</span><span>Cuentas de resultados</span></div>
       <div class="li"><span>Tasa histórica</span><span>Patrimonio</span></div>
-      <span class="rn">RN-06 · RN-11 (NIC 21, por confirmar)</span></div></details>`);
+      <div class="li"><span>Diferencia en conversión</span><span>Patrimonio, no resultados</span></div>
+      <span class="rn">RN-06 · RN-11 (NIC 21, por confirmar) · RN-18</span></div></details>`);
 }
 
 /* ---------- UX-09 ---------- */
@@ -447,8 +459,8 @@ function ux09() {
   const e = S.estado, B = S.arch === 'B';
   if (e === 'vacio') return shell(ph('Ejecución y registro', '') + emptyBox('Aún no hay ejecuciones.', 'Revisa el plan y presiona Generar.', `<button class="btn btn-p" type="button" data-go="UX-08">Ir al plan de generación</button>`));
   const m = S.mods;
-  const steps = ['Objetos BW y carga full inicial','Planes de cuentas','Centros de costo y de beneficio','Monedas y tasas','Jerarquía de cuentas', m.af ? 'Activos fijos en BW' : null, m.det ? 'Deterioros en BW' : null, 'Modelo BPC y scripts', B ? null : 'Importación a BPC', m.pres ? 'Modelo de presupuesto' : null, 'Consolidación','Conversión a dólares'].filter(Boolean);
-  const dur = ['6:30','0:42','1:15','0:08','0:21','2:05','1:10','0:55','3:12','1:40','4:47','1:02'];
+  const steps = ['Objetos BW y carga full inicial','Planes de cuentas','Centros de costo y de beneficio','Monedas y tasas','Jerarquía de cuentas', m.af ? 'Activos fijos en BW' : null, m.det ? 'Deterioros en BW' : null, 'Modelo BPC, propiedad y scripts', 'Validación de cuadre', B ? null : 'Importación a BPC', m.pres ? 'Modelo de presupuesto' : null, 'Consolidación','Eliminación de inversión e interés minoritario','Conversión a dólares y diferencia en conversión'].filter(Boolean);
+  const dur = ['6:30','0:42','1:15','0:08','0:21','2:05','1:10','0:55','0:34','3:12','1:40','4:47','2:18','1:02'];
   const ci = steps.indexOf('Consolidación');
   const items = steps.map((s, i) => {
     let st = 'ok';
@@ -473,8 +485,10 @@ function ux09() {
 const REPS = [
   ['R01','Estado de situación financiera','cons','1'],['R02','Estado de resultados integral','cons','2'],['R03','Estado de cambios en el patrimonio','cons','2'],['R04','Estado de flujos de efectivo','cons','2'],['R05','Hoja de eliminaciones intercompañía','cons','1'],['R06','Saldos y transacciones con partes relacionadas','cons','2'],['R07','Efectivo y equivalentes de efectivo','cons','1'],['R08','Cuentas por cobrar','cons','3'],['R09','Carteras colectivas','cons','3'],['R10','Propiedad, planta y equipo','cons','3'],['R11','Intangibles','cons','3'],['R12','Cuentas por pagar','cons','3'],['R13','Obligaciones financieras','cons','3'],['R14','Beneficios a empleados','cons','3'],['R15','Provisiones y contingencias','cons','3'],['R16','Impuesto a las ganancias','cons','3'],['R17','Dividendos pagados','cons','3'],['R18','Dividendos recibidos','cons','3'],['R19','Ingresos de actividades ordinarias','cons','3'],['R20','Informe a junta directiva','cons','3'],
   ['P01','Presupuesto frente a ejecución','pres',''],['P02','Presupuesto de gastos por centro de costo','pres',''],['P03','Presupuesto de ingresos por centro de beneficio','pres',''],['P04','Ejecución acumulada y proyección de cierre','pres',''],['P05','Formulario de captura de presupuesto','pres',''],
-  ['A01','Movimiento de activos fijos por clase','af',''],['A02','Depreciación del periodo','af',''],['A03','Listado de activos fijos por sociedad','af',''],['D01','Movimiento del deterioro','det',''],['D02','Deterioro por cuenta y sociedad','det','']
+  ['A01','Movimiento de activos fijos por clase','af',''],['A02','Depreciación del periodo','af',''],['A03','Listado de activos fijos por sociedad','af',''],['D01','Movimiento del deterioro','det',''],['D02','Deterioro por cuenta y sociedad','det',''],
+  ['C01','Conciliación intercompañía por pareja de sociedades','cons','1'],['C02','Participaciones y métodos (plantilla)','cons','1'],['C03','Validación de cuadre por sociedad','cons','1'],['C04','Estado del cierre por sociedad y paso','cons','1']
 ];
+const RLINK = { P01: ['UX-11','P01'], C01: ['UX-11','C01'], C03: ['UX-11','C03'], C02: ['UX-13',''], C04: ['UX-15',''] };
 const MODN = { cons: 'Consolidación', pres: 'Presupuesto', af: 'Activos fijos', det: 'Deterioros' };
 function ux10() {
   const e = S.estado;
@@ -485,7 +499,7 @@ function ux10() {
   return shell(`${ph('Reportes', 'Genera y descarga los Excel con EPM que se entregan al cliente.', `<button class="btn btn-s" type="button" data-act="toast" data-msg="Generando reportes seleccionados…">Generar seleccionados</button><button class="btn btn-p" type="button" data-act="toast" data-msg="Paquete de reportes listo (simulado)">Descargar reportes (.zip)</button>`)}
     <div class="chips" role="group" aria-label="Filtrar por módulo">${filtros.map(f => `<button class="chip" type="button" aria-pressed="${S.filtro === f}" data-act="filtro" data-f="${f}">${f}</button>`).join('')}</div>
     <div class="tblw"><table class="tbl cards"><thead><tr><th><span class="sr">Elegir</span></th><th>ID</th><th>Reporte</th><th>Módulo</th><th>Fuente</th><th>Ola</th><th>Estado</th></tr></thead><tbody>
-    ${list.map((r, i) => `<tr><td data-l="Elegir"><input class="chk" type="checkbox" aria-label="Elegir ${r[0]}"></td><td data-l="ID" class="mono"><a href="#UX-11" data-go="UX-11" data-sheet="${r[0] === 'P01' ? 'P01' : 'R07'}"><b>${r[0]}</b></a></td><td data-l="Reporte">${r[1]}</td><td data-l="Módulo">${MODN[r[2]]}</td><td data-l="Fuente">${r[2] === 'af' || r[2] === 'det' ? pill('warn','BW') : pill('neu','BPC')}</td><td data-l="Ola">${r[3] || '—'}</td><td data-l="Estado">${st(r, i)}</td></tr>`).join('')}
+    ${list.map((r, i) => `<tr><td data-l="Elegir"><input class="chk" type="checkbox" aria-label="Elegir ${r[0]}"></td><td data-l="ID" class="mono"><a href="#${(RLINK[r[0]] || ['UX-11'])[0]}" data-go="${(RLINK[r[0]] || ['UX-11'])[0]}" data-sheet="${(RLINK[r[0]] || ['', 'R07'])[1] || 'R07'}"><b>${r[0]}</b></a></td><td data-l="Reporte">${r[1]}</td><td data-l="Módulo">${MODN[r[2]]}</td><td data-l="Fuente">${r[2] === 'af' || r[2] === 'det' ? pill('warn','BW') : pill('neu','BPC')}</td><td data-l="Ola">${r[3] || '—'}</td><td data-l="Estado">${st(r, i)}</td></tr>`).join('')}
     </tbody></table></div><span class="rn">Consolidación y presupuesto leen de BPC (RN-08); activos fijos y deterioros leen de BW (RN-12). Clic en un ID abre su vista previa.</span>`);
 }
 
@@ -534,11 +548,38 @@ function ux11() {
       rows += row(n++, '');
       rows += row(n++, `<td colspan="4" style="color:#5b6370">${usd ? 'Valores en USD con tasa de cierre de ejemplo 4.100 COP/USD (RN-11). ' : 'Valores en moneda local (COP). '}Cada valor es la suma de las cuentas mapeadas al rubro (RN-10).</td>`);
     }
+  } else if (S.sheet === 'C01') {
+    const IC = [['1000','2000','13050501 / 21050501', 12.4, 12.4],['1000','3000','13050501 / 21050501', 3.10, 3.02],['2000','9000','41750501 / 51950501', 0.86, 0.61]];
+    rows += row(n++, `<td colspan="5" style="font-weight:700;font-size:15px;color:#144E8C">C01 Conciliación intercompañía por pareja de sociedades</td>`);
+    rows += row(n++, `<td colspan="5" style="color:#5b6370">Periodo Sep-2026 · miles de millones de COP · umbral de ejemplo 0,05 (DAF, pregunta 14) · datos de ejemplo</td>`);
+    rows += row(n++, '');
+    if (e === 'vacio') rows += row(n++, `<td colspan="5" style="color:#5b6370">No hay saldos intercompañía en el periodo elegido.</td>`);
+    else if (e === 'error') rows += row(n++, `<td colspan="5" style="color:var(--a-err);font-weight:700">No se pudo conectar a BPC; revisa la conexión de EPM y presiona Actualizar.</td>`);
+    else {
+      rows += `<tr class="h"><th scope="row">${n++}</th><td>Sociedad</td><td>Contraparte</td><td>Cuentas</td><td style="text-align:right">Registra la sociedad</td><td style="text-align:right">Registra la contraparte</td><td style="text-align:right">Diferencia</td><td>Estado</td></tr>`;
+      IC.forEach(r => { const d = r[3] - r[4], ok = Math.abs(d) <= 0.05; rows += `<tr><th scope="row">${n++}</th><td class="mono">${r[0]}</td><td class="mono">${r[1]}</td><td class="mono">${r[2]}</td><td class="n">${fmt2.format(r[3])}</td><td class="n">${fmt2.format(r[4])}</td><td class="n">${fmt2.format(d)}</td><td>${ok ? '✓ Conciliada' : '<b style="color:var(--a-err)">✗ Supera el umbral</b>'}</td></tr>`; });
+      rows += row(n++, '');
+      rows += row(n++, `<td colspan="6" style="color:#5b6370">Las parejas que superan el umbral se revisan antes de ejecutar la eliminación (RF-19). Solo sociedades del grupo (RN-07).</td>`);
+    }
+  } else if (S.sheet === 'C03') {
+    const CU = [['1000','Matriz',0,0,'Sí'],['2000','Filial Colombia',0,0,'Sí'],['3000','Filial Panamá',1840,0,'Sí'],['9000','Filial no SAP',0,0,'No (2 cuentas)']];
+    rows += row(n++, `<td colspan="5" style="font-weight:700;font-size:15px;color:#144E8C">C03 Validación de cuadre por sociedad</td>`);
+    rows += row(n++, `<td colspan="5" style="color:#5b6370">Periodo Sep-2026 · última importación 16-Oct-26 06:00 · moneda local · datos de ejemplo</td>`);
+    rows += row(n++, '');
+    if (e === 'vacio') rows += row(n++, `<td colspan="5" style="color:#5b6370">Aún no hay importaciones en el periodo elegido.</td>`);
+    else if (e === 'error') rows += row(n++, `<td colspan="5" style="color:var(--a-err);font-weight:700">No se pudo conectar a BPC; revisa la conexión de EPM y presiona Actualizar.</td>`);
+    else {
+      rows += `<tr class="h"><th scope="row">${n++}</th><td>Sociedad</td><td>Nombre</td><td style="text-align:right">Activo − (pasivo + patrimonio)</td><td style="text-align:right">Utilidad EERR − resultado balance</td><td>Cuentas mapeadas</td><td>Resultado</td></tr>`;
+      CU.forEach(r => { const ok = !r[2] && !r[3] && r[4] === 'Sí'; rows += `<tr><th scope="row">${n++}</th><td class="mono">${r[0]}</td><td>${r[1]}</td><td class="n">${fmt.format(r[2])}</td><td class="n">${fmt.format(r[3])}</td><td>${r[4]}</td><td>${ok ? '✓ Importada' : '<b style="color:var(--a-err)">✗ No importada</b>'}</td></tr>`; });
+      rows += row(n++, '');
+      rows += row(n++, `<td colspan="6" style="color:#5b6370">Una sociedad solo se importa si cuadra y tiene todas sus cuentas con saldo mapeadas (RN-16). Tolerancia de redondeo: DAF, pregunta 14.</td>`);
+    }
   } else {
     const adm = sumRows('adm'), ven = sumRows('ven');
     const P = [['Ingresos operacionales', 4200, 3980], ['Costo de ventas', 2310, 2264], ['Gastos de administración', adm, 2100], ['Gastos de ventas', ven, 1580], ['Utilidad operacional', 4200 - 2310 - adm - ven, 3980 - 2264 - 2100 - 1580]];
     rows += row(n++, `<td colspan="3" style="font-weight:700;font-size:15px;color:#144E8C">P01 Presupuesto frente a ejecución · Estado de resultados</td>`);
-    rows += row(n++, `<td colspan="3" style="color:#5b6370">Sociedad 1000 Matriz · Presupuesto 2027 v1 · millones de COP · Fuente: Modelo de presupuesto BPC</td>`);
+    rows += row(n++, `<td colspan="2"><b>Versión</b></td><td class="p">${sel('ver', [['Presupuesto anual 2027','Presupuesto anual 2027'],['3+9','Proyección 3+9'],['6+6','Proyección 6+6'],['9+3','Proyección 9+3']])}</td>`);
+    rows += row(n++, `<td colspan="3" style="color:#5b6370">Sociedad 1000 Matriz · millones de COP · Fuente: Modelo de presupuesto BPC</td>`);
     rows += row(n++, '');
     rows += `<tr class="h"><th scope="row">${n++}</th><td>Concepto</td><td style="text-align:right">Presupuesto</td><td style="text-align:right">Ejecución</td><td style="text-align:right">Variación</td><td style="text-align:right">% ejecución</td></tr>`;
     P.forEach((r, i) => { rows += `<tr class="${i === 4 ? 'tot' : ''}"><th scope="row">${n++}</th><td>${r[0]}</td><td class="n">${fmt.format(r[1])}</td><td class="n">${fmt.format(r[2])}</td><td class="n">${fmt.format(r[2] - r[1])}</td><td class="n">${r[1] ? fmt2.format(r[2] / r[1] * 100) + ' %' : '—'}</td></tr>`; });
@@ -546,8 +587,8 @@ function ux11() {
     rows += row(n++, `<td colspan="4" style="color:#5b6370">${S.saved ? 'Incluye el presupuesto guardado en el formulario P05 (' + S.saved + ').' : 'Gastos de administración y de ventas salen del formulario P05.'} Datos de ejemplo.</td>`);
   }
   const head = `<tr><th></th>${letters.map(l => `<th>${l}</th>`).join('')}</tr>`;
-  const sheets = `<div class="xl-sheets" role="group" aria-label="Hojas">${[['R07','R07 Efectivo'],['P01','P01 Presupuesto vs ejecución']].map(s => `<button type="button" aria-pressed="${S.sheet === s[0]}" data-act="sheet" data-s="${s[0]}">${s[1]}</button>`).join('')}</div>`;
-  return xlFrame(S.sheet === 'R07' ? 'R07_Efectivo_y_equivalentes.xlsx' : 'P01_Presupuesto_vs_ejecucion.xlsx', ribbon, `<table class="xl-grid">${head}${rows}</table>`, sheets);
+  const sheets = `<div class="xl-sheets" role="group" aria-label="Hojas">${[['R07','R07 Efectivo'],['P01','P01 Presupuesto vs ejecución'],['C01','C01 Conciliación IC'],['C03','C03 Cuadre']].map(s => `<button type="button" aria-pressed="${S.sheet === s[0]}" data-act="sheet" data-s="${s[0]}">${s[1]}</button>`).join('')}</div>`;
+  return xlFrame({ R07: 'R07_Efectivo_y_equivalentes.xlsx', P01: 'P01_Presupuesto_vs_ejecucion.xlsx', C01: 'C01_Conciliacion_intercompania.xlsx', C03: 'C03_Validacion_cuadre.xlsx' }[S.sheet], ribbon, `<table class="xl-grid">${head}${rows}</table>`, sheets);
 }
 function sumRows(k) { let t = 0; CAP0.forEach((r, i) => { if (r[3] === k) S.cap[i].forEach(v => { const x = Number(String(v).replace(/\./g, '').replace(',', '.')); if (!isNaN(x)) t += x; }); }); return t; }
 
@@ -562,7 +603,7 @@ function ux12() {
   let rows = '', n = 1;
   const pad = (c) => c;
   rows += `<tr><th scope="row">${n++}</th><td colspan="6" style="font-weight:700;font-size:15px;color:#144E8C">P05 Captura y ajuste de presupuesto</td><td colspan="10"></td></tr>`;
-  rows += `<tr><th scope="row">${n++}</th><td><b>Sociedad</b></td><td class="p" colspan="2"><select aria-label="Sociedad"><option>1000 Matriz</option><option>2000 Filial Colombia</option></select></td><td><b>Versión</b></td><td class="p" colspan="2"><select aria-label="Versión"><option>Presupuesto 2027 v1</option></select></td><td><b>Año</b></td><td class="p"><select aria-label="Año"><option>2027</option></select></td><td colspan="8"></td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td><b>Sociedad</b></td><td class="p" colspan="2"><select aria-label="Sociedad"><option>1000 Matriz</option><option>2000 Filial Colombia</option></select></td><td><b>Versión</b></td><td class="p" colspan="2"><select aria-label="Versión"><option>Presupuesto anual 2027</option><option>Proyección 3+9</option><option>Proyección 6+6</option><option>Proyección 9+3</option></select></td><td><b>Año</b></td><td class="p"><select aria-label="Año"><option>2027</option></select></td><td colspan="8"></td></tr>`;
   rows += `<tr><th scope="row">${n++}</th><td colspan="16" style="color:#5b6370">${vac ? 'Sin presupuesto para esta versión: ingresa los valores.' : 'Millones de COP. Celdas amarillas editables; los totales no se editan. Se guarda en el modelo de planeación de BPC (RN-08).'}</td></tr>`;
   rows += `<tr class="h"><th scope="row">${n++}</th><td>Cuenta</td><td>Descripción</td><td>Centro de costo</td>${MESES.map(m => `<td style="text-align:right">${m}</td>`).join('')}<td style="text-align:right">Total</td></tr>`;
   const colT = MESES.map(() => 0); let gt = 0;
@@ -582,14 +623,90 @@ function ux12() {
   return xlFrame('P05_Captura_presupuesto_2027.xlsx', ribbon, msg + `<table class="xl-grid">${head}${rows}</table>`, `<div class="xl-sheets"><button type="button" aria-pressed="true">P05 Captura</button><button type="button" data-go="UX-11" data-sheet="P01">P01 Presupuesto vs ejecución</button></div>`);
 }
 
-const RENDER = { 'UX-01': ux01, 'UX-02': ux02, 'UX-03': ux03, 'UX-04': ux04, 'UX-05': ux05, 'UX-06': ux06, 'UX-07': ux07, 'UX-08': ux08, 'UX-09': ux09, 'UX-10': ux10, 'UX-11': ux11, 'UX-12': ux12 };
+/* ---------- UX-13 ---------- */
+const PART = [['1000','Matriz','100','100','100','Matriz'],['2000','Filial Colombia','80','100','80','Integración global'],['3000','Filial Panamá','100','100','100','Integración global'],['9000','Filial no SAP','35','35','35','Participación (coligada)']];
+const METODOS = ['Matriz','Integración global','Participación (coligada)','Fuera del perímetro'];
+function ux13() {
+  const e = S.estado, vac = e === 'vacio';
+  const ribbon = `<button class="xl-btn" type="button" data-act="toast" data-msg="Sesión EPM activa">Iniciar sesión</button><span class="xl-sep"></span>
+    <button class="xl-btn" type="button" data-act="toast" data-msg="Participaciones copiadas de Ago-2026">${ic.ref}Copiar del periodo anterior</button>
+    <button class="xl-btn" type="button" data-act="toast" data-msg="Participaciones guardadas en el modelo de propiedad">${e === 'carga' ? '<span class="spin"></span>' : ic.save}${e === 'carga' ? 'Guardando…' : 'Guardar datos'}</button><span class="xl-sep"></span>
+    <span class="xl-con">● Conectado a BPC · Propiedad</span>`;
+  let rows = '', n = 1;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="7" style="font-weight:700;font-size:15px;color:#144E8C">C02 Participaciones y métodos de consolidación</td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td><b>Grupo</b></td><td class="p"><select aria-label="Grupo"><option>G1000 Grupo consolidado</option></select></td><td><b>Periodo</b></td><td class="p"><select aria-label="Periodo"><option>Sep-2026</option><option>Ago-2026</option></select></td><td colspan="3"></td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="7" style="color:#5b6370">${vac ? 'Sin participaciones para este periodo: copia las del periodo anterior o ingrésalas.' : 'Celdas amarillas editables. Un cambio aplica desde este periodo y no altera los anteriores (RN-14).'}</td></tr>`;
+  rows += `<tr class="h"><th scope="row">${n++}</th><td>Sociedad</td><td>Nombre</td><td style="text-align:right">% control</td><td style="text-align:right">% consolidación</td><td style="text-align:right">% propiedad</td><td>Método</td><td>Cambio frente a Ago-2026</td></tr>`;
+  PART.forEach((r, i) => {
+    const bad = e === 'error' && i === 1;
+    const v = (x, k) => `<td class="ed ${bad && k === 2 ? 'bad' : ''}"><input aria-label="${r[1]} ${['% control','% consolidación','% propiedad'][k]}" inputmode="decimal" value="${vac ? '' : (bad && k === 2 ? '120' : x)}" ${bad && k === 2 ? 'aria-invalid="true"' : ''}></td>`;
+    rows += `<tr><th scope="row">${n++}</th><td class="mono">${r[0]}</td><td>${r[1]}</td>${v(r[2],0)}${v(r[3],1)}${v(r[4],2)}<td class="p"><select aria-label="Método ${r[1]}">${METODOS.map(m => `<option ${m === r[5] && !vac ? 'selected' : ''}>${m}</option>`).join('')}</select></td><td>${i === 1 && !vac ? '% propiedad 75 → 80' : '—'}</td></tr>`;
+  });
+  rows += `<tr><th scope="row">${n++}</th><td colspan="7"></td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="7" style="color:#5b6370">Integración global elimina inversión y patrimonio y calcula interés minoritario; participación reconoce la proporción del resultado y no elimina transacciones intercompañía (RN-13). Cada cambio queda registrado con usuario, fecha, valor anterior y nuevo (RNF-Aud-02).</td></tr>`;
+  const head = `<tr><th></th>${'ABCDEFG'.split('').map(l => `<th>${l}</th>`).join('')}</tr>`;
+  const msg = e === 'error' ? `<div class="note e xl-msg" role="alert">${ic.err}<div><b>No se guardó la fila 2000.</b> Los porcentajes deben estar entre 0 y 100.</div></div>` : '';
+  return xlFrame('C02_Participaciones_Sep2026.xlsx', ribbon, msg + `<table class="xl-grid">${head}${rows}</table>`, `<div class="xl-sheets"><button type="button" aria-pressed="true">C02 Participaciones</button></div>`);
+}
+
+/* ---------- UX-14 ---------- */
+function ux14() {
+  const e = S.estado, vac = e === 'vacio';
+  const lines = e === 'error' ? [S.jl[0], ['1000','13050501','2000','12.000.000','0','Reclasificación préstamo matriz']] : S.jl;
+  const num = v => Number(String(v).replace(/\./g, '')) || 0;
+  const deb = lines.reduce((a, l) => a + num(l[3]), 0), cre = lines.reduce((a, l) => a + num(l[4]), 0), cuadra = deb === cre;
+  const ribbon = `<button class="xl-btn" type="button" data-act="toast" data-msg="Asiento nuevo">${ic.plus}Nuevo asiento</button>
+    <button class="xl-btn" type="button" data-act="toast" data-msg="Línea agregada">${ic.plus}Agregar línea</button>
+    <button class="xl-btn" type="button" ${cuadra && !vac ? 'data-act="toast" data-msg="Asiento AJ-0007 guardado"' : 'disabled'}>${e === 'carga' ? '<span class="spin"></span>' : ic.save}${e === 'carga' ? 'Guardando…' : 'Guardar asiento'}</button><span class="xl-sep"></span>
+    <span class="xl-con">● Conectado a BPC · Consolidación</span>`;
+  let rows = '', n = 1;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="6" style="font-weight:700;font-size:15px;color:#144E8C">Asiento de ajuste AJ-0007 · nuevo</td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td><b>Grupo</b></td><td class="p"><select aria-label="Grupo"><option>G1000</option></select></td><td><b>Periodo</b></td><td class="p"><select aria-label="Periodo"><option>Sep-2026</option></select></td><td><b>Moneda</b></td><td class="p"><select aria-label="Moneda"><option>COP</option><option>USD</option></select></td></tr>`;
+  rows += `<tr class="h"><th scope="row">${n++}</th><td>Sociedad</td><td>Cuenta</td><td>Intercompañía</td><td style="text-align:right">Débito</td><td style="text-align:right">Crédito</td><td>Observación</td></tr>`;
+  if (vac) rows += `<tr><th scope="row">${n++}</th><td colspan="6" style="color:#5b6370">Aún no hay líneas: usa Agregar línea.</td></tr>`;
+  else lines.forEach(l => { rows += `<tr><th scope="row">${n++}</th><td class="mono">${l[0]}</td><td class="mono">${l[1]}</td><td class="mono">${l[2]}</td><td class="ed"><input aria-label="Débito" value="${l[3]}"></td><td class="ed"><input aria-label="Crédito" value="${l[4]}"></td><td>${l[5]}</td></tr>`; });
+  rows += `<tr class="tot"><th scope="row">${n++}</th><td colspan="3">Totales</td><td class="n">${fmt.format(deb)}</td><td class="n">${fmt.format(cre)}</td><td>${vac ? '—' : cuadra ? '✓ Cuadrado' : '<span style="color:var(--a-err)">✗ Descuadrado: ' + fmt.format(deb - cre) + '</span>'}</td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="6"></td></tr>`;
+  rows += `<tr class="h"><th scope="row">${n++}</th><td>Asiento</td><td>Descripción</td><td>Usuario</td><td>Fecha</td><td style="text-align:right">Valor</td><td>Estado</td></tr>`;
+  [['AJ-0006','Ajuste por diferencia en cambio','analista.fin','14-Oct-26 17:20','4.820.000','Contabilizado'],['AJ-0005','Reclasificación de dividendos','analista.fin','10-Oct-26 09:02','95.000.000','Contabilizado']].forEach(j => { rows += `<tr><th scope="row">${n++}</th><td class="mono">${j[0]}</td><td>${j[1]}</td><td>${j[2]}</td><td class="mono">${j[3]}</td><td class="n">${j[4]}</td><td>${j[5]}</td></tr>`; });
+  const head = `<tr><th></th>${'ABCDEF'.split('').map(l => `<th>${l}</th>`).join('')}</tr>`;
+  const msg = e === 'error' ? `<div class="note e xl-msg" role="alert">${ic.err}<div><b>El asiento no cuadra.</b> Los débitos deben ser iguales a los créditos para guardar (RN-15). La sociedad 2000 está bloqueada en Sep-2026: sus líneas no se aceptan hasta que se desbloquee (RN-17).</div></div>` : '';
+  return xlFrame('Asientos_de_ajuste_Sep2026.xlsx', ribbon, msg + `<table class="xl-grid">${head}${rows}</table>`, `<div class="xl-sheets"><button type="button" aria-pressed="true">Asiento</button></div>`);
+}
+
+/* ---------- UX-15 ---------- */
+const PASOS = ['Carga','Cuadre','Conciliación IC','Conversión','Consolidación','Reportes'];
+function ux15() {
+  const e = S.estado;
+  const st = { '1000': ['ok','ok','ok','ok','pen','pen'], '2000': ['ok','ok','ok','ok','pen','pen'], '3000': ['ok', e === 'error' ? 'err' : 'ok', 'pen','pen','pen','pen'], '9000': ['ok','err','pen','pen','pen','pen'] };
+  const ribbon = `<button class="xl-btn" type="button" data-act="toast" data-msg="Estado actualizado">${ic.ref}Actualizar</button><span class="xl-sep"></span>
+    <span class="xl-con">● Conectado a BPC · Consolidación</span>`;
+  const icon = k => k === 'ok' ? '✓ Completo' : k === 'err' ? '<b style="color:var(--a-err)">✗ Con error</b>' : '○ Pendiente';
+  let rows = '', n = 1;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="8" style="font-weight:700;font-size:15px;color:#144E8C">C04 Estado del cierre · Sep-2026</td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="8" style="color:#5b6370">Pasos del flujo de cierre en orden. Bloquear una sociedad impide cargas, asientos y reprocesos del periodo (RN-17).</td></tr>`;
+  if (e === 'vacio') rows += `<tr><th scope="row">${n++}</th><td colspan="8" style="color:#5b6370">El cierre de Sep-2026 aún no ha iniciado.</td></tr>`;
+  else if (e === 'carga') rows += `<tr><th scope="row">${n++}</th><td colspan="8"><span class="spin" style="color:#1D6F42"></span> Consultando el estado del cierre…</td></tr>`;
+  else {
+    rows += `<tr class="h"><th scope="row">${n++}</th><td>Sociedad</td>${PASOS.map(p => `<td>${p}</td>`).join('')}<td>Bloqueo</td></tr>`;
+    Object.keys(st).forEach(k => {
+      const lk = S.locks[k];
+      rows += `<tr><th scope="row">${n++}</th><td class="mono">${k} ${SOC[k]}</td>${st[k].map((x, i) => `<td>${x === 'err' && i === 1 ? `<a href="#UX-11" data-go="UX-11" data-sheet="C03">${icon(x)}</a>` : icon(x)}</td>`).join('')}<td><button class="btn btn-s" type="button" data-act="lock" data-k="${k}" style="min-height:32px;padding:2px 10px">${lk ? '🔒 Desbloquear' : 'Bloquear'}</button></td></tr>`;
+    });
+  }
+  const head = `<tr><th></th>${'ABCDEFGH'.split('').map(l => `<th>${l}</th>`).join('')}</tr>`;
+  const msg = e === 'error' ? `<div class="note e xl-msg" role="alert">${ic.err}<div><b>2 sociedades no cuadran.</b> 3000 y 9000 no se importaron; revisa C03 Validación de cuadre antes de consolidar.</div></div>` : '';
+  return xlFrame('C04_Estado_del_cierre.xlsx', ribbon, msg + `<table class="xl-grid">${head}${rows}</table>`, `<div class="xl-sheets"><button type="button" aria-pressed="true">C04 Estado del cierre</button><button type="button" data-go="UX-13">C02 Participaciones</button><button type="button" data-go="UX-14">Asientos</button></div>`);
+}
+
+const RENDER = { 'UX-01': ux01, 'UX-02': ux02, 'UX-03': ux03, 'UX-04': ux04, 'UX-05': ux05, 'UX-06': ux06, 'UX-07': ux07, 'UX-08': ux08, 'UX-09': ux09, 'UX-10': ux10, 'UX-11': ux11, 'UX-12': ux12, 'UX-13': ux13, 'UX-14': ux14, 'UX-15': ux15 };
 
 function controls() {
   $('c-scr').innerHTML = SCREENS.map(s => `<button class="chip" type="button" aria-pressed="${S.screen === s[0]}" data-scr="${s[0]}"><span class="c">${s[0]}</span>${s[1]}</button>`).join('');
   $('c-est').innerHTML = ESTADOS.map(s => `<button class="chip" type="button" aria-pressed="${S.estado === s[0]}" data-est="${s[0]}">${s[1]}</button>`).join('');
   $('c-arq').innerHTML = [['A','A · separada'],['B','B · integrada']].map(s => `<button class="chip" type="button" aria-pressed="${S.arch === s[0]}" data-arq="${s[0]}">${s[1]}</button>`).join('');
   const m = SCREENS.find(s => s[0] === S.screen);
-  $('meta').innerHTML = `<span><b>${m[0]} ${m[1]}</b></span><span>Usuario: <b>${m[2]}</b></span><span>Soporta: <span class="rf">${m[3]}</span></span>${S.screen === 'UX-11' ? '<span>Estructura común a los reportes; R07 y P01 como modelo.</span>' : ''}`;
+  $('meta').innerHTML = `<span><b>${m[0]} ${m[1]}</b></span><span>Usuario: <b>${m[2]}</b></span><span>Soporta: <span class="rf">${m[3]}</span></span>${S.screen === 'UX-11' ? '<span>Estructura común a los reportes; R07, P01, C01 y C03 como modelo.</span>' : ''}`;
 }
 function render(focus) {
   controls();
@@ -625,6 +742,7 @@ document.addEventListener('click', ev => {
   else if (a === 'filtro') { S.filtro = t.dataset.f; render(); }
   else if (a === 'sheet') { S.sheet = t.dataset.s; render(); }
   else if (a === 'toast') { toast(t.dataset.msg); }
+  else if (a === 'lock') { S.locks[t.dataset.k] = !S.locks[t.dataset.k]; render(); toast('Sociedad ' + t.dataset.k + (S.locks[t.dataset.k] ? ' bloqueada' : ' desbloqueada') + ' en Sep-2026 (queda registrado)'); }
   else if (a === 'refresh') {
     if (S.estado !== 'normal') { toast('Cambia el estado a Normal para actualizar.'); return; }
     S.busy = true; render();
