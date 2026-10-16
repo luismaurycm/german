@@ -1,0 +1,464 @@
+<title>Acelerador de Consolidación BPC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: una columna de lectura con el diagrama a ancho completo; capas codificadas por color (fuente, BW, BPC, Excel, acelerador) */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #1b2230; --muted: #5b6577; --line: #d5dae3;
+  --accent: #1f5fae;
+  --src: #64708a; --src-bg: #eef0f4;
+  --bw: #1f5fae; --bw-bg: #e8f0fa;
+  --bpc: #0d7a6f; --bpc-bg: #e3f3f0;
+  --xl: #2f7d32; --xl-bg: #e8f4e8;
+  --acc: #b45f06; --acc-bg: #fdf1e2;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161d; --surface: #1a2029; --fg: #e5e9f0; --muted: #9aa4b5; --line: #2d3542;
+  --accent: #6aa5ec;
+  --src: #a3adc0; --src-bg: #222a35;
+  --bw: #6aa5ec; --bw-bg: #17273b;
+  --bpc: #4cc2b3; --bpc-bg: #132d2a;
+  --xl: #73c177; --xl-bg: #172a19;
+  --acc: #f0a54d; --acc-bg: #31240f;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12161d; --surface: #1a2029; --fg: #e5e9f0; --muted: #9aa4b5; --line: #2d3542;
+  --accent: #6aa5ec;
+  --src: #a3adc0; --src-bg: #222a35;
+  --bw: #6aa5ec; --bw-bg: #17273b;
+  --bpc: #4cc2b3; --bpc-bg: #132d2a;
+  --xl: #73c177; --xl-bg: #172a19;
+  --acc: #f0a54d; --acc-bg: #31240f;
+  color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1060px; margin: 0 auto; padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { display: grid; gap: 10px; margin-bottom: 36px; }
+.eyebrow { font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-size: clamp(28px, 4vw, 38px); line-height: 1.15; margin: 0; font-weight: 700; text-wrap: balance; }
+h2 { font-size: 21px; margin: 0 0 14px; font-weight: 600; text-wrap: balance; }
+h3 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
+p { margin: 0; }
+.lead { max-width: 68ch; color: var(--muted); font-size: 16.5px; }
+section { margin-top: 48px; }
+code, .mono { font-family: var(--font-mono); font-size: .9em; }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; padding: 8px; }
+.diagram svg { display: block; width: 100%; min-width: 860px; height: auto; }
+svg text { font-family: var(--font-body); fill: var(--fg); }
+svg .t-h { font-size: 15px; font-weight: 600; }
+svg .t-b { font-size: 13px; font-weight: 600; }
+svg .t-s { font-size: 11.5px; fill: var(--muted); }
+svg .t-m { font-family: var(--font-mono); font-size: 11.5px; fill: var(--muted); }
+svg .t-l { font-size: 11px; fill: var(--muted); font-weight: 500; }
+svg .col-src { fill: var(--src-bg); stroke: var(--src); }
+svg .col-bw { fill: var(--bw-bg); stroke: var(--bw); }
+svg .col-bpc { fill: var(--bpc-bg); stroke: var(--bpc); }
+svg .col-xl { fill: var(--xl-bg); stroke: var(--xl); }
+svg .col-acc { fill: var(--acc-bg); stroke: var(--acc); }
+svg .box { fill: var(--surface); stroke: var(--line); }
+svg .chip { fill: var(--surface); stroke: var(--acc); }
+svg .flow { stroke: var(--fg); stroke-width: 1.6; fill: none; }
+svg .gen { stroke: var(--acc); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+svg .mk-flow { fill: var(--fg); }
+svg .mk-gen { fill: var(--acc); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid; display: inline-block; }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; min-width: 0; display: grid; gap: 8px; align-content: start; }
+.tag { justify-self: start; font: 500 11.5px/1 var(--font-mono); padding: 5px 8px; border-radius: 4px; letter-spacing: .03em; }
+.tag.now { background: var(--acc-bg); color: var(--acc); }
+.tag.later { background: var(--bw-bg); color: var(--bw); }
+.mini { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.srv { border: 1.5px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 13px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.pill { font-size: 12px; padding: 3px 8px; border-radius: 99px; font-weight: 500; }
+.p-erp { background: var(--src-bg); color: var(--src); }
+.p-bw { background: var(--bw-bg); color: var(--bw); }
+.p-bpc { background: var(--bpc-bg); color: var(--bpc); }
+.card ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+.card p { color: var(--muted); font-size: 14px; }
+.mod-id { font: 500 12px/1 var(--font-mono); color: var(--acc); }
+
+ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 32px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14.5px; min-width: 0; }
+ol.steps li::before { content: counter(s, decimal-leading-zero); font: 500 13px/1.6 var(--font-mono); color: var(--muted); }
+ol.steps li b { font-weight: 600; }
+ol.steps li span { color: var(--muted); }
+.layer { font: 500 11px/1 var(--font-mono); padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+
+.tbl-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14px; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 12px/1.3 var(--font-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+table.rep td { padding-block: 9px; }
+table.rep td:first-child { font-weight: 500; color: var(--muted); }
+table.rep td:nth-child(2) { font-weight: 600; }
+table.rep td:nth-child(3) { color: var(--muted); }
+.src, .ola { font: 500 11.5px/1 var(--font-mono); padding: 4px 7px; border-radius: 4px; white-space: nowrap; display: inline-block; }
+.s-r { background: var(--bpc-bg); color: var(--bpc); }
+.s-a { background: var(--src-bg); color: var(--src); }
+.o1 { background: var(--acc-bg); color: var(--acc); }
+.o2 { background: var(--bw-bg); color: var(--bw); }
+.o3 { background: var(--xl-bg); color: var(--xl); }
+td .mono { color: var(--muted); }
+
+.qs { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.qs li { display: grid; grid-template-columns: 1fr; gap: 2px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14.5px; }
+.qs li span { color: var(--muted); font-size: 14px; }
+footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; max-width: 80ch; }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">CM Consulting · borrador de solución v3 · 16 oct 2026</div>
+  <h1>Acelerador de consolidación financiera sobre SAP BW + BPC</h1>
+  <p class="lead">Una herramienta que se conecta al SAP del cliente, revisa lo que ya existe y genera lo que falta: la bodega en BW, el modelo y los scripts de consolidación en BPC, y los reportes de Excel con EPM. El cliente marca qué módulos quiere (consolidación, presupuesto, activos fijos, deterioros) y la herramienta arma solo eso.</p>
+</header>
+
+<section>
+  <h2>Diagrama de la solución</h2>
+  <div class="diagram" role="img" aria-label="Flujo de datos de SAP ERP y empresas no SAP hacia SAP BW, luego al modelo BPC y finalmente a reportes Excel EPM, con el configurador del acelerador generando cada capa.">
+  <svg viewBox="0 0 1000 610" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="af" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-flow" d="M0,0 L10,5 L0,10 z"/></marker>
+      <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-gen" d="M0,0 L10,5 L0,10 z"/></marker>
+    </defs>
+
+    <!-- Configurador -->
+    <rect class="col-acc" x="20" y="16" width="960" height="78" rx="10" stroke-width="1.5"/>
+    <text class="t-h" x="40" y="47">Acelerador · configurador</text>
+    <text class="t-s" x="40" y="70">Consola o web. Se conecta a ERP, BW y BPC del cliente y genera cada capa.</text>
+    <rect class="chip" x="540" y="38" width="100" height="34" rx="6"/><text class="t-b" x="590" y="60" text-anchor="middle">Escanear</text>
+    <rect class="chip" x="650" y="38" width="110" height="34" rx="6"/><text class="t-b" x="705" y="60" text-anchor="middle">Elegir módulos</text>
+    <rect class="chip" x="770" y="38" width="95" height="34" rx="6"/><text class="t-b" x="817" y="60" text-anchor="middle">Generar</text>
+    <rect class="chip" x="875" y="38" width="90" height="34" rx="6"/><text class="t-b" x="920" y="60" text-anchor="middle">Validar</text>
+
+    <!-- líneas punteadas: generado por el acelerador -->
+    <path class="gen" d="M105 94 V146" marker-end="url(#ag)"/><text class="t-l" x="113" y="126">escanea</text>
+    <path class="gen" d="M352 94 V146" marker-end="url(#ag)"/><text class="t-l" x="360" y="126">crea la bodega</text>
+    <path class="gen" d="M627 94 V146" marker-end="url(#ag)"/><text class="t-l" x="635" y="126">crea modelo y scripts</text>
+    <path class="gen" d="M885 94 V146" marker-end="url(#ag)"/><text class="t-l" x="893" y="126">crea plantillas</text>
+
+    <!-- Col 1: Fuentes -->
+    <rect class="col-src" x="20" y="150" width="170" height="350" rx="10" stroke-width="1.5"/>
+    <text class="t-h" x="34" y="177">Fuentes</text>
+    <rect class="box" x="32" y="192" width="146" height="128" rx="6"/>
+    <text class="t-b" x="44" y="214">SAP ERP</text>
+    <text class="t-s" x="44" y="233">ECC o S/4HANA</text>
+    <text class="t-s" x="44" y="251">Sociedades en SAP</text>
+    <text class="t-s" x="44" y="275">Extractor estándar</text>
+    <text class="t-m" x="44" y="293">0FI_GL_14</text>
+    <rect class="box" x="32" y="336" width="146" height="150" rx="6"/>
+    <text class="t-b" x="44" y="358">Empresas no SAP</text>
+    <text class="t-s" x="44" y="377">Filiales que aún no</text>
+    <text class="t-s" x="44" y="393">están en SAP por</text>
+    <text class="t-s" x="44" y="409">tamaño o ubicación</text>
+    <text class="t-s" x="44" y="433">Carga por archivo</text>
+    <text class="t-s" x="44" y="449">plano</text>
+
+    <!-- Col 2: BW -->
+    <rect class="col-bw" x="240" y="150" width="225" height="350" rx="10" stroke-width="1.5"/>
+    <text class="t-h" x="254" y="177">SAP BW · bodega</text>
+    <rect class="box" x="252" y="190" width="201" height="62" rx="6"/>
+    <text class="t-b" x="264" y="211">Extractores activados</text>
+    <text class="t-s" x="264" y="230">Business Content estándar</text>
+    <text class="t-s" x="264" y="245">+ campos Z del cliente</text>
+    <rect class="box" x="252" y="260" width="201" height="70" rx="6"/>
+    <text class="t-b" x="264" y="281">Datos maestros</text>
+    <text class="t-s" x="264" y="300">Plan de cuentas por sociedad,</text>
+    <text class="t-s" x="264" y="316">CeCo/CeBe, moneda, jerarquías</text>
+    <rect class="box" x="252" y="338" width="201" height="70" rx="6"/>
+    <text class="t-b" x="264" y="359">InfoCubos por módulo</text>
+    <text class="t-s" x="264" y="378">Mov. financieros, activos</text>
+    <text class="t-s" x="264" y="394">fijos, deterioros, presupuesto</text>
+    <rect class="box" x="252" y="416" width="201" height="72" rx="6"/>
+    <text class="t-b" x="264" y="437">Cadenas de proceso</text>
+    <text class="t-s" x="264" y="456">Carga full inicial (histórico)</text>
+    <text class="t-s" x="264" y="472">+ delta todas las noches</text>
+
+    <!-- Col 3: BPC -->
+    <rect class="col-bpc" x="515" y="150" width="225" height="350" rx="10" stroke-width="1.5"/>
+    <text class="t-h" x="529" y="177">SAP BPC · modelo</text>
+    <rect class="box" x="527" y="190" width="201" height="62" rx="6"/>
+    <text class="t-b" x="539" y="211">Dimensiones</text>
+    <text class="t-s" x="539" y="230">Cuenta, entidad, moneda,</text>
+    <text class="t-s" x="539" y="245">tiempo, terceros</text>
+    <rect class="box" x="527" y="260" width="201" height="70" rx="6"/>
+    <text class="t-b" x="539" y="281">Mapeo de cuentas</text>
+    <text class="t-s" x="539" y="300">Cuentas SAP → rubro de reporte</text>
+    <text class="t-m" x="539" y="316">F-00-101 Efectivo</text>
+    <rect class="box" x="527" y="338" width="201" height="70" rx="6"/>
+    <text class="t-b" x="539" y="359">Scripts de lógica</text>
+    <text class="t-s" x="539" y="378">Inyectados en el workbench;</text>
+    <text class="t-s" x="539" y="394">cambian según la versión</text>
+    <rect class="box" x="527" y="416" width="201" height="72" rx="6"/>
+    <text class="t-b" x="539" y="437">Consolidación</text>
+    <text class="t-s" x="539" y="456">Eliminaciones intragrupo,</text>
+    <text class="t-s" x="539" y="472">en moneda local y en dólares</text>
+
+    <!-- Col 4: Excel -->
+    <rect class="col-xl" x="790" y="150" width="190" height="350" rx="10" stroke-width="1.5"/>
+    <text class="t-h" x="804" y="177">Excel · EPM add-in</text>
+    <rect class="box" x="802" y="190" width="166" height="208" rx="6"/>
+    <text class="t-b" x="814" y="211">20 reportes iniciales</text>
+    <text class="t-s" x="814" y="232">Efectivo y equivalentes</text>
+    <text class="t-s" x="814" y="250">Cuentas por cobrar</text>
+    <text class="t-s" x="814" y="268">Cuentas por pagar</text>
+    <text class="t-s" x="814" y="286">Beneficios a empleados</text>
+    <text class="t-s" x="814" y="304">Obligaciones financieras</text>
+    <text class="t-s" x="814" y="322">Intangibles, PP&amp;E</text>
+    <text class="t-s" x="814" y="340">Dividendos, EFE</text>
+    <text class="t-s" x="814" y="358">Junta directiva</text>
+    <text class="t-s" x="814" y="382">Un archivo por reporte</text>
+    <rect class="box" x="802" y="406" width="166" height="82" rx="6"/>
+    <text class="t-b" x="814" y="427">Parámetros</text>
+    <text class="t-s" x="814" y="446">Sociedad, sola o con</text>
+    <text class="t-s" x="814" y="462">sus filiales</text>
+    <text class="t-s" x="814" y="478">Lee de BPC, no de BW</text>
+
+    <!-- flujos de datos -->
+    <path class="flow" d="M190 256 H238" marker-end="url(#af)"/>
+    <path class="flow" d="M190 410 C215 410 215 300 238 300" marker-end="url(#af)"/>
+    <text class="t-l" x="215" y="244" text-anchor="middle">extrae</text>
+    <path class="flow" d="M465 325 H513" marker-end="url(#af)"/>
+    <text class="t-l" x="490" y="314" text-anchor="middle">importa</text>
+    <path class="flow" d="M740 325 H788" marker-end="url(#af)"/>
+    <text class="t-l" x="765" y="314" text-anchor="middle">consulta</text>
+
+    <!-- usuario -->
+    <path class="flow" d="M885 500 V528" marker-end="url(#af)"/>
+    <rect class="box" x="790" y="532" width="190" height="58" rx="8"/>
+    <text class="t-b" x="804" y="555">Área financiera</text>
+    <text class="t-s" x="804" y="574">Abre el Excel y actualiza</text>
+
+    <!-- nota de ejecución -->
+    <rect class="box" x="20" y="532" width="740" height="58" rx="8"/>
+    <text class="t-b" x="36" y="555">Ejecución nocturna</text>
+    <text class="t-s" x="36" y="574">Las cadenas de proceso traen el delta del día; BPC recalcula y los Excel quedan al día.</text>
+  </svg>
+  </div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--src-bg);border-color:var(--src)"></i>Fuentes del cliente</span>
+    <span><i class="sw" style="background:var(--bw-bg);border-color:var(--bw)"></i>SAP BW</span>
+    <span><i class="sw" style="background:var(--bpc-bg);border-color:var(--bpc)"></i>SAP BPC</span>
+    <span><i class="sw" style="background:var(--xl-bg);border-color:var(--xl)"></i>Salida en Excel</span>
+    <span><i class="sw" style="background:var(--acc-bg);border-color:var(--acc)"></i>Lo que construimos</span>
+    <span>— flujo de datos · - - - generado por el acelerador</span>
+  </div>
+</section>
+
+<section>
+  <h2>Dos arquitecturas que hay que soportar</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag now">PROTOTIPO · acceso disponible hoy</span>
+      <h3>BW 7.5 + BPC estándar (no embebido)</h3>
+      <div class="mini">
+        <div class="srv"><span class="pill p-erp">ERP</span></div>
+        <div class="srv"><span class="pill p-bw">BW</span><span class="pill p-bpc">BPC</span></div>
+      </div>
+      <p>El ERP y BW están en servidores separados, así que hay que validar la conexión ERP → BW antes de cargar. Mucha gente todavía usa esta versión.</p>
+    </div>
+    <div class="card">
+      <span class="tag later">PROYECTO DEL CLIENTE · siguiente versión</span>
+      <h3>S/4HANA con BW y BPC embebidos (versión por confirmar)</h3>
+      <div class="mini">
+        <div class="srv"><span class="pill p-erp">ERP</span><span class="pill p-bw">BW</span><span class="pill p-bpc">BPC</span></div>
+      </div>
+      <p>Todo viene integrado en el mismo sistema y no hacen falta conexiones aparte. Cambian los objetos y el cálculo: se usan aDSO en vez de InfoCubos clásicos, BPC trabaja directo sobre BW sin importar datos, y calcula con funciones de planificación y FOX en vez de script logic. Por eso cada generador necesita una variante por arquitectura.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Módulos del acelerador</h2>
+  <div class="grid3">
+    <div class="card"><span class="mod-id">M1</span><h3>Conector y escáner</h3><p>Se conecta a ERP, BW y BPC con los parámetros del cliente. Valida la conexión ERP–BW e inventaría lo que ya existe: extractores activos, InfoCubos, campos Z, modelos BPC.</p></div>
+    <div class="card"><span class="mod-id">M2</span><h3>Configurador de alcance</h3><p>El usuario marca los módulos que necesita (consolidación, presupuesto, activos fijos, deterioros), las sociedades del grupo y cuáles son no SAP. Cada cliente es distinto.</p></div>
+    <div class="card"><span class="mod-id">M3</span><h3>Generador de bodega BW</h3><p>Si el cliente no tiene bodega, la arma: activa extractores, crea InfoCubos, incorpora campos adicionales y crea cadenas de proceso con carga full y delta nocturno.</p></div>
+    <div class="card"><span class="mod-id">M4</span><h3>Cargador de datos maestros</h3><p>Plan de cuentas por sociedad, empresas del grupo, centros de costo y beneficio, moneda y jerarquía de cuentas. Incluye la carga por archivo de las empresas no SAP.</p></div>
+    <div class="card"><span class="mod-id">M5</span><h3>Generador de modelo BPC</h3><p>Restaura el ambiente base, carga los miembros de las dimensiones con el mapeo de cuentas del cliente y sube los scripts de consolidación ya parametrizados.</p></div>
+    <div class="card"><span class="mod-id">M6</span><h3>Reportes EPM</h3><p>Los 20 reportes iniciales se construyen una vez en EPM y quedan como plantillas. Lo que cambia entre clientes vive en la jerarquía de cuentas de BPC, así que los Excel no se rehacen por cliente.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Decisiones tomadas</h2>
+  <div class="grid3" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    <div class="card"><span class="tag now">SALIDA</span><h3>Solo EPM por ahora</h3><p>Analysis for Office queda por fuera del primer alcance.</p></div>
+    <div class="card"><span class="tag now">MONEDA</span><h3>Moneda local y dólares</h3><p>La consolidación se presenta en las dos monedas, con tasas de SAP según NIC 21.</p></div>
+    <div class="card"><span class="tag now">MÓDULOS</span><h3>Todos desde el inicio</h3><p>Consolidación, presupuesto, activos fijos y deterioros en el primer alcance.</p></div>
+    <div class="card"><span class="tag now">INTERFAZ</span><h3>Configurador web</h3><p>Cumple WCAG 2.1 AA. Dónde se aloja se define en arquitectura.</p></div>
+    <div class="card"><span class="tag now">VERSIONES</span><h3>Varias por arquitectura</h3><p>Cada versión nueva se agrega como variante de los generadores.</p></div>
+    <div class="card"><span class="tag now">ALCANCE</span><h3>20 reportes iniciales</h3><p>De los cerca de 50 que existen. La selección está abajo.</p></div>
+    <div class="card"><span class="tag now">TÉCNICA</span><h3>Código Z permitido</h3><p>Los clientes aceptan paquetes Z y transportes, así que se sigue la propuesta de inyección por RFC.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Los 20 reportes iniciales</h2>
+  <p class="lead" style="margin-bottom:16px">Criterio: primero los 12 que se nombraron en la reunión; después los 4 estados financieros básicos que exige NIIF, y los reportes que sirven para validar que la consolidación cuadra. Se construyen en tres olas para que el prototipo salga con pocos reportes y probados contra datos reales.</p>
+  <div class="tbl-wrap">
+  <table class="rep">
+    <thead><tr><th>ID</th><th>Reporte</th><th>Grupo</th><th>Origen</th><th>Ola</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">R01</td><td>Estado de situación financiera consolidado</td><td>Estados financieros</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o1">1 · prototipo</span></td></tr>
+      <tr><td class="mono">R02</td><td>Estado de resultados integral</td><td>Estados financieros</td><td><span class="src s-a">Agregado</span></td><td><span class="ola o2">2</span></td></tr>
+      <tr><td class="mono">R03</td><td>Estado de cambios en el patrimonio</td><td>Estados financieros</td><td><span class="src s-a">Agregado</span></td><td><span class="ola o2">2</span></td></tr>
+      <tr><td class="mono">R04</td><td>Estado de flujos de efectivo (EFE)</td><td>Estados financieros</td><td><span class="src s-a">Agregado</span></td><td><span class="ola o2">2</span></td></tr>
+      <tr><td class="mono">R05</td><td>Hoja de eliminaciones intercompañía</td><td>Control de consolidación</td><td><span class="src s-a">Agregado</span></td><td><span class="ola o1">1 · prototipo</span></td></tr>
+      <tr><td class="mono">R06</td><td>Saldos y transacciones con partes relacionadas</td><td>Control de consolidación</td><td><span class="src s-a">Agregado</span></td><td><span class="ola o2">2</span></td></tr>
+      <tr><td class="mono">R07</td><td>Efectivo y equivalentes de efectivo</td><td>Notas de activo</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o1">1 · prototipo</span></td></tr>
+      <tr><td class="mono">R08</td><td>Cuentas por cobrar</td><td>Notas de activo</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R09</td><td>Carteras colectivas</td><td>Notas de activo</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R10</td><td>Propiedad, planta y equipo</td><td>Notas de activo</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R11</td><td>Intangibles</td><td>Notas de activo</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R12</td><td>Cuentas por pagar</td><td>Notas de pasivo</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R13</td><td>Obligaciones financieras</td><td>Notas de pasivo</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R14</td><td>Beneficios a empleados</td><td>Notas de pasivo</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R15</td><td>Provisiones y contingencias</td><td>Notas de pasivo</td><td><span class="src s-a">Agregado</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R16</td><td>Impuesto a las ganancias (corriente y diferido)</td><td>Notas de pasivo</td><td><span class="src s-a">Agregado</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R17</td><td>Dividendos pagados</td><td>Patrimonio y resultados</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R18</td><td>Dividendos recibidos</td><td>Patrimonio y resultados</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R19</td><td>Ingresos de actividades ordinarias</td><td>Patrimonio y resultados</td><td><span class="src s-a">Agregado</span></td><td><span class="ola o3">3</span></td></tr>
+      <tr><td class="mono">R20</td><td>Informe a junta directiva</td><td>Gobierno</td><td><span class="src s-r">Reunión</span></td><td><span class="ola o3">3</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="grid3" style="margin-top:16px">
+    <div class="card"><span class="ola o1" style="justify-self:start">Ola 1 · prototipo</span><p>R01, R05 y R07. Efectivo es el reporte que mejor conoce el colega; el balance y la hoja de eliminaciones prueban que la consolidación cuadra de punta a punta.</p></div>
+    <div class="card"><span class="ola o2" style="justify-self:start">Ola 2 · estados</span><p>Completa los 4 estados básicos y partes relacionadas. El EFE es el más complejo porque exige clasificar cuentas por flujo en el mapeo.</p></div>
+    <div class="card"><span class="ola o3" style="justify-self:start">Ola 3 · notas</span><p>Las 13 notas restantes. Comparten estructura (saldo inicial, movimientos, saldo final por sociedad), así que salen de 2 o 3 plantillas base.</p></div>
+  </div>
+  <p class="lead" style="margin-top:14px;font-size:14.5px">Quedó por fuera “certificación proyecti nominal”, que en el audio no se entiende bien. Los 8 agregados hay que contrastarlos con el catálogo de 50 del colega y cambiarlos por los suyos si hay mejores candidatos.</p>
+</section>
+
+<section>
+  <h2>Cómo se inyectan los scripts: propuesta</h2>
+  <p class="lead" style="margin-bottom:18px">Recomiendo no generar todo desde cero en cada cliente. Lo que es igual para todos se construye una vez y se empaqueta; lo que cambia por cliente se trata como datos y se carga; y lo poco que hay que crear en caliente se hace por RFC con una capa propia de funciones en ABAP.</p>
+  <div class="grid3" style="margin-bottom:18px">
+    <div class="card"><span class="mod-id">CAPA 1 · base empaquetada</span><h3>Igual para todos los clientes</h3><p>Objetos BW (InfoObjects, cubos, transformaciones, cadenas) en una orden de transporte, y el ambiente BPC (dimensiones, modelo, scripts base) como respaldo de BPC con la transacción UJBR. Una versión del paquete por arquitectura.</p></div>
+    <div class="card"><span class="mod-id">CAPA 2 · parametrización</span><h3>Lo que cambia por cliente</h3><p>Sociedades, plan de cuentas, mapeo a rubros, jerarquías y CeCo/CeBe. Son datos, no objetos: el configurador arma los archivos y se cargan con paquetes de Data Manager o como datos maestros.</p></div>
+    <div class="card"><span class="mod-id">CAPA 3 · scripts por plantilla</span><h3>Lo que se genera</h3><p>Los scripts de lógica (.LGF) se escriben como plantillas con marcadores. El configurador los completa con los datos del cliente, los sube al servidor de archivos de BPC y los prueba con UJKT antes de activarlos.</p></div>
+  </div>
+  <div class="diagram" role="img" aria-label="El configurador en la máquina del consultor llama por RFC a un paquete Z en BW, que crea objetos en BW, sube scripts a BPC y los valida. La base empaquetada llega por transporte y respaldo UJBR.">
+  <svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" style="min-width:820px">
+    <defs>
+      <marker id="af2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-flow" d="M0,0 L10,5 L0,10 z"/></marker>
+      <marker id="ag2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk-gen" d="M0,0 L10,5 L0,10 z"/></marker>
+    </defs>
+    <rect class="col-acc" x="20" y="20" width="230" height="170" rx="10" stroke-width="1.5"/>
+    <text class="t-h" x="36" y="48">Configurador</text>
+    <text class="t-s" x="36" y="68">Máquina del consultor</text>
+    <text class="t-s" x="36" y="100">Plantillas por versión</text>
+    <text class="t-s" x="36" y="120">Parámetros del cliente</text>
+    <text class="t-s" x="36" y="140">Genera archivos de carga</text>
+    <text class="t-s" x="36" y="160">y scripts completos</text>
+
+    <path class="flow" d="M250 105 H338" marker-end="url(#af2)"/>
+    <text class="t-l" x="294" y="94" text-anchor="middle">RFC</text>
+    <text class="t-l" x="294" y="124" text-anchor="middle">SAP NCo</text>
+
+    <rect class="col-bw" x="340" y="20" width="300" height="170" rx="10" stroke-width="1.5"/>
+    <text class="t-h" x="356" y="48">Paquete Z en BW</text>
+    <text class="t-s" x="356" y="68">Funciones RFC propias sobre APIs estándar</text>
+    <text class="t-m" x="356" y="100">BAPI_IOBJ_* · BAPI_CUBE_*</text>
+    <text class="t-s" x="356" y="120">Cadenas de proceso (RSPC)</text>
+    <text class="t-s" x="356" y="140">Archivos de BPC (UJFS)</text>
+    <text class="t-s" x="356" y="160">Paquetes Data Manager (UJD)</text>
+
+    <path class="flow" d="M640 60 H728" marker-end="url(#af2)"/>
+    <path class="flow" d="M640 105 H728" marker-end="url(#af2)"/>
+    <path class="flow" d="M640 150 H728" marker-end="url(#af2)"/>
+
+    <rect class="col-bw" x="730" y="34" width="250" height="44" rx="8" stroke-width="1.5"/>
+    <text class="t-b" x="746" y="61">BW: objetos y cargas</text>
+    <rect class="col-bpc" x="730" y="83" width="250" height="44" rx="8" stroke-width="1.5"/>
+    <text class="t-b" x="746" y="110">BPC: miembros y scripts</text>
+    <rect class="col-bpc" x="730" y="132" width="250" height="44" rx="8" stroke-width="1.5"/>
+    <text class="t-b" x="746" y="159">BPC: prueba con UJKT</text>
+
+    <rect class="box" x="340" y="220" width="300" height="62" rx="8"/>
+    <text class="t-b" x="356" y="244">Base empaquetada (una vez)</text>
+    <text class="t-s" x="356" y="264">Orden de transporte BW + respaldo UJBR</text>
+    <path class="gen" d="M640 251 H700 V180 H728" marker-end="url(#ag2)"/>
+
+    <rect class="box" x="20" y="220" width="230" height="62" rx="8"/>
+    <text class="t-b" x="36" y="244">Último recurso</text>
+    <text class="t-s" x="36" y="264">SAP GUI scripting, solo</text>
+    <text class="t-s" x="36" y="278">para pasos sin API</text>
+  </svg>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card"><h3>Por qué así</h3><ul>
+      <li>Transportes y respaldos UJBR son la forma estándar de mover contenido en SAP; los equipos de Basis del cliente ya los conocen.</li>
+      <li>Si la variación entre clientes vive en los datos, no hay que mantener 20 Excel ni decenas de scripts por cliente.</li>
+      <li>Las funciones RFC propias dan un punto único y auditable de cambios, en vez de automatizar pantallas que se rompen con cada versión.</li>
+      <li>SAP GUI scripting sirve para salir del paso en el prototipo, pero no como base del producto.</li>
+    </ul></div>
+    <div class="card"><h3>Qué hay que probar primero (spike de 1 a 2 semanas en el 7.5)</h3><ul>
+      <li>Usuario RFC con permisos y el SDK de RFC de SAP instalado en la máquina del consultor.</li>
+      <li>Crear el paquete Z y la primera orden de transporte con una función RFC de prueba.</li>
+      <li>Subir un script .LGF por RFC, validarlo con UJKT y ejecutarlo desde un paquete de Data Manager.</li>
+      <li>Hacer respaldo y restauración UJBR de un ambiente de prueba.</li>
+      <li>Conector: SAP NCo (.NET) o JCo (Java) tienen soporte vigente; PyRFC dejó de recibir mantenimiento de SAP.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section>
+  <h2>Secuencia de una implementación</h2>
+  <p class="lead" style="margin-bottom:16px">Es el orden que se describió en la reunión. Cada paso es lo que el acelerador debería automatizar o guiar.</p>
+  <ol class="steps">
+    <li><div><b>Validar la conexión ERP–BW</b><span class="layer p-bw">BW</span><br><span>Prueba de carga desde el ERP.</span></div></li>
+    <li><div><b>Homologar cuentas contables</b><span class="layer p-bpc">BPC</span><br><span>Mapeo de cuentas a rubros de reporte.</span></div></li>
+    <li><div><b>Identificar empresas del grupo</b><span class="layer p-bpc">BPC</span><br><span>Pueden ser 10 o 20; base de la consolidación interna.</span></div></li>
+    <li><div><b>Cargar centros de costo y de beneficio</b><span class="layer p-bw">BW</span><br><span>De todas las sociedades.</span></div></li>
+    <li><div><b>Separar información SAP y no SAP</b><span class="layer p-erp">ERP</span><br><span>Las no SAP se cargan por fuera.</span></div></li>
+    <li><div><b>Cargar datos en BW con extractores estándar</b><span class="layer p-bw">BW</span><br><span>Full inicial; luego delta cada noche.</span></div></li>
+    <li><div><b>Cargar el plan contable de cada sociedad</b><span class="layer p-bw">BW</span><br><span>Cada sociedad puede tener uno distinto.</span></div></li>
+    <li><div><b>Cargar monedas</b><span class="layer p-bw">BW</span><br><span>Moneda local de SAP y tasas de cambio a dólares.</span></div></li>
+    <li><div><b>Cargar jerarquía de cuentas</b><span class="layer p-bw">BW</span></div></li>
+    <li><div><b>Crear cadenas de proceso</b><span class="layer p-bw">BW</span></div></li>
+    <li><div><b>Revisar divisas, terceros y clasificación</b><span class="layer p-bpc">BPC</span><br><span>Según los informes que se vayan a sacar.</span></div></li>
+    <li><div><b>Importar del InfoCubo y ejecutar scripts</b><span class="layer p-bpc">BPC</span><br><span>Genera los cubos del modelo de consolidación.</span></div></li>
+    <li><div><b>Construir y entregar los Excel EPM</b><span class="layer" style="background:var(--xl-bg);color:var(--xl)">EXCEL</span><br><span>El cliente los actualiza por su cuenta.</span></div></li>
+  </ol>
+</section>
+
+<section>
+  <h2>Fases propuestas</h2>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Fase</th><th>Alcance</th><th>Resultado</th></tr></thead>
+    <tbody>
+      <tr><td>0 · Descubrimiento y spike</td><td>Recibir el documento de pasos y los casos de uso. Validar los 20 reportes. Probar en el 7.5 la ruta RFC + paquete Z + UJFS/UJKT + UJBR.</td><td>Ruta técnica confirmada y lista de objetos por módulo</td></tr>
+      <tr><td>1 · Prototipo</td><td>Sobre BW 7.5, desde la máquina del consultor: escáner, carga de datos maestros, módulo de consolidación y los 3 reportes de la ola 1 (R01, R05, R07).</td><td>Demo de punta a punta en un ambiente real</td></tr>
+      <tr><td>2 · Configurador</td><td>Selección de módulos, base empaquetada, generación de bodega cuando no existe, campos Z y los 20 reportes EPM.</td><td>Herramienta reutilizable entre clientes</td></tr>
+      <tr><td>3 · Versión embebida</td><td>Variante para la arquitectura integrada con BPC modelo embebido y su lógica de cálculo.</td><td>Soporte para las dos arquitecturas</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Preguntas abiertas</h2>
+  <ul class="qs">
+    <li><b>¿Qué contienen presupuesto, activos fijos y deterioros?</b><span>Entran en el primer alcance, pero solo se conocen sus nombres: faltan fuentes, modelo BPC y reportes de cada uno.</span></li>
+    <li><b>¿Los 8 reportes agregados son los correctos?</b><span>Hay que contrastarlos con el catálogo de cerca de 50 reportes que ya existe.</span></li>
+    <li><b>Entorno de trabajo</b><span>Por ahora todo corre desde la máquina del consultor porque requiere parámetros locales de conexión. Para el producto hay que definir dónde vive.</span></li>
+  </ul>
+</section>
+
+<footer>
+  Fuente: transcripción automática de dos grabaciones de la reunión (1,5 y 21,5 min). Algunos nombres se infirieron del contexto y conviene confirmarlos: la versión “2025” (probablemente S/4HANA, no BW/4HANA), el extractor <span class="mono">0FI_GL_14</span> y el rubro “PP&amp;E”, que en el audio sonó como “PIGs”.
+</footer>
+</div>

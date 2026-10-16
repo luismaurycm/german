@@ -1,0 +1,13 @@
+# Archivos temporales de Office
+~$*
+*.tmp
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Salidas intermedias de los generadores
+out*.docx
+proto_captura.html

@@ -1,0 +1,9 @@
+flowchart TB
+  A["Abrir Excel del reporte · UX-11"] --> B["Elegir sociedad, filiales, moneda y periodo"]
+  B --> C["Actualizar (EPM)"]
+  C --> D{"¿Conexión a BPC?"}
+  D -->|"Sí"| E{"¿Hay datos?"}
+  D -->|"No"| X["Error: revisar conexión EPM"]
+  E -->|"Sí"| F["Rubros calculados por mapeo de cuentas"]
+  E -->|"No"| Y["Vacío: sin datos para la selección"]
+  X --> C

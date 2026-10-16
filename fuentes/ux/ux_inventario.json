@@ -1,0 +1,383 @@
+{
+  "rf_con_interfaz": [
+    "RF-01",
+    "RF-02",
+    "RF-03",
+    "RF-04",
+    "RF-05",
+    "RF-06",
+    "RF-07",
+    "RF-08",
+    "RF-09",
+    "RF-10",
+    "RF-11",
+    "RF-12",
+    "RF-13",
+    "RF-14",
+    "RF-15",
+    "RF-16",
+    "RF-17",
+    "RF-18",
+    "RF-19",
+    "RF-20",
+    "RF-21",
+    "RF-22",
+    "RF-23",
+    "RF-24",
+    "RF-25",
+    "RF-26",
+    "RF-27",
+    "RF-28",
+    "RF-29"
+  ],
+  "rf_sin_interfaz": [
+    "RF-30"
+  ],
+  "pantallas": [
+    {
+      "codigo": "UX-01",
+      "nombre": "Clientes",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-01",
+        "RF-04"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "tabla de clientes",
+        "botón nuevo cliente"
+      ],
+      "validaciones": [
+        "RNF-Comp-04"
+      ]
+    },
+    {
+      "codigo": "UX-02",
+      "nombre": "Conexiones",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-01",
+        "RF-02",
+        "RF-04"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "formulario por sistema",
+        "probar conexión"
+      ],
+      "validaciones": [
+        "RN-01",
+        "RNF-Seg-02"
+      ]
+    },
+    {
+      "codigo": "UX-03",
+      "nombre": "Diagnóstico e inventario",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-03",
+        "RF-04",
+        "RF-09"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "pestañas de inventario",
+        "selección campos Z"
+      ],
+      "validaciones": [
+        "RN-03"
+      ]
+    },
+    {
+      "codigo": "UX-04",
+      "nombre": "Módulos",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-05",
+        "RF-23",
+        "RF-24",
+        "RF-25"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "tarjetas de módulo con casilla"
+      ],
+      "validaciones": [
+        "RN-12"
+      ]
+    },
+    {
+      "codigo": "UX-05",
+      "nombre": "Sociedades del grupo",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-06",
+        "RF-13"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "tabla editable"
+      ],
+      "validaciones": [
+        "RN-05",
+        "RN-06",
+        "RN-07"
+      ]
+    },
+    {
+      "codigo": "UX-06",
+      "nombre": "Mapeo de cuentas",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-07"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "árbol de rubros",
+        "lista de cuentas"
+      ],
+      "validaciones": [
+        "RN-05",
+        "RN-10"
+      ]
+    },
+    {
+      "codigo": "UX-07",
+      "nombre": "Carga de sociedades no SAP",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-15"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "zona de carga de archivo",
+        "vista previa"
+      ],
+      "validaciones": [
+        "RN-07"
+      ]
+    },
+    {
+      "codigo": "UX-08",
+      "nombre": "Plan de generación",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-08",
+        "RF-09",
+        "RF-10",
+        "RF-16",
+        "RF-18",
+        "RF-23",
+        "RF-24",
+        "RF-25",
+        "RF-26"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "resumen por capa",
+        "botón generar"
+      ],
+      "validaciones": [
+        "RN-02",
+        "RN-03",
+        "RN-04",
+        "RN-11",
+        "RN-12"
+      ]
+    },
+    {
+      "codigo": "UX-09",
+      "nombre": "Ejecución y registro",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-08",
+        "RF-10",
+        "RF-11",
+        "RF-12",
+        "RF-13",
+        "RF-14",
+        "RF-16",
+        "RF-17",
+        "RF-18",
+        "RF-19",
+        "RF-23",
+        "RF-24",
+        "RF-25",
+        "RF-26"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "lista de pasos",
+        "registro"
+      ],
+      "validaciones": [
+        "RN-06",
+        "RN-07",
+        "RNF-Aud-01"
+      ]
+    },
+    {
+      "codigo": "UX-10",
+      "nombre": "Reportes",
+      "rol": "Consultor implementador",
+      "rf": [
+        "RF-20",
+        "RF-27",
+        "RF-29"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "catálogo de 30 reportes"
+      ],
+      "validaciones": [
+        "RN-08",
+        "RN-12"
+      ]
+    },
+    {
+      "codigo": "UX-11",
+      "nombre": "Plantilla de reporte EPM",
+      "rol": "Usuario financiero",
+      "rf": [
+        "RF-20",
+        "RF-21",
+        "RF-22",
+        "RF-27"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "parámetros",
+        "tabla de rubros"
+      ],
+      "validaciones": [
+        "RN-06",
+        "RN-09",
+        "RN-10"
+      ]
+    },
+    {
+      "codigo": "UX-12",
+      "nombre": "Captura de presupuesto",
+      "rol": "Usuario financiero",
+      "rf": [
+        "RF-28"
+      ],
+      "estados": [
+        "normal",
+        "vacío",
+        "carga",
+        "error"
+      ],
+      "componentes": [
+        "parámetros",
+        "grilla de captura"
+      ],
+      "validaciones": [
+        "RN-08"
+      ]
+    }
+  ],
+  "flujos": [
+    {
+      "nombre": "Implementación de un cliente nuevo",
+      "pantallas": [
+        "UX-01",
+        "UX-02",
+        "UX-03",
+        "UX-04",
+        "UX-05",
+        "UX-06",
+        "UX-07",
+        "UX-08",
+        "UX-09",
+        "UX-10"
+      ]
+    },
+    {
+      "nombre": "Reintento tras un paso fallido",
+      "pantallas": [
+        "UX-09",
+        "UX-02",
+        "UX-09"
+      ]
+    },
+    {
+      "nombre": "Consulta de un reporte",
+      "pantallas": [
+        "UX-11"
+      ]
+    },
+    {
+      "nombre": "Captura y seguimiento de presupuesto",
+      "pantallas": [
+        "UX-12",
+        "UX-11"
+      ]
+    }
+  ],
+  "preguntas_abiertas": [
+    {
+      "texto": "Inicio de sesión del configurador depende de dónde se aloja (DAF pregunta 4)",
+      "critica": false
+    },
+    {
+      "texto": "Cantidad típica de sociedades y cuentas por cliente para dimensionar tablas (DAF pregunta 7)",
+      "critica": false
+    }
+  ]
+}

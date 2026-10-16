@@ -1,0 +1,9 @@
+flowchart TB
+  A["UX-09 Ejecución"] --> B{"¿Paso con error?"}
+  B -->|"No"| Z["UX-10 Reportes"]
+  B -->|"Sí · conexión o permisos"| D["UX-02 Conexiones"]
+  B -->|"Sí · dato incompleto en SAP"| C["Corregir el dato en el sistema del cliente"]
+  D --> F["Corregir host, mandante, credencial o pedir el permiso"]
+  C --> G["UX-09 Reintentar desde este paso"]
+  F --> G
+  G --> B

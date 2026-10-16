@@ -1,0 +1,651 @@
+<title>Prototipo Acelerador BPC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Ubuntu+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: barra de control del prototipo arriba (pantalla, estado, arquitectura) y debajo un marco con la app simulada a ancho completo */
+:root {
+  --bg: #eef1f6; --fg: #182231; --muted: #526072; --line: #cfd7e3; --surface: #ffffff;
+  --accent: #144E8C; --accent-fg: #ffffff; --chip: #e3eaf4; --chip-fg: #1d3a5f;
+  --font: "Ubuntu", "Segoe UI", system-ui, sans-serif; --mono: "Ubuntu Mono", Consolas, monospace;
+  /* app simulada: siempre clara, como el producto */
+  --a-bg: #F4F6F9; --a-fg: #1B2533; --a-muted: #4A5568; --a-line: #D9DFE8; --a-line2: #E7EBF1; --a-surface: #ffffff;
+  --a-blue: #144E8C; --a-blue-d: #0E3A69; --a-blue-l: #E3ECF7; --a-blue-xl: #F7F9FC; --a-head: #365F91; --a-yellow: #F2B707;
+  --a-ok: #17603D; --a-ok-bg: #E3F2EA; --a-ok-i: #1E7B4F; --a-warn: #7A5300; --a-warn-bg: #FDF3D6; --a-err: #9B1C14; --a-err-bg: #FBE4E2; --a-err-i: #B3261E; --a-err-line: #E8A49E;
+  --a-sk: #E4E8EE; --a-xl-green: #1D6F42; --a-xl-grid: #E1E4E8; --a-xl-head: #F3F4F6;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161e; --fg: #e4e9f1; --muted: #9aa6b8; --line: #2c3645; --surface: #19202b;
+  --accent: #7fb0ec; --accent-fg: #0d1a2b; --chip: #233044; --chip-fg: #cfe0f6; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11161e; --fg: #e4e9f1; --muted: #9aa6b8; --line: #2c3645; --surface: #19202b;
+  --accent: #7fb0ec; --accent-fg: #0d1a2b; --chip: #233044; --chip-fg: #cfe0f6; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1480px; margin: 0 auto; padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 16px; }
+.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.top h1 { margin: 0; font-size: 22px; font-weight: 700; text-wrap: balance; }
+.top p { margin: 0; color: var(--muted); font-size: 14px; }
+.ctl { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.ctl-row { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+.ctl-lbl { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; min-width: 92px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 6px 12px; cursor: pointer; min-height: 34px; }
+.chip:hover { background: var(--chip); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 500; }
+.chip .c { font-family: var(--mono); font-weight: 700; margin-right: 4px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+.meta b { color: var(--fg); font-weight: 500; }
+.meta .rf { font-family: var(--mono); }
+:focus-visible { outline: 3px solid #F2B707; outline-offset: 2px; }
+.frame { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--a-bg); color: var(--a-fg); min-width: 0; box-shadow: 0 6px 24px rgba(10, 30, 60, .10); }
+
+/* ---- App simulada ---- */
+.a { font-family: var(--font); color: var(--a-fg); background: var(--a-bg); min-height: 760px; display: flex; flex-direction: column; font-size: 15px; }
+.a a { color: var(--a-blue); } .a a:hover { color: var(--a-blue-d); }
+.a-hdr { background: var(--a-blue); color: #fff; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding: 12px 22px; }
+.a-logo { color: #fff !important; text-decoration: none; font-weight: 700; font-size: 19px; letter-spacing: .5px; background: none; border: 0; cursor: pointer; font-family: inherit; padding: 0; }
+.a-logo span { color: var(--a-yellow); }
+.a-sub { font-size: 14px; color: #D6E2F2; }
+.a-hdr-r { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.a-hdr-r .lnk { color: #fff !important; font-size: 14px; background: none; border: 0; font-family: inherit; cursor: pointer; text-decoration: underline; padding: 0; }
+.a-badge { background: var(--a-yellow); color: #1B2533; font-size: 13px; font-weight: 500; padding: 4px 10px; border-radius: 999px; }
+.a-body { display: flex; flex-wrap: wrap; flex: 1; }
+.a-nav { flex: 1 1 230px; background: var(--a-surface); border-right: 1px solid var(--a-line); padding: 18px 10px; display: flex; flex-direction: column; gap: 2px; }
+.a-nav h2 { margin: 0 8px 8px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--a-muted); font-weight: 500; }
+.step { display: flex; align-items: center; gap: 10px; padding: 8px 10px; min-height: 44px; box-sizing: border-box; border-radius: 6px; color: var(--a-fg); font: inherit; font-size: 14px; background: none; border: 0; text-align: left; cursor: pointer; width: 100%; }
+.step:hover { background: #EEF2F8; }
+.step[aria-current="step"] { background: var(--a-blue-l); color: var(--a-blue); font-weight: 700; }
+.step .t { flex: 1; } .step .s { font-size: 12px; font-weight: 400; color: var(--a-muted); }
+.step .s.ok { color: var(--a-ok); } .step .s.err { color: var(--a-err); }
+.a-main { flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 22px; box-sizing: border-box; }
+.a-main.solo { max-width: 1200px; margin: 0 auto; width: 100%; }
+.ph { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; }
+.ph h2 { margin: 0; font-size: 26px; color: var(--a-head); text-wrap: balance; }
+.ph p { margin: 4px 0 0; color: var(--a-muted); max-width: 70ch; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 6px; font: inherit; font-size: 15px; font-weight: 500; text-decoration: none; cursor: pointer; box-sizing: border-box; white-space: nowrap; }
+.btn-p { background: var(--a-blue); color: #fff; border: 1px solid var(--a-blue); } .btn-p:hover { background: var(--a-blue-d); }
+.btn-s { background: #fff; color: var(--a-blue); border: 1px solid #9FB3CC; } .btn-s:hover { background: #EEF2F8; }
+.btn:disabled { background: #E4E8EE; color: #5F6B7C; border-color: #E4E8EE; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.card { background: var(--a-surface); border: 1px solid var(--a-line); border-radius: 8px; padding: 20px; min-width: 0; }
+.card h3 { margin: 0 0 4px; font-size: 17px; color: var(--a-head); }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.fld { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500; }
+.fld input, .fld select, .a select { font: inherit; font-weight: 400; min-height: 44px; padding: 0 12px; border: 1px solid #B8C3D3; border-radius: 6px; background: #fff; color: var(--a-fg); box-sizing: border-box; }
+.fld .hint { font-weight: 400; font-size: 13px; color: var(--a-muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.ok { background: var(--a-ok-bg); color: var(--a-ok); } .warn { background: var(--a-warn-bg); color: var(--a-warn); }
+.err { background: var(--a-err-bg); color: var(--a-err); } .neu { background: #EEF2F8; color: #2C4A70; }
+.note { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 8px; font-size: 14px; background: var(--a-blue-xl); border: 1px solid var(--a-line); }
+.note.w { background: var(--a-warn-bg); border-color: #EBD290; color: #4D3600; }
+.note.e { background: var(--a-err-bg); border-color: var(--a-err-line); color: #5C1A14; }
+.rn { font-family: var(--mono); font-size: 13px; color: var(--a-muted); }
+.tblw { overflow-x: auto; background: var(--a-surface); border: 1px solid var(--a-line); border-radius: 8px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th { text-align: left; font-weight: 500; color: var(--a-muted); background: var(--a-blue-xl); padding: 10px 12px; border-bottom: 1px solid var(--a-line); white-space: nowrap; }
+.tbl td { padding: 11px 12px; border-bottom: 1px solid var(--a-line2); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl .num { text-align: right; font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--mono); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.a .chip { background: #fff; border-color: var(--a-line); color: var(--a-fg); }
+.a .chip:hover { background: #EEF2F8; }
+.a .chip[aria-pressed="true"] { background: var(--a-blue); border-color: var(--a-blue); color: #fff; }
+.sk { background: var(--a-sk); border-radius: 4px; animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .sk, .spin { animation: none !important; } }
+.spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: rot .8s linear infinite; display: inline-block; }
+@keyframes rot { to { transform: rotate(360deg); } }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 52px 24px; text-align: center; }
+.empty p { margin: 0; } .empty .big { font-size: 17px; font-weight: 500; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--a-line); }
+.tab { font: inherit; font-size: 14px; background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px; cursor: pointer; color: var(--a-muted); min-height: 44px; }
+.tab[aria-selected="true"] { color: var(--a-blue); border-bottom-color: var(--a-blue); font-weight: 700; }
+.mod { display: flex; flex-direction: column; gap: 10px; cursor: pointer; border: 2px solid var(--a-line); }
+.mod[data-on="1"] { border-color: var(--a-blue); background: #FBFCFE; }
+.mod input { width: 22px; height: 22px; accent-color: var(--a-blue); }
+.chk { width: 20px; height: 20px; accent-color: var(--a-blue); }
+.drop { border: 2px dashed #9FB3CC; border-radius: 8px; padding: 26px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; background: #FBFCFE; }
+.sec { border: 1px solid var(--a-line); border-radius: 8px; background: var(--a-surface); }
+.sec summary { cursor: pointer; padding: 14px 18px; font-weight: 700; color: var(--a-head); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; min-height: 44px; box-sizing: border-box; }
+.sec .in { padding: 0 18px 16px; display: grid; gap: 8px; }
+.li { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--a-line2); font-size: 14px; }
+.tl { display: flex; flex-direction: column; gap: 0; }
+.tl-i { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--a-line2); }
+.tl-i:first-child { border-top: 0; }
+.dlg { position: relative; max-width: 520px; box-shadow: 0 10px 32px rgba(20, 78, 140, .2); border-color: #9FB3CC; display: flex; flex-direction: column; gap: 14px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: #1B2533; color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 10; max-width: calc(100% - 32px); }
+.split { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+.split > .l { flex: 1 1 280px; min-width: 0; } .split > .r { flex: 3 1 480px; min-width: 0; }
+.rub { display: flex; justify-content: space-between; gap: 8px; width: 100%; font: inherit; font-size: 14px; text-align: left; background: none; border: 0; border-radius: 6px; padding: 10px; cursor: pointer; min-height: 44px; color: var(--a-fg); }
+.rub[aria-pressed="true"] { background: var(--a-blue-l); color: var(--a-blue); font-weight: 700; }
+/* Excel simulado */
+.xl { background: #fff; display: flex; flex-direction: column; min-height: 760px; font-family: "Segoe UI", var(--font); }
+.xl-title { background: var(--a-xl-green); color: #fff; padding: 8px 16px; font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.xl-tabs { display: flex; flex-wrap: wrap; gap: 2px; background: var(--a-xl-head); border-bottom: 1px solid var(--a-xl-grid); padding: 0 8px; }
+.xl-tabs span { padding: 8px 12px; font-size: 13px; color: #3c4450; }
+.xl-tabs span.on { background: #fff; color: var(--a-xl-green); font-weight: 700; border: 1px solid var(--a-xl-grid); border-bottom-color: #fff; margin-bottom: -1px; }
+.xl-rib { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--a-xl-grid); }
+.xl-btn { font: inherit; font-size: 13px; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 12px; min-height: 44px; border: 1px solid transparent; background: none; border-radius: 4px; cursor: pointer; color: #1f2a37; }
+.xl-btn:hover { background: #EEF2F8; border-color: #D9DFE8; }
+.xl-btn:disabled { color: #8a93a0; cursor: not-allowed; background: none; }
+.xl-sep { width: 1px; align-self: stretch; background: var(--a-xl-grid); margin: 0 6px; }
+.xl-con { margin-left: auto; font-size: 13px; color: var(--a-ok); display: inline-flex; gap: 6px; align-items: center; }
+.xl-gridw { overflow: auto; flex: 1; }
+.xl-grid { border-collapse: collapse; font-size: 13px; min-width: 760px; }
+.xl-grid th { background: var(--a-xl-head); color: #5b6370; font-weight: 400; border: 1px solid var(--a-xl-grid); padding: 2px 8px; text-align: center; min-width: 32px; }
+.xl-grid td { border: 1px solid var(--a-xl-grid); padding: 5px 10px; height: 22px; white-space: nowrap; }
+.xl-grid td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.xl-grid tr.h td { background: var(--a-blue); color: #fff; font-weight: 700; }
+.xl-grid tr.tot td { font-weight: 700; background: #F1F5FA; }
+.xl-grid td.p { background: #FFF8E1; }
+.xl-grid td.p select { min-height: 30px; padding: 0 6px; font-size: 13px; border-color: #c9b26a; }
+.xl-grid td.ed { background: #FFFBEA; padding: 0; }
+.xl-grid td.ed input { width: 84px; border: 0; background: transparent; font: inherit; text-align: right; padding: 5px 8px; font-variant-numeric: tabular-nums; }
+.xl-grid td.ed.bad { background: var(--a-err-bg); outline: 2px solid var(--a-err-i); outline-offset: -2px; }
+.xl-sheets { display: flex; flex-wrap: wrap; gap: 2px; padding: 0 8px; background: var(--a-xl-head); border-top: 1px solid var(--a-xl-grid); }
+.xl-sheets button { font: inherit; font-size: 13px; padding: 8px 14px; border: 0; background: none; cursor: pointer; color: #3c4450; min-height: 40px; }
+.xl-sheets button[aria-pressed="true"] { background: #fff; color: var(--a-xl-green); font-weight: 700; border-bottom: 3px solid var(--a-xl-green); }
+.xl-msg { margin: 12px; }
+@media (max-width: 640px) {
+  .a-main { padding: 20px 16px 32px; }
+  .a-nav { border-right: 0; border-bottom: 1px solid var(--a-line); }
+  .tbl.cards thead { display: none; }
+  .tbl.cards tr { display: block; border-bottom: 1px solid var(--a-line); padding: 6px 0; }
+  .tbl.cards td { display: flex; justify-content: space-between; gap: 12px; border: 0; padding: 6px 12px; }
+  .tbl.cards td::before { content: attr(data-l); color: var(--a-muted); font-weight: 500; }
+  .ph h2 { font-size: 22px; }
+}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <h1>Prototipo · Acelerador de consolidación SAP BW/BPC</h1>
+    <p>12 pantallas del brief de diseño F4. Datos de ejemplo.</p>
+  </div>
+  <div class="ctl" role="group" aria-label="Controles del prototipo">
+    <div class="ctl-row"><span class="ctl-lbl" id="l-scr">Pantalla</span><div class="chips" id="c-scr" role="group" aria-labelledby="l-scr"></div></div>
+    <div class="ctl-row">
+      <span class="ctl-lbl" id="l-est">Estado</span><div class="chips" id="c-est" role="group" aria-labelledby="l-est"></div>
+      <span class="ctl-lbl" id="l-arq">Arquitectura</span><div class="chips" id="c-arq" role="group" aria-labelledby="l-arq"></div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </div>
+  <div class="frame" id="frame"></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+const SCREENS = [
+  ['UX-01', 'Clientes', 'Consultor implementador', 'RF-01, RF-04'],
+  ['UX-02', 'Conexiones', 'Consultor implementador', 'RF-01, RF-02, RF-04'],
+  ['UX-03', 'Diagnóstico e inventario', 'Consultor implementador', 'RF-03, RF-04, RF-09'],
+  ['UX-04', 'Módulos', 'Consultor implementador', 'RF-05, RF-23, RF-24, RF-25'],
+  ['UX-05', 'Sociedades del grupo', 'Consultor implementador', 'RF-06, RF-13'],
+  ['UX-06', 'Mapeo de cuentas', 'Consultor implementador', 'RF-07'],
+  ['UX-07', 'Carga de sociedades no SAP', 'Consultor implementador', 'RF-15'],
+  ['UX-08', 'Plan de generación', 'Consultor implementador', 'RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26'],
+  ['UX-09', 'Ejecución y registro', 'Consultor implementador', 'RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26'],
+  ['UX-10', 'Reportes', 'Consultor implementador', 'RF-20, RF-27, RF-29'],
+  ['UX-11', 'Plantilla de reporte EPM', 'Usuario financiero', 'RF-20, RF-21, RF-22, RF-27'],
+  ['UX-12', 'Captura de presupuesto', 'Usuario financiero', 'RF-28']
+];
+const STEPS = [['UX-02','Conexiones'],['UX-03','Diagnóstico'],['UX-04','Módulos'],['UX-05','Sociedades'],['UX-06','Mapeo de cuentas'],['UX-07','Sociedades no SAP'],['UX-08','Plan de generación'],['UX-09','Ejecución'],['UX-10','Reportes']];
+const ESTADOS = [['normal','Normal'],['vacio','Vacío'],['carga','Carga'],['error','Error']];
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const fmt = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
+const fmt2 = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 1 });
+
+const CAP0 = [
+  ['51050501', 'Sueldos', 'CC100 Administración', 'adm', 182],
+  ['51350501', 'Servicios públicos', 'CC100 Administración', 'adm', 24],
+  ['51400501', 'Gastos legales', 'CC200 Finanzas', 'adm', 9],
+  ['52050501', 'Sueldos de ventas', 'CC300 Ventas', 'ven', 136]
+];
+const S = {
+  screen: 'UX-01', estado: 'normal', arch: 'A', dlg: false, cred: false, tab: 0, confirm: false,
+  mods: { cons: true, pres: true, af: true, det: true }, rubro: 0, filtro: 'Todos', sheet: 'R07', busy: false,
+  rep: { soc: '1000', fil: 'Sí', mon: 'Moneda local', per: 'Sep-2026' },
+  pend: { soc: '1000', fil: 'Sí', mon: 'Moneda local', per: 'Sep-2026' },
+  cap: CAP0.map(r => MESES.map((m, i) => String(r[4] + (i % 3) * 2))), capBad: {}, saved: null
+};
+try { const h = (location.hash || '').slice(1); if (SCREENS.some(s => s[0] === h)) S.screen = h; } catch (e) {}
+
+const $ = id => document.getElementById(id);
+const ic = {
+  ok: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#1E7B4F"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cur: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="#144E8C" stroke-width="2"/><circle cx="10" cy="10" r="4" fill="#144E8C"/></svg>',
+  pen: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="#7F8A9B" stroke-width="2"/></svg>',
+  err: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#B3261E"/><path d="M10 5.5v5.5M10 14v.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  info: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style="flex:none"><circle cx="10" cy="10" r="9" fill="none" stroke="#144E8C" stroke-width="1.8"/><path d="M10 9v5M10 6v.5" stroke="#144E8C" stroke-width="2" stroke-linecap="round"/></svg>',
+  warn: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style="flex:none"><path d="M10 2.5l8 14H2z" fill="#F2B707"/><path d="M10 8v4M10 14.2v.3" stroke="#1B2533" stroke-width="2" stroke-linecap="round"/></svg>',
+  plus: '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  up: '<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 22V8M10 14l6-6 6 6M7 25h18" stroke="#144E8C" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  ref: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 4v3.5h-3.5" stroke="#1D6F42" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  save: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h10l3 3v11H4z M7 3v5h6V3 M7 17v-5h7v5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>'
+};
+const pill = (c, t) => `<span class="pill ${c}">${t}</span>`;
+const archTxt = () => S.arch === 'A' ? 'Arquitectura A · BW 7.5 + BPC estándar' : 'Arquitectura B · S/4HANA, BW y BPC embebidos';
+const ph = (title, sub, right) => `<div class="ph"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ''}</div>${right ? `<div class="row">${right}</div>` : ''}</div>`;
+const skel = (label) => `<div class="card" aria-busy="true" style="display:grid;gap:14px"><p style="margin:0;color:var(--a-muted)" class="row"><span class="spin" style="color:#144E8C"></span>${label}</p><div class="sk" style="height:18px;width:38%"></div><div class="sk" style="height:44px"></div><div class="sk" style="height:44px"></div><div class="sk" style="height:44px"></div></div>`;
+const errBox = (t, d, btn) => `<div role="alert" class="note e" style="align-items:center;flex-wrap:wrap;padding:16px">${ic.err}<div style="flex:1;min-width:200px"><b style="color:var(--a-err)">${t}</b><br>${d}</div>${btn || '<button class="btn btn-s" type="button" data-act="toast" data-msg="Reintentando…">Reintentar</button>'}</div>`;
+const emptyBox = (t, d, btn) => `<div class="card empty"><svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="12" width="32" height="26" rx="4" fill="none" stroke="#9FB3CC" stroke-width="2"/><path d="M8 20h32" stroke="#9FB3CC" stroke-width="2"/></svg><p class="big">${t}</p><p style="color:var(--a-muted)">${d}</p>${btn || ''}</div>`;
+
+function hdr() {
+  return `<header class="a-hdr"><button class="a-logo" type="button" data-go="UX-01">CM<span>CONSULTING</span></button><span class="a-sub">Acelerador de consolidación</span>
+  ${S.screen === 'UX-01' ? '' : `<div class="a-hdr-r"><span style="font-size:14px">Grupo Ejemplo Andino</span><button class="lnk" type="button" data-go="UX-01">Cambiar cliente</button><span class="a-badge">${archTxt()}</span></div>`}</header>`;
+}
+function nav() {
+  const vis = STEPS.filter(s => !(s[0] === 'UX-07' && S.screen === 'UX-07' && S.estado === 'vacio'));
+  const cur = vis.findIndex(s => s[0] === S.screen);
+  const items = vis.map((s, i) => {
+    let st = i < cur ? 'ok' : i === cur ? 'cur' : 'pen';
+    if (s[0] === 'UX-09' && S.screen === 'UX-09' && S.estado === 'error') st = 'err';
+    const lbl = { ok: 'Completo', cur: 'Actual', pen: 'Pendiente', err: 'Con error' }[st];
+    return `<button class="step" type="button" data-go="${s[0]}" ${i === cur ? 'aria-current="step"' : ''}>${ic[st]}<span class="t">${i + 1}. ${s[1]}</span><span class="s ${st === 'ok' ? 'ok' : st === 'err' ? 'err' : ''}">${lbl}</span></button>`;
+  }).join('');
+  return `<nav class="a-nav" aria-label="Pasos de la implementación"><h2>Pasos</h2>${items}</nav>`;
+}
+const shell = (main) => `<div class="a">${hdr()}<div class="a-body">${nav()}<main class="a-main">${main}</main></div></div>`;
+
+/* ---------- UX-01 ---------- */
+function ux01() {
+  const dlg = S.dlg ? `<div role="dialog" aria-modal="true" aria-labelledby="dlg1" class="card dlg"><h3 id="dlg1" style="font-size:20px">Nuevo cliente</h3>
+    <label class="fld" for="nc">Nombre del cliente<input id="nc" type="text" value="Grupo Ejemplo Norte"><span class="hint">Obligatorio. No puede repetir el nombre de un cliente existente.</span></label>
+    <div class="row" style="justify-content:flex-end"><button class="btn btn-s" type="button" data-act="dlg0">Cancelar</button><button class="btn btn-p" type="button" data-go="UX-02">Crear y configurar conexiones</button></div></div>` : '';
+  let body;
+  if (S.estado === 'vacio') body = emptyBox('Aún no hay clientes.', 'Crea el primero para empezar.', `<button class="btn btn-p" type="button" data-act="dlg1">${ic.plus}Nuevo cliente</button>`);
+  else if (S.estado === 'carga') body = skel('Cargando clientes…');
+  else if (S.estado === 'error') body = errBox('No se pudo cargar la lista de clientes.', 'Revisa tu conexión a la red e inténtalo de nuevo.');
+  else body = `<div class="tblw"><table class="tbl cards"><thead><tr><th scope="col">Cliente</th><th scope="col">Arquitectura</th><th scope="col">Paso actual</th><th scope="col">Estado</th><th scope="col">Última ejecución</th><th scope="col">Usuario</th></tr></thead><tbody>
+    <tr><td data-l="Cliente"><a href="#UX-02" data-go="UX-02"><b>Grupo Ejemplo Andino</b></a></td><td data-l="Arquitectura">${pill('neu','A · BW 7.5 + BPC estándar')}</td><td data-l="Paso actual">Mapeo de cuentas</td><td data-l="Estado">${pill('warn','En curso')}</td><td data-l="Última ejecución" class="mono">16-Oct-26 10:42</td><td data-l="Usuario">consultor1</td></tr>
+    <tr><td data-l="Cliente"><a href="#UX-09" data-go="UX-09" data-est="error"><b>Holding Ejemplo Caribe</b></a></td><td data-l="Arquitectura">${pill('neu','B · S/4HANA, BW y BPC embebidos')}</td><td data-l="Paso actual">Ejecución</td><td data-l="Estado">${pill('err','Con error')}</td><td data-l="Última ejecución" class="mono">15-Oct-26 22:05</td><td data-l="Usuario">consultor2</td></tr>
+    <tr><td data-l="Cliente"><a href="#UX-10" data-go="UX-10"><b>Corporación Ejemplo Sur</b></a></td><td data-l="Arquitectura">${pill('neu','A · BW 7.5 + BPC estándar')}</td><td data-l="Paso actual">Reportes</td><td data-l="Estado">${pill('ok','Completo')}</td><td data-l="Última ejecución" class="mono">12-Oct-26 18:30</td><td data-l="Usuario">consultor1</td></tr>
+    </tbody></table></div>`;
+  return `<div class="a">${hdr()}<main class="a-main solo">${ph('Clientes', 'Implementaciones de consolidación en curso.', `<button class="btn btn-p" type="button" data-act="dlg1">${ic.plus}Nuevo cliente</button>`)}${dlg}
+    <label class="fld" for="bq" style="max-width:420px">Buscar cliente<input id="bq" type="search" placeholder="Nombre del cliente"></label>${body}</main></div>`;
+}
+
+/* ---------- UX-02 ---------- */
+function ux02() {
+  const e = S.estado, B = S.arch === 'B';
+  const sys = [
+    ['SAP ERP', B ? 'SAP S/4HANA 2025 (ejemplo)' : 'SAP ECC 6.0 (ejemplo)', B ? 's4-ejemplo.local' : 'erp-ejemplo.local', '300'],
+    ['SAP BW', B ? 'BW embebido en S/4HANA' : 'SAP BW 7.5 (ejemplo)', B ? 's4-ejemplo.local' : 'bw-ejemplo.local', B ? '300' : '100'],
+    ['SAP BPC', B ? 'BPC modelo embebido' : 'BPC 10.1 modelo estándar (ejemplo)', B ? 's4-ejemplo.local' : 'bw-ejemplo.local', B ? '300' : '100']
+  ];
+  const cards = sys.map((s, i) => {
+    const bad = e === 'error' && i === 1;
+    const v = (x) => e === 'vacio' ? '' : x;
+    const res = e === 'vacio' ? pill('neu', 'Sin probar') : e === 'carga' ? `<span class="pill neu"><span class="spin"></span>Probando…</span>` : bad ? pill('err', 'Fallida') : pill('ok', 'Conexión exitosa');
+    return `<div class="card" style="display:grid;gap:12px;${bad ? 'border-color:var(--a-err-line);background:#FFF8F7' : ''}">
+      <div class="row" style="justify-content:space-between"><div><h3>${s[0]}</h3><span style="font-size:13px;color:var(--a-muted)">${s[1]}</span></div>${res}</div>
+      <label class="fld" for="h${i}">Host<input id="h${i}" type="text" value="${v(s[2])}" placeholder="servidor.dominio"></label>
+      <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">
+        <label class="fld" for="m${i}">Mandante<input id="m${i}" type="text" value="${v(s[3])}" inputmode="numeric"></label>
+        <label class="fld" for="u${i}">Usuario técnico<input id="u${i}" type="text" value="${v('RFC_ACEL')}"></label></div>
+      <label class="fld" for="p${i}">Credencial<span class="row" style="flex-wrap:nowrap;gap:8px"><input id="p${i}" style="flex:1;min-width:0" type="${S.cred ? 'text' : 'password'}" value="${v('Ejemplo123')}"><button class="btn btn-s" type="button" data-act="cred" aria-pressed="${S.cred}">${S.cred ? 'Ocultar' : 'Mostrar'}</button></span><span class="hint">Se guarda cifrada; nunca se muestra en el registro (RNF-Seg-02).</span></label>
+      ${bad ? `<div class="note e" role="alert">${ic.err}<div><b>No se pudo conectar a SAP BW.</b> El sistema respondió: «Name or password is incorrect» (ejemplo). Revisa host, mandante o credencial.</div></div>` : ''}
+      <button class="btn btn-s" type="button" data-act="toast" data-msg="Probando conexión a ${s[0]}…">${e === 'carga' ? '<span class="spin"></span>Probando…' : 'Probar conexión'}</button></div>`;
+  }).join('');
+  const val = B ? `<div class="note">${ic.info}<div>ERP y BW están integrados en el mismo sistema; no requiere validación de conexión ERP–BW. <span class="rn">RN-01</span></div></div>`
+    : `<div class="card row" style="justify-content:space-between"><div><h3>Conexión ERP–BW</h3><span style="font-size:14px;color:var(--a-muted)">Valida que BW pueda leer del ERP antes de las cargas. <span class="rn">RN-01</span></span></div>
+      <div class="row">${e === 'normal' ? pill('ok', 'Validada 16-Oct-26 10:15') : e === 'error' ? pill('neu', 'Pendiente: corrige SAP BW') : pill('neu', 'Sin validar')}<button class="btn btn-s" type="button" ${e === 'normal' || e === 'carga' ? '' : 'disabled'} data-act="toast" data-msg="Validando conexión ERP–BW…">Validar conexión ERP–BW</button></div></div>`;
+  const arq = e === 'normal' || e === 'carga' ? `<div class="card" style="display:grid;gap:8px;border-color:#9FB3CC;background:#FBFCFE"><h3>Arquitectura detectada</h3>
+      <div class="row"><span class="a-badge">${archTxt()}</span>${pill('ok','Variante disponible')}</div>
+      <span style="font-size:14px;color:var(--a-muted)">${B ? 'ERP, BW y BPC en el mismo sistema (S/4HANA 2025, ejemplo). BPC trabaja directo sobre BW.' : 'ERP, BW 7.5 y BPC 10.1 en sistemas separados (ejemplo).'} Cada versión se soporta como una variante de los generadores. <span class="rn">RF-04 · RNF-Comp-04</span></span></div>` : '';
+  const ok = e === 'normal';
+  const help = e === 'vacio' ? `<div class="note">${ic.info}<div>Pide al Administrador SAP del cliente el usuario técnico y los datos de conexión de cada sistema.</div></div>` : '';
+  return shell(`${ph('Conexiones', 'Registra y prueba la conexión a los sistemas SAP del cliente.')}${help}<div class="grid3">${cards}</div>${val}${arq}
+    <div class="row" style="justify-content:flex-end"><button class="btn btn-p" type="button" data-go="UX-03" ${ok ? '' : 'disabled'}>Continuar al diagnóstico</button></div>`);
+}
+
+/* ---------- UX-03 ---------- */
+function ux03() {
+  const B = S.arch === 'B', e = S.estado;
+  if (e === 'carga') return shell(ph('Diagnóstico e inventario', 'Lo que ya existe en el sistema del cliente.') + `<div class="card" style="display:grid;gap:12px" aria-busy="true"><b>Escaneando BW y BPC…</b><div style="height:10px;background:var(--a-sk);border-radius:99px;overflow:hidden"><div style="width:62%;height:100%;background:#144E8C"></div></div><span style="font-size:14px;color:var(--a-muted)">Paso 3 de 4: modelos BPC</span></div>`);
+  if (e === 'error') return shell(ph('Diagnóstico e inventario', '') + errBox('El escaneo no terminó.', 'Falló al leer los modelos BPC: el usuario técnico no tiene permiso de lectura (ejemplo). Pide el permiso al Administrador SAP del cliente.'));
+  const tabs = ['Extractores activos', 'InfoProviders (InfoCubos o aDSO)', 'Modelos BPC', 'Campos Z'];
+  let content;
+  if (S.tab === 0) content = `<div class="tblw"><table class="tbl cards"><thead><tr><th>Nombre técnico</th><th>Descripción</th><th>Estado</th></tr></thead><tbody>
+    <tr><td data-l="Nombre" class="mono">${B ? '0FI_ACDOCA_10' : '0FI_GL_14'}</td><td data-l="Descripción">Partidas individuales de contabilidad general${B ? ' (nombre por confirmar)' : ''}</td><td data-l="Estado">${pill('ok','Activo')}</td></tr>
+    <tr><td data-l="Nombre" class="mono">0COSTCENTER_ATTR</td><td data-l="Descripción">Centros de costo (atributos)</td><td data-l="Estado">${pill('ok','Activo')}</td></tr>
+    <tr><td data-l="Nombre" class="mono">0PROFIT_CTR_ATTR</td><td data-l="Descripción">Centros de beneficio (atributos)</td><td data-l="Estado">${pill('ok','Activo')}</td></tr>
+    <tr><td data-l="Nombre" class="mono">0FI_AA_11</td><td data-l="Descripción">Movimientos de activos fijos (nombre por confirmar)</td><td data-l="Estado">${pill('neu','Inactivo')}</td></tr></tbody></table></div>`;
+  else if (S.tab === 3 && e !== 'vacio') content = `<div class="tblw"><table class="tbl cards"><thead><tr><th>Incorporar</th><th>Campo</th><th>Descripción</th><th>Tabla</th></tr></thead><tbody>
+    <tr><td data-l="Incorporar"><input class="chk" type="checkbox" checked aria-label="Incorporar ZZREGION"></td><td data-l="Campo" class="mono">ZZREGION</td><td data-l="Descripción">Región comercial (ejemplo)</td><td data-l="Tabla" class="mono">BSEG</td></tr>
+    <tr><td data-l="Incorporar"><input class="chk" type="checkbox" aria-label="Incorporar ZZLINEA"></td><td data-l="Campo" class="mono">ZZLINEA</td><td data-l="Descripción">Línea de negocio (ejemplo)</td><td data-l="Tabla" class="mono">BSEG</td></tr></tbody></table></div>
+    <p class="rn" style="margin:0">Los campos marcados aparecen en el plan de generación. RF-09</p>`;
+  else if (S.tab === 3) content = emptyBox('No se encontraron campos Z.', 'El cliente no ha creado campos adicionales en SAP.');
+  else content = emptyBox(S.tab === 1 ? 'El cliente no tiene bodega en BW.' : 'No hay modelos BPC.', S.tab === 1 ? 'Se generará completa en el plan de generación.' : 'El modelo de consolidación se creará en el plan de generación.');
+  return shell(`${ph('Diagnóstico e inventario', 'Lo que ya existe en el sistema del cliente, antes de generar nada.', `<button class="btn btn-s" type="button" data-act="toast" data-msg="Escaneando de nuevo…">Volver a escanear</button>`)}
+    <div class="row">${pill('neu','Bodega existente: No')}<span style="font-size:14px;color:var(--a-muted)">Si la bodega existe, se usa la existente y no se recrea. <span class="rn">RN-03</span></span></div>
+    <div><div class="tabs" role="tablist">${tabs.map((t, i) => `<button class="tab" role="tab" type="button" aria-selected="${S.tab === i}" data-act="tab" data-i="${i}">${t}</button>`).join('')}</div></div>
+    <div role="tabpanel" style="display:grid;gap:10px">${content}</div>
+    <div class="row" style="justify-content:flex-end"><button class="btn btn-p" type="button" data-go="UX-04">Continuar a módulos</button></div>`);
+}
+
+/* ---------- UX-04 ---------- */
+const MODS = [['cons','Consolidación','Bodega BW + modelo BPC de consolidación + 20 reportes',20,''],['pres','Presupuesto','Carga desde 0FI_GL_14 + modelo de planeación BPC + 5 reportes',5,''],['af','Activos fijos','Carga en BW + 3 reportes',3,'Se queda en BW; no crea modelo en BPC. RN-12'],['det','Deterioros','Carga en BW + 2 reportes',2,'Se queda en BW; no crea modelo en BPC. RN-12']];
+function ux04() {
+  const e = S.estado;
+  if (e === 'carga') return shell(ph('Módulos', '') + `<div class="grid2">${'<div class="card sk" style="height:150px"></div>'.repeat(4)}</div>`);
+  if (e === 'error') return shell(ph('Módulos', '') + errBox('No se pudo guardar la selección.', 'Los cambios no se perdieron en pantalla. Intenta guardar de nuevo.'));
+  const mods = e === 'vacio' ? { cons: false, pres: false, af: false, det: false } : S.mods;
+  const n = MODS.filter(m => mods[m[0]]), reps = n.reduce((a, m) => a + m[3], 0);
+  const cards = MODS.map(m => `<label class="card mod" data-on="${mods[m[0]] ? 1 : 0}" for="md-${m[0]}"><span class="row" style="justify-content:space-between"><h3 style="font-size:19px">${m[1]}</h3><input id="md-${m[0]}" type="checkbox" data-act="mod" data-k="${m[0]}" ${mods[m[0]] ? 'checked' : ''}></span><span style="color:var(--a-muted)">${m[2]}</span>${m[4] ? `<span class="note" style="font-size:13px">${ic.info}<span>${m[4].replace('RN-12','<span class="rn">RN-12</span>')}</span></span>` : ''}</label>`).join('');
+  return shell(`${ph('Módulos', 'Elige qué módulos se implementan para este cliente.')}<div class="grid2">${cards}</div>
+    ${n.length ? '' : `<div class="note w">${ic.warn}<div>Elige al menos un módulo.</div></div>`}
+    <div class="row" style="justify-content:space-between"><b>${n.length} módulos · ${reps} reportes</b><button class="btn btn-p" type="button" data-go="UX-05" ${n.length ? '' : 'disabled'}>Continuar</button></div>`);
+}
+
+/* ---------- UX-05 ---------- */
+function ux05() {
+  const e = S.estado;
+  let body;
+  if (e === 'vacio') body = emptyBox('Agrega las sociedades del grupo.', 'Solo entran las sociedades que se consolidan.', `<button class="btn btn-p" type="button" data-act="toast" data-msg="Fila nueva agregada">${ic.plus}Agregar sociedad</button>`);
+  else if (e === 'carga') body = skel('Cargando sociedades…');
+  else if (e === 'error') body = errBox('No se pudieron guardar las sociedades.', 'La sociedad 3000 no tiene moneda local. Complétala e inténtalo de nuevo.');
+  else {
+    const rows = [['1000','Matriz','Sí','COP','—','PCCO'],['2000','Filial Colombia','Sí','COP','1000','PCCO'],['3000','Filial Panamá','Sí','USD','1000','PCPA'],['9000','Filial no SAP','No','COP','1000','—']];
+    body = `<div class="note">${ic.info}<div>La consolidación se presenta en moneda local y en dólares. <span class="rn">RN-06</span></div></div>
+    <div class="tblw"><table class="tbl cards"><thead><tr><th>Código</th><th>Nombre</th><th>En SAP</th><th>Moneda local</th><th>Sociedad matriz</th><th>Plan de cuentas</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td data-l="Código" class="mono"><b>${r[0]}</b></td><td data-l="Nombre">${r[1]}</td><td data-l="En SAP"><button type="button" role="switch" aria-checked="${r[2] === 'Sí'}" class="pill ${r[2] === 'Sí' ? 'ok' : 'warn'}" style="border:0;cursor:pointer;font-family:inherit;min-height:32px" data-act="toast" data-msg="Sociedad ${r[0]}: cambia En SAP">${r[2]}</button></td><td data-l="Moneda local" class="mono">${r[3]}</td><td data-l="Matriz" class="mono">${r[4]}</td><td data-l="Plan de cuentas" class="mono">${r[5]}</td></tr>`).join('')}
+    </tbody></table></div>
+    <p style="margin:0;font-size:14px;color:var(--a-muted)">4 sociedades · 1 no SAP. Cada sociedad puede tener su propio plan de cuentas. <span class="rn">RN-05</span></p>`;
+  }
+  return shell(`${ph('Sociedades del grupo', 'Clientes y proveedores no son entidades de consolidación: solo las sociedades del grupo. <span class="rn">RN-07</span>', e === 'normal' ? `<button class="btn btn-s" type="button" data-act="toast" data-msg="Fila nueva agregada">${ic.plus}Agregar sociedad</button>` : '')}${body}
+    <div class="row" style="justify-content:flex-end"><button class="btn btn-p" type="button" data-go="UX-06" ${e === 'normal' ? '' : 'disabled'}>Continuar al mapeo</button></div>`);
+}
+
+/* ---------- UX-06 ---------- */
+const RUB = [['F-00-101','Efectivo y equivalentes de efectivo',12,18452300000],['F-00-102','Cuentas por cobrar',34,42110900000],['F-00-103','Propiedad, planta y equipo',21,96320000000],['F-00-201','Cuentas por pagar',28,31780450000],['F-00-202','Obligaciones financieras',9,55400000000]];
+function ux06() {
+  const e = S.estado;
+  if (e === 'carga') return shell(ph('Mapeo de cuentas', '') + `<div class="split"><div class="l card sk" style="height:300px"></div><div class="r">${skel('Cargando cuentas…')}</div></div>`);
+  if (e === 'error') return shell(ph('Mapeo de cuentas', '') + errBox('No se pudo guardar el mapeo.', 'La asignación de 3 cuentas no se guardó. Vuelve a asignarlas.'));
+  const r = RUB[S.rubro], vac = e === 'vacio';
+  const rubs = RUB.map((x, i) => `<button class="rub" type="button" aria-pressed="${S.rubro === i}" data-act="rub" data-i="${i}"><span><span class="mono">${x[0]}</span><br>${x[1]}</span><span style="white-space:nowrap">${vac ? 0 : x[2]} ctas</span></button>`).join('');
+  const cuentas = [['11050501','Caja general','Disponible','F-00-101'],['11100501','Bancos nacionales','Disponible','F-00-101'],['11200501','Cuentas de ahorro','Disponible','F-00-101'],['11250501','Inversiones a la vista','Disponible',''],['13050501','Clientes nacionales','Deudores','F-00-102']];
+  return shell(`${ph('Mapeo de cuentas', 'Asigna las cuentas contables de cada sociedad a los rubros de los reportes.', vac ? '' : pill('warn','37 cuentas sin mapear'))}
+    <div class="row"><label class="fld" for="fs">Sociedad<select id="fs"><option>1000 Matriz</option><option>2000 Filial Colombia</option><option>3000 Filial Panamá</option></select></label>
+    <label class="fld" for="fp">Plan de cuentas<select id="fp" disabled><option>PCCO (de la sociedad)</option></select></label>
+    <label class="row" for="fsm" style="font-size:14px;margin-top:22px"><input id="fsm" class="chk" type="checkbox"> Solo sin mapear</label></div>
+    <div class="split"><div class="l card" style="padding:10px"><h3 style="padding:8px 10px">Rubros</h3>${rubs}</div>
+    <div class="r" style="display:grid;gap:12px">
+      ${vac ? emptyBox('Aún no hay cuentas mapeadas.', 'Elige un rubro a la izquierda y asígnale cuentas.') : `<div class="note">${ic.info}<div>Vista previa de <b>${r[0]} ${r[1]}</b>: suma de ${r[2]} cuentas = <b>COP ${fmt.format(r[3])}</b> (ejemplo). El valor del rubro es la suma de sus cuentas. <span class="rn">RN-10</span></div></div>
+      <div class="tblw"><table class="tbl cards"><thead><tr><th><span class="sr">Elegir</span></th><th>Cuenta</th><th>Descripción</th><th>Nodo</th><th>Rubro asignado</th></tr></thead><tbody>
+      ${cuentas.map(c => `<tr><td data-l="Elegir"><input class="chk" type="checkbox" aria-label="Elegir ${c[0]}" ${c[3] ? '' : 'checked'}></td><td data-l="Cuenta" class="mono">${c[0]}</td><td data-l="Descripción">${c[1]}</td><td data-l="Nodo">${c[2]}</td><td data-l="Rubro">${c[3] ? `<span class="mono">${c[3]}</span>` : pill('warn','Sin mapear')}</td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="row" style="justify-content:space-between"><span style="font-size:14px;color:var(--a-muted)">Cuentas filtradas por el plan de cuentas de la sociedad. <span class="rn">RN-05</span></span><button class="btn btn-p" type="button" data-act="toast" data-msg="1 cuenta asignada a ${r[0]}">Asignar al rubro ${r[0]}</button></div>`}
+    </div></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn btn-p" type="button" data-go="UX-07">Continuar</button></div>`);
+}
+
+/* ---------- UX-07 ---------- */
+function ux07() {
+  const e = S.estado;
+  if (e === 'vacio') return shell(ph('Carga de sociedades no SAP', '') + emptyBox('Ninguna sociedad está marcada como no SAP.', 'Este paso no aparece en la navegación cuando todas las sociedades están en SAP.', `<button class="btn btn-p" type="button" data-go="UX-08">Ir al plan de generación</button>`));
+  const prev = [['9000','11050501','2026-09','—','CC100','PC10','12.500.000'],['9000','11100501','2026-09','—','CC100','PC10','348.900.000'],['9000','13050501','2026-09','800.123.456 (ejemplo)','CC300','PC20','91.240.000'],['9000', e === 'error' ? '51959501' : '51950501','2026-09','—','CC100','PC10','4.120.000']];
+  const st = e === 'error' ? pill('err','Con errores') : e === 'carga' ? `<span class="pill neu"><span class="spin"></span>Subiendo 64 %</span>` : pill('ok','Validado · 0 errores');
+  return shell(`${ph('Carga de sociedades no SAP', 'Sube la información contable de las sociedades que no están en SAP.')}
+    <div class="note w">${ic.warn}<div>Formato del archivo: <b>por definir</b> (DAF, pregunta 5). Columnas de la vista previa según el diccionario de datos.</div></div>
+    <div class="card" style="display:grid;gap:14px"><div class="row" style="justify-content:space-between"><h3>9000 · Filial no SAP</h3>${st}</div>
+      <div class="drop">${ic.up}<b>Arrastra el archivo aquí</b><label class="btn btn-s" for="fi">Elegir archivo<input id="fi" type="file" hidden></label><span style="font-size:13px;color:var(--a-muted)">contabilidad_9000_sep2026.xlsx (ejemplo)</span></div>
+      ${e === 'carga' ? '<div style="height:10px;background:var(--a-sk);border-radius:99px;overflow:hidden"><div style="width:64%;height:100%;background:#144E8C"></div></div>' : `<div class="tblw"><table class="tbl"><thead><tr><th>Sociedad</th><th>Cuenta</th><th>Periodo</th><th>Tercero</th><th>CeCo</th><th>CeBe</th><th class="num">Importe COP</th></tr></thead><tbody>
+      ${prev.map(p => `<tr>${p.map((c, i) => `<td class="${i === 6 ? 'num' : 'mono'}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+      ${e === 'error' ? `<div class="note e" role="alert">${ic.err}<div><b>1 error en el archivo.</b><br><span class="mono">Fila 14 · Cuenta · 51959501</span>: la cuenta no está en el mapeo (cuenta sin mapear). Corrígela en el archivo o mapéala en <a href="#UX-06" data-go="UX-06">Mapeo de cuentas</a>.</div></div>` : ''}
+      <span style="font-size:14px;color:var(--a-muted)">El archivo debe ser de una sociedad del grupo registrada en Sociedades. <span class="rn">RN-07</span></span>
+      <div class="row" style="justify-content:flex-end"><button class="btn btn-p" type="button" data-go="UX-08" ${e === 'normal' ? '' : 'disabled'}>Confirmar carga</button></div></div>`);
+}
+
+/* ---------- UX-08 ---------- */
+function ux08() {
+  const e = S.estado, B = S.arch === 'B', m = S.mods;
+  if (e === 'vacio') return shell(ph('Plan de generación', '') + emptyBox('Completa los pasos anteriores para ver el plan.', 'Faltan: Mapeo de cuentas (37 cuentas sin mapear).', `<button class="btn btn-p" type="button" data-go="UX-06">Ir a Mapeo de cuentas</button>`));
+  if (e === 'carga') return shell(ph('Plan de generación', '') + skel('Calculando el plan…'));
+  if (e === 'error') return shell(ph('Plan de generación', '') + errBox('No se puede calcular el plan.', 'El paso Sociedades no SAP tiene 1 error sin resolver.', `<button class="btn btn-s" type="button" data-go="UX-07">Ir a corregirlo</button>`));
+  const nv = pill('ok','Nuevo'), ex = pill('neu','Existente, no se modifica');
+  const ip = 'InfoProvider';
+  const bw = [
+    [`Extractor ${B ? '0FI_ACDOCA_10 (nombre por confirmar)' : '0FI_GL_14'} (finanzas${m.pres ? ' y presupuesto' : ''})`, ex],
+    m.af ? ['Extractor estándar de activos fijos (nombre por confirmar)', nv] : null,
+    m.det ? ['Extractor estándar de deterioros (nombre por confirmar)', nv] : null,
+    [`${ip} Movimientos financieros`, nv],
+    m.af ? [`${ip} Activos fijos`, nv] : null, m.det ? [`${ip} Deterioros`, nv] : null,
+    ['Campo Z: ZZREGION', nv],
+    ['Cadena de proceso: carga full inicial del histórico', nv],
+    ['Cadena de proceso: delta todas las noches', nv]
+  ].filter(Boolean);
+  const bpc = [
+    m.cons ? ['Modelo de consolidación · dimensiones: cuentas, terceros y las definidas en arquitectura', nv] : null,
+    m.cons ? [`Script de consolidación · Variante para modelo ${B ? 'embebido' : 'estándar'}`, nv] : null,
+    m.cons && !B ? ['Importación desde InfoCubo de BW', nv] : null,
+    m.pres ? ['Modelo de planeación de presupuesto', nv] : null
+  ].filter(Boolean);
+  const total = bw.concat(bpc).filter(x => x[1] === nv).length;
+  const li = arr => arr.map(x => `<div class="li"><span>${x[0]}</span>${x[1]}</div>`).join('');
+  const dlg = S.confirm ? `<div role="dialog" aria-modal="true" aria-labelledby="dlg8" class="card dlg"><h3 id="dlg8" style="font-size:20px">¿Generar?</h3><p style="margin:0">Se crearán <b>${total} objetos</b> en el sistema del cliente.</p><div class="row" style="justify-content:flex-end"><button class="btn btn-s" type="button" data-act="conf0">Cancelar</button><button class="btn btn-p" type="button" data-go="UX-09">Generar</button></div></div>` : '';
+  return shell(`${ph('Plan de generación', 'Revisa todo lo que se va a crear antes de ejecutar.', `<b>${total} objetos a crear</b><button class="btn btn-p" type="button" data-act="conf1">Generar</button>`)}${dlg}
+    <details class="sec" open><summary>SAP BW ${pill('neu', bw.length + ' objetos')}</summary><div class="in">${li(bw)}<span class="rn">Después de la carga full inicial, las siguientes cargas son delta cada noche. RN-04 · Si la bodega existe no se recrea. RN-03${m.af || m.det ? ' · Activos fijos y deterioros solo en BW. RN-12' : ''}</span></div></details>
+    <details class="sec" open><summary>SAP BPC ${pill('neu', bpc.length + ' objetos')}</summary><div class="in">${li(bpc)}<span class="rn">Cada arquitectura usa su variante de scripts. RN-02</span></div></details>
+    <details class="sec" open><summary>Monedas y tasas</summary><div class="in">
+      <div class="li"><span>Moneda local: COP (1000, 2000, 9000) · USD (3000)</span>${pill('neu','De SAP')}</div>
+      <div class="li"><span>Presentación de la consolidación</span><span>Moneda local y dólares</span></div>
+      <div class="li"><span>Tasa de cierre</span><span>Cuentas de balance</span></div>
+      <div class="li"><span>Tasa promedio</span><span>Cuentas de resultados</span></div>
+      <div class="li"><span>Tasa histórica</span><span>Patrimonio</span></div>
+      <span class="rn">RN-06 · RN-11 (NIC 21, por confirmar)</span></div></details>`);
+}
+
+/* ---------- UX-09 ---------- */
+function ux09() {
+  const e = S.estado, B = S.arch === 'B';
+  if (e === 'vacio') return shell(ph('Ejecución y registro', '') + emptyBox('Aún no hay ejecuciones.', 'Revisa el plan y presiona Generar.', `<button class="btn btn-p" type="button" data-go="UX-08">Ir al plan de generación</button>`));
+  const m = S.mods;
+  const steps = ['Objetos BW y carga full inicial','Planes de cuentas','Centros de costo y de beneficio','Monedas y tasas','Jerarquía de cuentas', m.af ? 'Activos fijos en BW' : null, m.det ? 'Deterioros en BW' : null, 'Modelo BPC y scripts', B ? null : 'Importación a BPC', m.pres ? 'Modelo de presupuesto' : null, 'Consolidación','Conversión a dólares'].filter(Boolean);
+  const dur = ['6:30','0:42','1:15','0:08','0:21','2:05','1:10','0:55','3:12','1:40','4:47','1:02'];
+  const ci = steps.indexOf('Consolidación');
+  const items = steps.map((s, i) => {
+    let st = 'ok';
+    if (e === 'carga') st = i < 4 ? 'ok' : i === 4 ? 'run' : 'pen';
+    if (e === 'error') st = i < ci ? 'ok' : i === ci ? 'err' : 'pen';
+    const icon = st === 'run' ? '<span class="spin" style="color:#144E8C;width:18px;height:18px;margin:1px"></span>' : ic[st === 'pen' ? 'pen' : st];
+    const lbl = { ok: pill('ok','Completo'), run: pill('neu','En curso'), pen: pill('neu','Pendiente'), err: pill('err','Con error') }[st];
+    const extra = st === 'err' ? `<div class="note e" role="alert" style="margin-top:8px">${ic.err}<div>No se pudo escribir en el modelo BPC: el usuario técnico no tiene permiso de escritura (ejemplo). Pide el permiso al Administrador SAP del cliente o revisa la conexión.<div class="row" style="margin-top:10px"><button class="btn btn-s" type="button" data-go="UX-02">Ir a Conexiones</button><button class="btn btn-p" type="button" data-act="toast" data-msg="Reintentando desde Consolidación…">Reintentar desde este paso</button></div></div></div>` : '';
+    return `<div class="tl-i">${icon}<div><b>${s}</b>${extra}</div><div class="row" style="gap:8px">${st === 'ok' ? `<span class="mono" style="font-size:13px;color:var(--a-muted)">${dur[i]}</span>` : ''}${lbl}</div></div>`;
+  }).join('');
+  const log = [['16-Oct-26 10:52:10','consultor1', B ? 'S/4HANA' : 'BW','Planes de cuentas','3 jerarquías cargadas','ok'],['16-Oct-26 10:58:40','consultor1', B ? 'S/4HANA' : 'BW','Objetos BW','12 objetos creados','ok'],['16-Oct-26 11:09:02','consultor1','BPC','Consolidación', e === 'error' ? '0 objetos' : 'Modelo calculado', e === 'error' ? 'err' : 'ok']];
+  const sum = e === 'normal' ? `<div class="note" style="background:var(--a-ok-bg);border-color:#A9D5BD">${ic.ok}<div><b>Consolidación disponible en moneda local y en dólares.</b> Participan 4 sociedades del grupo. <span class="rn">RN-06 · RN-07</span></div></div>` : '';
+  return shell(`${ph('Ejecución y registro', e === 'carga' ? 'Ejecutando… paso 5 de ' + steps.length + '.' : e === 'error' ? 'Un paso falló; corrige la causa y reintenta desde ese paso.' : 'Seguimiento paso a paso de la generación.', e === 'normal' ? `<button class="btn btn-p" type="button" data-go="UX-10">Ver reportes</button>` : '')}${sum}
+    <div class="split"><div class="l card tl" style="flex:2 1 360px">${items}</div>
+    <div class="r card" style="display:grid;gap:10px;flex:3 1 420px"><div class="row" style="justify-content:space-between"><h3>Registro</h3><button class="btn btn-s" type="button" data-act="toast" data-msg="Registro descargado (simulado)">Descargar registro</button></div>
+    <div class="tblw" style="border:0"><table class="tbl cards"><thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Sistema</th><th>Paso</th><th>Objetos</th><th>Resultado</th></tr></thead><tbody>
+    ${log.map(l => `<tr><td data-l="Fecha" class="mono">${l[0]}</td><td data-l="Usuario">${l[1]}</td><td data-l="Sistema">${l[2]}</td><td data-l="Paso">${l[3]}</td><td data-l="Objetos">${l[4]}</td><td data-l="Resultado">${l[5] === 'ok' ? pill('ok','Correcto') : pill('err','Error')}</td></tr>`).join('')}
+    </tbody></table></div><span class="rn">Cada ejecución queda registrada. RNF-Aud-01</span></div></div>`);
+}
+
+/* ---------- UX-10 ---------- */
+const REPS = [
+  ['R01','Estado de situación financiera','cons','1'],['R02','Estado de resultados integral','cons','2'],['R03','Estado de cambios en el patrimonio','cons','2'],['R04','Estado de flujos de efectivo','cons','2'],['R05','Hoja de eliminaciones intercompañía','cons','1'],['R06','Saldos y transacciones con partes relacionadas','cons','2'],['R07','Efectivo y equivalentes de efectivo','cons','1'],['R08','Cuentas por cobrar','cons','3'],['R09','Carteras colectivas','cons','3'],['R10','Propiedad, planta y equipo','cons','3'],['R11','Intangibles','cons','3'],['R12','Cuentas por pagar','cons','3'],['R13','Obligaciones financieras','cons','3'],['R14','Beneficios a empleados','cons','3'],['R15','Provisiones y contingencias','cons','3'],['R16','Impuesto a las ganancias','cons','3'],['R17','Dividendos pagados','cons','3'],['R18','Dividendos recibidos','cons','3'],['R19','Ingresos de actividades ordinarias','cons','3'],['R20','Informe a junta directiva','cons','3'],
+  ['P01','Presupuesto frente a ejecución','pres',''],['P02','Presupuesto de gastos por centro de costo','pres',''],['P03','Presupuesto de ingresos por centro de beneficio','pres',''],['P04','Ejecución acumulada y proyección de cierre','pres',''],['P05','Formulario de captura de presupuesto','pres',''],
+  ['A01','Movimiento de activos fijos por clase','af',''],['A02','Depreciación del periodo','af',''],['A03','Listado de activos fijos por sociedad','af',''],['D01','Movimiento del deterioro','det',''],['D02','Deterioro por cuenta y sociedad','det','']
+];
+const MODN = { cons: 'Consolidación', pres: 'Presupuesto', af: 'Activos fijos', det: 'Deterioros' };
+function ux10() {
+  const e = S.estado;
+  if (e === 'vacio') return shell(ph('Reportes', '') + emptyBox('Los reportes aún no están habilitados.', 'Ejecuta la generación para habilitarlos.', `<button class="btn btn-p" type="button" data-go="UX-09">Ir a Ejecución</button>`));
+  const list = REPS.filter(r => S.mods[r[2]] && (S.filtro === 'Todos' || MODN[r[2]] === S.filtro));
+  const filtros = ['Todos', ...Object.keys(MODN).filter(k => S.mods[k]).map(k => MODN[k])];
+  const st = (r, i) => e === 'carga' ? (i < 3 ? pill('ok','Generado') : i === 3 ? `<span class="pill neu"><span class="spin"></span>Generando</span>` : pill('neu','Pendiente')) : e === 'error' && r[0] === 'R04' ? pill('err','Error: rubros de flujo sin clasificar') : (r[3] === '1' || r[2] !== 'cons') ? pill('ok','Generado') : pill('neu','Pendiente');
+  return shell(`${ph('Reportes', 'Genera y descarga los Excel con EPM que se entregan al cliente.', `<button class="btn btn-s" type="button" data-act="toast" data-msg="Generando reportes seleccionados…">Generar seleccionados</button><button class="btn btn-p" type="button" data-act="toast" data-msg="Paquete de reportes listo (simulado)">Descargar reportes (.zip)</button>`)}
+    <div class="chips" role="group" aria-label="Filtrar por módulo">${filtros.map(f => `<button class="chip" type="button" aria-pressed="${S.filtro === f}" data-act="filtro" data-f="${f}">${f}</button>`).join('')}</div>
+    <div class="tblw"><table class="tbl cards"><thead><tr><th><span class="sr">Elegir</span></th><th>ID</th><th>Reporte</th><th>Módulo</th><th>Fuente</th><th>Ola</th><th>Estado</th></tr></thead><tbody>
+    ${list.map((r, i) => `<tr><td data-l="Elegir"><input class="chk" type="checkbox" aria-label="Elegir ${r[0]}"></td><td data-l="ID" class="mono"><a href="#UX-11" data-go="UX-11" data-sheet="${r[0] === 'P01' ? 'P01' : 'R07'}"><b>${r[0]}</b></a></td><td data-l="Reporte">${r[1]}</td><td data-l="Módulo">${MODN[r[2]]}</td><td data-l="Fuente">${r[2] === 'af' || r[2] === 'det' ? pill('warn','BW') : pill('neu','BPC')}</td><td data-l="Ola">${r[3] || '—'}</td><td data-l="Estado">${st(r, i)}</td></tr>`).join('')}
+    </tbody></table></div><span class="rn">Consolidación y presupuesto leen de BPC (RN-08); activos fijos y deterioros leen de BW (RN-12). Clic en un ID abre su vista previa.</span>`);
+}
+
+/* ---------- Excel helpers ---------- */
+const SOC = { '1000': 'Matriz', '2000': 'Filial Colombia', '3000': 'Filial Panamá', '9000': 'Filial no SAP' };
+const R07 = [['F-00-101-01','Caja',[1.2,0.4,0.3,0.1]],['F-00-101-02','Bancos nacionales',[9.8,3.1,0,0.6]],['F-00-101-03','Bancos del exterior',[1.6,0,1.9,0]],['F-00-101-04','Inversiones a la vista',[2.1,0.5,0.2,0]]];
+function xlFrame(file, ribbon, inner, sheets) {
+  return `<div class="xl"><div class="xl-title"><span>${file} — Excel</span><span>Usuario financiero · ejemplo</span></div>
+    <div class="xl-tabs"><span>Archivo</span><span>Inicio</span><span>Insertar</span><span>Fórmulas</span><span>Datos</span><span class="on">EPM</span></div>
+    <div class="xl-rib">${ribbon}</div><div class="xl-gridw">${inner}</div>${sheets || ''}</div>`;
+}
+function ux11() {
+  const e = S.estado, p = S.rep, usd = p.mon === 'Dólares', tasa = 4100;
+  const socs = p.fil === 'Sí' && p.soc === '1000' ? ['1000','2000','3000','9000'] : [p.soc];
+  const idx = { '1000': 0, '2000': 1, '3000': 2, '9000': 3 };
+  const val = (arr, s) => { const v = arr[idx[s]] * 1e9; return usd ? v / tasa : v; };
+  const ribbon = `<button class="xl-btn" type="button" data-act="toast" data-msg="Sesión EPM activa">Iniciar sesión</button><span class="xl-sep"></span>
+    <button class="xl-btn" type="button" data-act="refresh">${S.busy || e === 'carga' ? '<span class="spin" style="color:#1D6F42"></span>' : ic.ref}Actualizar</button>
+    <button class="xl-btn" type="button" disabled>${ic.save}Guardar datos</button><span class="xl-sep"></span>
+    <span class="xl-con">${e === 'error' ? `<span style="color:var(--a-err)">● Sin conexión a BPC</span>` : `● Conectado a BPC · ${S.sheet === 'P01' ? 'Presupuesto' : 'Consolidación'}`}</span>`;
+  const sel = (k, opts) => `<select aria-label="${k}" data-act="par" data-k="${k}">${opts.map(o => `<option ${S.pend[k] === o[0] ? 'selected' : ''} value="${o[0]}">${o[1]}</option>`).join('')}</select>`;
+  const cols = socs.length + 3;
+  const letters = 'ABCDEFGHIJ'.slice(0, Math.max(cols, 6)).split('');
+  const used = (c) => (c.match(/<td/g) || []).length + [...c.matchAll(/colspan="(\d+)"/g)].reduce((a, m) => a + Number(m[1]) - 1, 0);
+  const row = (n, cells) => `<tr><th scope="row">${n}</th>${cells}${'<td></td>'.repeat(Math.max(0, letters.length - used(cells)))}</tr>`;
+  let rows = '', n = 1;
+  if (S.sheet === 'R07') {
+    rows += row(n++, `<td colspan="3" style="font-weight:700;font-size:15px;color:#144E8C">R07 Efectivo y equivalentes de efectivo</td>`);
+    rows += row(n++, `<td colspan="3" style="color:#5b6370">Actualizado 16-Oct-26 06:00 · Fuente: Modelo BPC · datos de ejemplo</td>`);
+    rows += row(n++, '');
+    rows += row(n++, `<td><b>Sociedad</b></td><td class="p">${sel('soc', Object.keys(SOC).map(k => [k, k + ' ' + SOC[k]]))}</td>`);
+    rows += row(n++, `<td><b>Incluir filiales</b></td><td class="p">${sel('fil', [['Sí','Sí'],['No','No']])}</td>`);
+    rows += row(n++, `<td><b>Moneda</b></td><td class="p">${sel('mon', [['Moneda local','Moneda local (COP)'],['Dólares','Dólares (USD)']])}</td>`);
+    rows += row(n++, `<td><b>Periodo</b></td><td class="p">${sel('per', [['Sep-2026','Sep-2026'],['Ago-2026','Ago-2026']])}</td>`);
+    rows += row(n++, '');
+    if (e === 'vacio') rows += row(n++, `<td colspan="4" style="color:#5b6370">Sin datos para la sociedad y el periodo elegidos.</td>`);
+    else if (e === 'error') rows += row(n++, `<td colspan="5" style="color:var(--a-err);font-weight:700">No se pudo conectar a BPC; revisa la conexión de EPM y presiona Actualizar.</td>`);
+    else {
+      rows += `<tr class="h"><th scope="row">${n++}</th><td>Rubro</td><td>Descripción</td>${socs.map(s => `<td style="text-align:right">${s}</td>`).join('')}${socs.length > 1 ? '<td style="text-align:right">Total</td>' : ''}</tr>`;
+      const tot = socs.map(() => 0); let gt = 0;
+      R07.forEach(r => {
+        const vs = socs.map(s => val(r[2], s)); vs.forEach((v, i) => tot[i] += v); const t = vs.reduce((a, b) => a + b, 0); gt += t;
+        rows += row(n++, `<td class="mono" title="Cuentas mapeadas: ${r[0].replace('F-00-101-0', '1105050').slice(0, 8)}…">${r[0]}</td><td>${r[1]}</td>${vs.map(v => `<td class="n">${S.busy || e === 'carga' ? '…' : fmt.format(v)}</td>`).join('')}${socs.length > 1 ? `<td class="n">${S.busy || e === 'carga' ? '…' : fmt.format(t)}</td>` : ''}`);
+      });
+      rows += `<tr class="tot"><th scope="row">${n++}</th><td class="mono">F-00-101</td><td>Efectivo y equivalentes de efectivo</td>${tot.map(v => `<td class="n">${S.busy || e === 'carga' ? '…' : fmt.format(v)}</td>`).join('')}${socs.length > 1 ? `<td class="n">${S.busy || e === 'carga' ? '…' : fmt.format(gt)}</td>` : ''}</tr>`;
+      rows += row(n++, '');
+      rows += row(n++, `<td colspan="4" style="color:#5b6370">${usd ? 'Valores en USD con tasa de cierre de ejemplo 4.100 COP/USD (RN-11). ' : 'Valores en moneda local (COP). '}Cada valor es la suma de las cuentas mapeadas al rubro (RN-10).</td>`);
+    }
+  } else {
+    const adm = sumRows('adm'), ven = sumRows('ven');
+    const P = [['Ingresos operacionales', 4200, 3980], ['Costo de ventas', 2310, 2264], ['Gastos de administración', adm, 2100], ['Gastos de ventas', ven, 1580], ['Utilidad operacional', 4200 - 2310 - adm - ven, 3980 - 2264 - 2100 - 1580]];
+    rows += row(n++, `<td colspan="3" style="font-weight:700;font-size:15px;color:#144E8C">P01 Presupuesto frente a ejecución · Estado de resultados</td>`);
+    rows += row(n++, `<td colspan="3" style="color:#5b6370">Sociedad 1000 Matriz · Presupuesto 2027 v1 · millones de COP · Fuente: Modelo de presupuesto BPC</td>`);
+    rows += row(n++, '');
+    rows += `<tr class="h"><th scope="row">${n++}</th><td>Concepto</td><td style="text-align:right">Presupuesto</td><td style="text-align:right">Ejecución</td><td style="text-align:right">Variación</td><td style="text-align:right">% ejecución</td></tr>`;
+    P.forEach((r, i) => { rows += `<tr class="${i === 4 ? 'tot' : ''}"><th scope="row">${n++}</th><td>${r[0]}</td><td class="n">${fmt.format(r[1])}</td><td class="n">${fmt.format(r[2])}</td><td class="n">${fmt.format(r[2] - r[1])}</td><td class="n">${r[1] ? fmt2.format(r[2] / r[1] * 100) + ' %' : '—'}</td></tr>`; });
+    rows += row(n++, '');
+    rows += row(n++, `<td colspan="4" style="color:#5b6370">${S.saved ? 'Incluye el presupuesto guardado en el formulario P05 (' + S.saved + ').' : 'Gastos de administración y de ventas salen del formulario P05.'} Datos de ejemplo.</td>`);
+  }
+  const head = `<tr><th></th>${letters.map(l => `<th>${l}</th>`).join('')}</tr>`;
+  const sheets = `<div class="xl-sheets" role="group" aria-label="Hojas">${[['R07','R07 Efectivo'],['P01','P01 Presupuesto vs ejecución']].map(s => `<button type="button" aria-pressed="${S.sheet === s[0]}" data-act="sheet" data-s="${s[0]}">${s[1]}</button>`).join('')}</div>`;
+  return xlFrame(S.sheet === 'R07' ? 'R07_Efectivo_y_equivalentes.xlsx' : 'P01_Presupuesto_vs_ejecucion.xlsx', ribbon, `<table class="xl-grid">${head}${rows}</table>`, sheets);
+}
+function sumRows(k) { let t = 0; CAP0.forEach((r, i) => { if (r[3] === k) S.cap[i].forEach(v => { const x = Number(String(v).replace(/\./g, '').replace(',', '.')); if (!isNaN(x)) t += x; }); }); return t; }
+
+function ux12() {
+  const e = S.estado;
+  const ribbon = `<button class="xl-btn" type="button" data-act="toast" data-msg="Sesión EPM activa">Iniciar sesión</button><span class="xl-sep"></span>
+    <button class="xl-btn" type="button" data-act="toast" data-msg="Datos actualizados desde BPC">${ic.ref}Actualizar</button>
+    <button class="xl-btn" type="button" data-act="save" style="color:#144E8C;font-weight:700">${e === 'carga' ? '<span class="spin"></span>' : ic.save}${e === 'carga' ? 'Guardando…' : 'Guardar datos'}</button><span class="xl-sep"></span>
+    <span class="xl-con">● Conectado a BPC · Presupuesto</span>`;
+  const vac = e === 'vacio';
+  const bad = e === 'error' ? { '0-3': 1, '2-7': 1 } : S.capBad;
+  let rows = '', n = 1;
+  const pad = (c) => c;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="6" style="font-weight:700;font-size:15px;color:#144E8C">P05 Captura y ajuste de presupuesto</td><td colspan="10"></td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td><b>Sociedad</b></td><td class="p" colspan="2"><select aria-label="Sociedad"><option>1000 Matriz</option><option>2000 Filial Colombia</option></select></td><td><b>Versión</b></td><td class="p" colspan="2"><select aria-label="Versión"><option>Presupuesto 2027 v1</option></select></td><td><b>Año</b></td><td class="p"><select aria-label="Año"><option>2027</option></select></td><td colspan="8"></td></tr>`;
+  rows += `<tr><th scope="row">${n++}</th><td colspan="16" style="color:#5b6370">${vac ? 'Sin presupuesto para esta versión: ingresa los valores.' : 'Millones de COP. Celdas amarillas editables; los totales no se editan. Se guarda en el modelo de planeación de BPC (RN-08).'}</td></tr>`;
+  rows += `<tr class="h"><th scope="row">${n++}</th><td>Cuenta</td><td>Descripción</td><td>Centro de costo</td>${MESES.map(m => `<td style="text-align:right">${m}</td>`).join('')}<td style="text-align:right">Total</td></tr>`;
+  const colT = MESES.map(() => 0); let gt = 0;
+  CAP0.forEach((r, i) => {
+    let rt = 0;
+    const cells = MESES.map((m, j) => {
+      const raw = vac ? '' : S.cap[i][j]; const x = Number(raw); if (!isNaN(x) && raw !== '') { rt += x; colT[j] += x; }
+      const b = bad[i + '-' + j];
+      return `<td class="ed ${b ? 'bad' : ''}"><input aria-label="${r[1]} ${m}" inputmode="decimal" value="${raw}" data-act="cap" data-i="${i}" data-j="${j}" ${b ? 'aria-invalid="true"' : ''}></td>`;
+    }).join('');
+    gt += rt;
+    rows += `<tr><th scope="row">${n++}</th><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td>${cells}<td class="n"><b>${fmt.format(rt)}</b></td></tr>`;
+  });
+  rows += `<tr class="tot"><th scope="row">${n++}</th><td colspan="3">Total</td>${colT.map(v => `<td class="n">${fmt.format(v)}</td>`).join('')}<td class="n">${fmt.format(gt)}</td></tr>`;
+  const head = `<tr><th></th>${'ABCDEFGHIJKLMNOP'.split('').map(l => `<th>${l}</th>`).join('')}</tr>`;
+  const msg = e === 'error' ? `<div class="note e xl-msg" role="alert">${ic.err}<div><b>No se guardaron 2 celdas.</b> Solo se aceptan números. Revisa las celdas marcadas en rojo.</div></div>` : Object.keys(S.capBad).length ? `<div class="note e xl-msg" role="alert">${ic.err}<div>Solo se aceptan números en las celdas marcadas.</div></div>` : '';
+  return xlFrame('P05_Captura_presupuesto_2027.xlsx', ribbon, msg + `<table class="xl-grid">${head}${rows}</table>`, `<div class="xl-sheets"><button type="button" aria-pressed="true">P05 Captura</button><button type="button" data-go="UX-11" data-sheet="P01">P01 Presupuesto vs ejecución</button></div>`);
+}
+
+const RENDER = { 'UX-01': ux01, 'UX-02': ux02, 'UX-03': ux03, 'UX-04': ux04, 'UX-05': ux05, 'UX-06': ux06, 'UX-07': ux07, 'UX-08': ux08, 'UX-09': ux09, 'UX-10': ux10, 'UX-11': ux11, 'UX-12': ux12 };
+
+function controls() {
+  $('c-scr').innerHTML = SCREENS.map(s => `<button class="chip" type="button" aria-pressed="${S.screen === s[0]}" data-scr="${s[0]}"><span class="c">${s[0]}</span>${s[1]}</button>`).join('');
+  $('c-est').innerHTML = ESTADOS.map(s => `<button class="chip" type="button" aria-pressed="${S.estado === s[0]}" data-est="${s[0]}">${s[1]}</button>`).join('');
+  $('c-arq').innerHTML = [['A','A · separada'],['B','B · integrada']].map(s => `<button class="chip" type="button" aria-pressed="${S.arch === s[0]}" data-arq="${s[0]}">${s[1]}</button>`).join('');
+  const m = SCREENS.find(s => s[0] === S.screen);
+  $('meta').innerHTML = `<span><b>${m[0]} ${m[1]}</b></span><span>Usuario: <b>${m[2]}</b></span><span>Soporta: <span class="rf">${m[3]}</span></span>${S.screen === 'UX-11' ? '<span>Estructura común a los reportes; R07 y P01 como modelo.</span>' : ''}`;
+}
+function render(focus) {
+  controls();
+  $('frame').innerHTML = RENDER[S.screen]();
+  if (focus) { const h = $('frame').querySelector('h2, .xl-title'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } }
+}
+let tt;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => { t.hidden = true; }, 2600); }
+function go(scr, extra, keep) {
+  S.screen = scr; S.dlg = false; S.confirm = false; S.capBad = {};
+  if (extra && extra.est) S.estado = extra.est; else if (!keep) S.estado = 'normal';
+  if (extra && extra.sheet) S.sheet = extra.sheet;
+  try { history.replaceState(null, '', '#' + scr); } catch (e) {}
+  render(true);
+  try { $('frame').scrollIntoView({ block: 'nearest' }); } catch (e) {}
+}
+
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-scr],[data-est],[data-arq],[data-go],[data-act]');
+  if (!t) return;
+  if (t.dataset.scr) { go(t.dataset.scr, null, true); return; }
+  if (t.dataset.est && !t.dataset.go) { S.estado = t.dataset.est; render(); return; }
+  if (t.dataset.arq) { S.arch = t.dataset.arq; render(); return; }
+  if (t.dataset.go) { ev.preventDefault(); go(t.dataset.go, { est: t.dataset.est, sheet: t.dataset.sheet }); return; }
+  const a = t.dataset.act;
+  if (a === 'dlg1') { S.dlg = true; render(); }
+  else if (a === 'dlg0') { S.dlg = false; render(); }
+  else if (a === 'conf1') { S.confirm = true; render(); }
+  else if (a === 'conf0') { S.confirm = false; render(); }
+  else if (a === 'cred') { S.cred = !S.cred; render(); }
+  else if (a === 'tab') { S.tab = Number(t.dataset.i); render(); }
+  else if (a === 'rub') { S.rubro = Number(t.dataset.i); render(); }
+  else if (a === 'filtro') { S.filtro = t.dataset.f; render(); }
+  else if (a === 'sheet') { S.sheet = t.dataset.s; render(); }
+  else if (a === 'toast') { toast(t.dataset.msg); }
+  else if (a === 'refresh') {
+    if (S.estado !== 'normal') { toast('Cambia el estado a Normal para actualizar.'); return; }
+    S.busy = true; render();
+    setTimeout(() => { S.rep = Object.assign({}, S.pend); S.busy = false; render(); toast('Datos actualizados desde BPC'); }, 700);
+  }
+  else if (a === 'save') {
+    const bad = {};
+    S.cap.forEach((r, i) => r.forEach((v, j) => { if (v !== '' && isNaN(Number(v))) bad[i + '-' + j] = 1; }));
+    S.capBad = bad;
+    if (Object.keys(bad).length) { render(); return; }
+    S.saved = '16-Oct-26 ' + new Date().toTimeString().slice(0, 5); render();
+    toast('Presupuesto guardado en el modelo de planeación de BPC');
+  }
+});
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.dataset.act === 'mod') { S.mods[t.dataset.k] = t.checked; render(); }
+  else if (t.dataset.act === 'par') { S.pend[t.dataset.k] = t.value; toast('Parámetro cambiado: presiona Actualizar'); }
+  else if (t.dataset.act === 'cap') { S.cap[t.dataset.i][t.dataset.j] = t.value.trim(); delete S.capBad[t.dataset.i + '-' + t.dataset.j]; render(); }
+});
+
+render(false);
+})();
+</script>

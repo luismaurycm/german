@@ -1,0 +1,14 @@
+flowchart TB
+  A["UX-01 Nuevo cliente"] --> B["UX-02 Probar conexiones"]
+  B --> C{"¿Conexiones OK?"}
+  C -->|"No"| B
+  C -->|"Sí · detecta arquitectura A o B"| D["UX-03 Diagnóstico"]
+  D --> E["UX-04 Módulos"]
+  E --> F["UX-05 Sociedades"]
+  F --> G["UX-06 Mapeo de cuentas"]
+  G --> H{"¿Sociedades no SAP?"}
+  H -->|"Sí"| I["UX-07 Carga no SAP"]
+  H -->|"No"| J["UX-08 Plan de generación"]
+  I --> J
+  J -->|"Confirmar Generar"| K["UX-09 Ejecución"]
+  K --> L["UX-10 Reportes"]

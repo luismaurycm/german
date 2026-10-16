@@ -1,0 +1,656 @@
+# New Recording 7 (duracion 21.5 min)
+
+[00:00] Entonces, como tienen sus extractores financieros,
+[00:05] entonces inicialmente toca hacerlo habilitar los cubos en VW, en LRP,
+[00:12] pasarlos a VW y en VW toca hacer toda la planeación por ejemplo de VPC.
+[00:19] ¿En VPC qué se hace de planeación? Esperen, le muestro por acá.
+[00:24] Paso, chicharrón.
+[01:29] Yo tengo todo eso en el texto.
+[01:43] Ya en VPC, entonces lo que hace uno es lo siguiente.
+[03:05] Si el proyecto está realizando de cero,
+[03:08] entonces toca mirar las cargas de datos,
+[03:12] entonces las cargas de datos de dónde vienen,
+[03:14] si viene el LRP de esta parte y VW de esta parte,
+[03:19] entonces toca verificar que la conexión entre VW y LRP está funcionando,
+[03:25] se hace una validación y empezará a hacer cargas desde allá para acá.
+[03:30] ¿Qué tal?
+[03:34] Después de eso, entonces toca mirar la demologación de cuentas contables,
+[03:40] cada uno son procesos de... luego mirar las empresas relacionadas,
+[03:46] entonces la empresa relacionada de INSA,
+[03:50] eso es consolidación financiera, pueden tener 10, 20...
+[03:55] ¿Son clientes, proveedores?
+[03:57] No, no, la empresa de grupo.
+[04:00] Eso es una consolidación interna del grupo.
+[04:04] Después entonces toca mirar las cargas del centro de costo y centro de beneficio,
+[04:10] también como pueden ver en diferentes empresas,
+[04:15] entonces ahí hay una información que es SAP,
+[04:19] que es todas las empresas que están incluidas dentro de la aplicación de SAP,
+[04:23] y pueden haber información no SAP,
+[04:25] que son empresas que todavía no por el tamaño o por ubicación,
+[04:30] puede ser que no las tenga todavía dentro de SAP,
+[04:33] entonces toca cargar esa información por fuera.
+[04:38] Luego, toca hacer la carga de datos en SAP PW1,
+[04:42] que es con los extractores de standar.
+[04:44] Después de eso, cargan la sociedad de GLI,
+[04:47] que es todo el plan contable que tienen,
+[04:50] y pueden tener diferentes plan contables,
+[04:52] o sea, pueden haber...
+[04:54] cada sociedad puede tener su plan contable diferente,
+[04:57] donde SAP puede manejar leyes diferentes para cada sociedad.
+[05:02] Después de eso, cargan la moneda,
+[05:06] y también en ese caso, como es una consolidación financiera,
+[05:10] puede haber algunas sociedades que manejen dólares o moneda local,
+[05:18] otras que manejen pesos,
+[05:20] pero entonces toca unificar todo en una sola moneda para la presentación.
+[05:23] La mayoría de la gente la maneja.
+[05:25] ¿Y acá está esa de cambio ahí, como la toma?
+[05:28] No, porque de todos modos la contabilidad está en la moneda local.
+[05:32] O sea, ahí no hay necesidad de hacer...
+[05:34] Conversiones.
+[05:35] Conversiones y nada de eso.
+[05:38] Cargan el orden jerárquico de las cuentas de SAP BWU.
+[05:44] Bueno, las cadenas de proceso,
+[05:47] ahí toca crear las cadenas de proceso en BWU,
+[05:50] la revisión de divisas en BPC,
+[05:55] todos los datos que trae, por ejemplo,
+[06:02] los terceros, las cuentas,
+[06:06] la clasificación de las cuentas,
+[06:09] y cómo se va a hacer la consolidación,
+[06:12] según los informes que se vayan a sacar.
+[06:15] Y luego se importan los datos desde el infocitio de BWU,
+[06:22] se pasan a BWU,
+[06:28] y él, a través de unos scripts, empieza a generar
+[06:31] unos cubos propios de un modelo de consolidación financiera,
+[06:35] lo hacen en BPC,
+[06:37] y ahí es la consolidación financiera,
+[06:40] y ahí sale toda la información.
+[06:42] Yo tengo aquí todos los pasos,
+[06:45] aquí están explicados cada uno.
+[06:47] Está en ese documento, sí.
+[06:49] Y lo que se hace es, por ejemplo,
+[06:51] yo entro acá,
+[06:53] pero me muestro aquí,
+[06:55] es que esos de SAP son como medio alíntico,
+[06:59] porque ya está ahí.
+[07:02] Y este es BPC,
+[08:03] que es un programa que los de SAP compran
+[08:07] y lo metieron ahí en la pared.
+[08:09] ¿Cómo se llama ahí?
+[08:11] BPC.
+[08:13] Es un programa que lo adquirieron.
+[08:17] ¿NedWeaver?
+[08:18] Sí.
+[08:19] Y esto es todo el entorno de BPC.
+[08:22] Entonces, por ejemplo, aquí en la administración,
+[08:25] estos son los cubos que ya generan...
+[08:29] Business, Objects, Planning, and Consolidation.
+[08:32] ¿Y la idea es utilizar este software o cómo?
+[08:35] Sí, toca hacer este software,
+[08:37] porque el modelo toca meterlo en esto.
+[08:40] Entonces, ahí toca primero conectarse a SAP
+[08:44] y a BPC directamente,
+[08:46] que tienen los parámetros ahí diferentes.
+[08:48] Y entonces, ahí lo que hace es, por ejemplo,
+[08:50] si usted ve aquí, por ejemplo,
+[08:52] aquí en la...
+[09:04] Estos son los cubos de BW, perdón.
+[09:20] Entonces, estos son cubos de BW.
+[09:23] Este es el cubo, por ejemplo, de movimientos financieros.
+[09:27] Sí.
+[09:28] Este es el cubo de movimientos financieros.
+[09:30] Entonces, ahí está toda la parte
+[09:33] de lo que carga ahí de información financiera.
+[09:37] Entonces, todos los días,
+[09:40] yo lo que hice fue una carga general
+[09:43] y al inicio del proyecto.
+[09:46] Entonces, yo cargué toda la información
+[09:48] hasta el 2025
+[09:51] y de ahí para acá lo que hago es una carga delta
+[09:54] todas las noches.
+[09:55] Entonces, todas las noches voy
+[09:57] y traigo la información que metieron en el día.
+[10:00] Sí, la transaccional.
+[10:01] Y la llevo hasta Oega.
+[10:02] La llevo hasta Oega.
+[10:03] Y en día acá.
+[10:04] Entonces, aquí,
+[10:05] esa es la información de BW
+[10:08] y aquí hay un modelo que se llama
+[10:10] planificación empresarial y consolidación.
+[10:12] Sí.
+[10:13] Es el que genera automáticos.
+[10:15] Que se genera.
+[10:16] Después, este es el modelo de BPC.
+[10:20] Entonces, todo esto lo genera.
+[10:23] Pues lo genera, no, lo hace un poco.
+[10:26] Manualito de toda la consolidación financiera
+[10:29] y acuerda los reportes que hay en el ZIT.
+[10:32] Pero aquí hay un cubo que es el general.
+[10:34] Ahora, este data warehousing workbench
+[10:38] permite código, recibe código.
+[10:41] Recibe scripts.
+[10:43] Recibe scripts.
+[10:44] Que es ahí donde nosotros tenemos que inyectar
+[10:46] los scripts para hacer automáticos.
+[10:48] Sí.
+[10:49] Para esta versión de BPC,
+[10:50] que es la 11-0 que no es enviado.
+[10:52] Ajá.
+[10:53] Ese tiene un nuevo script de cálculo
+[10:55] a esto que cambia.
+[10:56] Sí.
+[10:57] Entonces,
+[10:59] aquí hay una.
+[11:01] Lo que no es que se llama
+[11:11] es que aquí hay uno de scripts
+[11:14] de cada una de propiedad,
+[11:17] de anécdotes, de tacha.
+[11:19] Entonces, aquí lo que hace es
+[11:22] el general código
+[11:31] para hacer cada una de las cosas.
+[11:33] Sí.
+[11:34] Ok.
+[11:35] Ajá.
+[11:36] Y acá en ZAT como tal,
+[11:41] entonces, genera ese modelo ya
+[11:43] de W.
+[11:45] Entonces, aquí, por ejemplo,
+[11:47] aquí en esta vaina,
+[11:49] esta ya la información ya consolidada
+[11:51] y acuerdo a cómo se necesite.
+[11:53] Ahora, una pregunta Lleva.
+[11:55] O sea, listo.
+[11:57] La idea sería,
+[11:58] o sea, el proyecto sería
+[12:00] para las empresas tomar la información
+[12:02] de su SAP.
+[12:03] Sí.
+[12:04] Y compasen eso,
+[12:05] armar su bodega de datos aquí
+[12:07] en...
+[12:08] Sí.
+[12:09] Lo que mal es que...
+[12:11] Sí.
+[12:12] Lo mal es borrarlo.
+[12:14] Bueno, venga, le cuento aquí.
+[12:16] Entonces,
+[12:18] SAP, ¿cierto?
+[12:19] Sí.
+[12:20] Para algunos casos.
+[12:21] Y aquí tenemos BWU, ¿cierto?
+[12:23] Sí.
+[12:24] Entonces,
+[12:26] digamos que aquí
+[12:28] hay unos procesos
+[12:30] que...
+[12:31] Esto es para el modelo anterior,
+[12:33] en 7.5.
+[12:35] Y aquí el nuevo,
+[12:37] ya tendría solamente
+[12:39] un solo servidor.
+[12:41] Y aquí viene BWU
+[12:43] y viene SAP.
+[12:45] Ahora, una pregunta.
+[12:47] Pero vale la pena trabajar para los dos modelos
+[12:49] o trabajar directamente para los dos modelos?
+[12:52] No, para ambos,
+[12:54] porque es que todavía mucha gente
+[12:56] utiliza esto.
+[12:57] Entonces, total...
+[12:58] ¿Cuál es el que se tiene acá?
+[12:59] Es...
+[13:00] El 7.5.
+[13:01] Sí, pero el proyecto que tiene este marica
+[13:04] ya es con este.
+[13:05] Con la versión siguiente.
+[13:07] Con la versión siguiente.
+[13:08] Ok.
+[13:09] Bueno, pero podemos aquí
+[13:10] para probarlo, probarlo con 7.5
+[13:11] para poderlo ejecutar,
+[13:12] porque no tenemos acceso a un...
+[13:13] ¿Esta qué versión es?
+[13:14] Este es...
+[13:15] 2025.
+[13:16] BWU 2025.
+[13:18] Sí.
+[13:19] Y BPC 11 enbebido.
+[13:21] Ese es el que viene todo enbebido.
+[13:22] Sí.
+[13:23] Sí.
+[13:24] Y este ya...
+[13:25] este viene por aparte.
+[13:26] Pero digamos que para trabajar ahorita
+[13:27] y crear un prototipo
+[13:28] podemos hacer lo que con 7.5
+[13:29] que el ISO tiene acceso.
+[13:30] Sí, exactamente.
+[13:31] Bueno, pero entonces...
+[13:32] A ver,
+[13:33] listo.
+[13:34] En SAP está toda la información,
+[13:35] ya, ok,
+[13:36] la parte transaccional
+[13:37] en el BWU,
+[13:38] la idea es armar obviamente
+[13:39] la bodega y organizar.
+[13:40] No, la bodega ya está.
+[13:41] Realmente.
+[13:42] Porque ahí se puede partir
+[13:43] de la bodega de datos
+[13:44] que ya están.
+[13:45] Porque...
+[13:46] Pero un cliente que no tenga...
+[13:48] Ah, tocar más la bodega.
+[13:49] Hay que armarle la bodega,
+[13:50] exacto.
+[13:51] Hay que armarle.
+[13:52] Hay que hacerle el script
+[13:53] para armar la bodega.
+[13:54] Para armar la bodega.
+[13:55] Entonces,
+[13:56] tenemos que crear un script
+[13:57] bien potente para armar
+[13:58] esa bodega.
+[13:59] Si ya la tienes,
+[14:00] pues bien,
+[14:01] si no la tienes.
+[14:02] O si crean campos adicionales
+[14:03] en SAP,
+[14:04] hay que incorporarlos en la bodega,
+[14:05] supongo.
+[14:06] Sí, claro.
+[14:07] Ahora una pregunta.
+[14:08] En este modelo BWU
+[14:10] está lo de datos financieros,
+[14:12] que es un BWU.
+[14:13] Sí.
+[14:14] Está lo de activos finos,
+[14:15] que es otro BWU.
+[14:16] Está lo de deterioros,
+[14:18] que son como diferentes.
+[14:20] Pero entonces sería bueno
+[14:21] que, por ejemplo,
+[14:22] la solución,
+[14:23] tenemos que crear
+[14:24] una interfaz
+[14:25] a la solución.
+[14:26] Sí.
+[14:27] Puede ser una interfaz
+[14:28] que delinea comando,
+[14:29] web, o qué,
+[14:30] como las...
+[14:31] para la configuración.
+[14:32] La configuración,
+[14:33] es que lo que hice
+[14:34] era lo que me tenía que pensar
+[14:36] a mí porque
+[14:37] por ejemplo,
+[14:38] tú esa arena
+[14:39] entra una BWU
+[14:40] y lo va creando más bajo.
+[14:41] Sí, no,
+[14:42] pero ya no va creando más malo.
+[14:43] Sí.
+[14:44] Entonces,
+[14:45] yo no sé si
+[14:46] hay alguna forma
+[14:47] de conectarse al sistema
+[14:48] y darle al usuario
+[14:49] el sistema.
+[14:50] Ajá.
+[14:51] Exacto.
+[14:52] El escaneo,
+[14:53] la revisión.
+[14:54] Sí,
+[14:55] eso es lo que quiero.
+[14:56] Y eso le podríamos crear
+[14:57] una interfaz al usuario
+[14:58] que puede ser
+[14:59] una aplicación de consola
+[15:00] o se me ocurre
+[15:01] de consola
+[15:02] para que diga listo,
+[15:03] vamos a crear la bodega.
+[15:04] ¿Qué quiere evaluar?
+[15:05] ¿Qué cubos quiere tener?
+[15:06] El de activos fijos.
+[15:07] Quiero cheque
+[15:08] en los que quiera tener
+[15:09] y desmarcar los que no necesite.
+[15:11] Sí.
+[15:12] Sí, más o menos así.
+[15:13] Ah, pues yo tengo aquí
+[15:15] como en el inicio del proyecto.
+[15:17] Sí.
+[15:18] Yo tengo todos los casos
+[15:19] de uso.
+[15:20] También,
+[15:21] es que aquí tengo todo.
+[15:22] Claro,
+[15:23] pero cambian
+[15:24] cambian de cliente a cliente.
+[15:26] O sea, puede haber un cliente
+[15:27] que no le interese
+[15:28] no sé tener el cubo activo
+[15:29] fijos.
+[15:30] Sí, exacto.
+[15:31] Pues es solamente
+[15:32] consolidación
+[15:33] o presupuesto
+[15:34] Exacto.
+[15:35] Lo que es lo que se necesite.
+[15:36] Ok.
+[15:37] Ah, bueno.
+[15:38] Viene una pregunta.
+[15:39] Luego de crear la bodega
+[15:40] ¿Qué más queremos que haga
+[15:41] el proceso automatizado?
+[15:42] ¿Que quiere reportes
+[15:43] o algo?
+[15:44] Eso tiene para reportes.
+[15:45] Sí.
+[15:46] Eso toca crear
+[15:47] los reportes.
+[15:48] ¿En qué herramienta usan ahí?
+[15:49] Se utiliza
+[15:50] el en nuestro cabo.
+[15:52] ¿Qué hacen con ese cubo
+[15:57] después de crear los cubos?
+[15:58] Después de que tienen
+[15:59] toda esa información.
+[16:00] Ajá.
+[16:01] En el cubo.
+[16:02] Después de que utilizan
+[16:03] esto.
+[16:04] ¿Cómo hay ya?
+[16:05] Pues aquí entran ustedes
+[16:07] en Excel.
+[16:08] Ajá.
+[16:09] En Excel
+[16:13] hay dos tipos de herramientas.
+[16:15] Hay un ADIN supongo.
+[16:16] Sí.
+[16:17] Hay uno que se utilizan
+[16:19] que se utilizan antes
+[16:20] que aquí lo están utilizando
+[16:22] que se llama EPM
+[16:26] y ahora
+[16:27] hay otro que le llama
+[16:29] análisis for office
+[16:30] que es el que ya es más nuevo.
+[16:32] Ajá.
+[16:33] Pero en este caso sería EPM.
+[16:34] Entonces lo que hace
+[16:35] EPM ya
+[16:36] iniciar sesión.
+[16:38] ¿Se conecta al DW?
+[16:40] No.
+[16:41] Se conecta
+[16:42] a VPC.
+[16:43] ¿A VPC?
+[16:44] Al modelo que estamos viendo
+[16:45] y que de construcción.
+[16:46] Sí.
+[16:47] Correcto.
+[16:48] Ajá.
+[16:49] Aquí entonces.
+[16:50] Y esa sería la mejor salida
+[16:54] a través de Excel
+[16:55] o que crea algunos reportes
+[16:56] o que crea algo más.
+[16:57] No.
+[16:58] Es mejor a través de Excel
+[16:59] porque es que...
+[17:00] Pero ahí en Excel
+[17:01] ya lo harías el usuario
+[17:02] y ya no tendríamos
+[17:03] nada que hacer.
+[17:04] No.
+[17:05] Tú el toca general el archivo.
+[17:06] Ajá.
+[17:07] Que se queda el archivo
+[17:08] para que ya
+[17:09] la empresa actualice.
+[17:10] Exacto.
+[17:11] Ok.
+[17:12] Y esas salidas
+[17:14] van dependiendo
+[17:15] de cada cubo.
+[17:16] Ahora la pregunta es
+[17:17] ¿cuántos Excel generamos
+[17:18] por cubo?
+[17:19] Uno solo
+[17:20] o más de uno?
+[17:21] No.
+[17:22] Varios.
+[17:23] Porque de todo modo
+[17:24] por la información financiera
+[17:25] hay 50 reportes diferentes.
+[17:27] Por ejemplo,
+[17:28] ¿qué reportes
+[17:29] por la salida de información
+[17:30] que nacieron?
+[17:31] Ya lo muestro.
+[17:32] Bueno,
+[17:33] recuerda que estamos
+[17:34] grabando para darles
+[17:35] los nombres.
+[17:36] Ok.
+[17:37] Son los nombres y ya.
+[17:38] ¿Qué reportes
+[17:39] en el servicio?
+[17:40] Repórtes.
+[17:41] Ajá.
+[17:42] Todos estos reportes
+[17:43] son diferentes.
+[17:44] Pero ¿cómo se llaman?
+[17:45] Beneficio empleados,
+[17:46] carteras colectivas,
+[17:47] certificación proyectinominal,
+[17:49] el de cuentas, cuentas por cobrar,
+[17:51] cuentas por pagar,
+[17:52] dividiendo residuos,
+[17:53] dividiendo pagados.
+[17:54] Ok.
+[17:55] Efe,
+[17:56] que es
+[17:58] toda la parte
+[18:00] de balances.
+[18:01] Ajá.
+[18:02] PIGs,
+[18:03] intangibles,
+[18:04] junta directiva,
+[18:05] obligaciones financieras.
+[18:07] Y cada uno es un archivo de Excel.
+[18:09] Es un archivo de Excel.
+[18:11] Por ejemplo,
+[18:12] yo le muestro uno de los míos
+[18:13] que son de los que más conozco.
+[18:15] Entonces,
+[18:16] efectivo y equivalente.
+[18:18] Ajá.
+[18:19] Entonces,
+[18:20] aquí,
+[18:21] de acuerdo,
+[18:22] mira.
+[18:23] Entonces,
+[18:24] este es el reporte
+[18:25] de efectivo y equivalente.
+[18:26] Sí.
+[18:27] Ahí abrimos el archivo de Excel
+[18:28] y se conecta directamente
+[18:29] con la fuente.
+[18:30] Exacto.
+[18:31] Y trae los datos actualizados.
+[18:32] Debe tener una parte
+[18:33] de parámetros o no.
+[18:34] Sí, aquí
+[18:35] ustedes cogen la sociedad.
+[18:36] Sí.
+[18:37] Entonces,
+[18:38] todo está en la sociedad.
+[18:39] Por ejemplo,
+[18:40] aquí tiene
+[18:41] el alquil.
+[18:42] Por ejemplo,
+[18:43] estas piandes.
+[18:44] Sí.
+[18:45] Se puede sacar sola,
+[18:46] pero también tiene que sacar
+[18:47] todas sus filiales.
+[18:48] Ajá.
+[18:49] Que es proliferiente,
+[18:50] proliviendino,
+[18:51] conilviario.
+[18:52] Escoge sobre
+[18:53] qué
+[18:54] sobre qué
+[18:55] alcance,
+[18:56] quiero,
+[18:57] si lo quiere todo cada
+[18:58] filial.
+[18:59] Exacto.
+[19:00] Si quieres sacar una por una,
+[19:01] pues la escoge aparte.
+[19:02] Aunque esto ya lo tiene,
+[19:03] debe venir
+[19:04] en tu mismo archivo de Excel.
+[19:05] Esos archivos de Excel,
+[19:06] esos que usted me muestra,
+[19:07] fueron desarrollados
+[19:08] o ya vienen con la herramienta?
+[19:09] No,
+[19:10] todo esto está desarrollado a mano.
+[19:11] O sea,
+[19:12] habría que desarrollarlo
+[19:13] de cero,
+[19:14] literalmente.
+[19:15] De cero, claro.
+[19:16] Ok.
+[19:17] Y los campos que van
+[19:18] en cada reporte,
+[19:19] digamos,
+[19:20] no,
+[19:21] son los que todo es usuario,
+[19:22] porque eso es personalizado.
+[19:23] Ah,
+[19:24] pero te hay que darle una interfaz
+[19:25] para que el usuario
+[19:26] escoja qué campos
+[19:27] quiere visualizar
+[19:28] en cada reporte.
+[19:29] No,
+[19:30] eso viene dentro
+[19:31] del caso de USU.
+[19:32] Entonces,
+[19:33] me dice,
+[19:34] ¿cuánta directiva
+[19:35] que me traiga las cuentas
+[19:36] están
+[19:37] y a ellos
+[19:38] están dando el mapeo
+[19:39] de las cuentas?
+[19:40] Claro.
+[19:41] Y entonces,
+[19:42] de acuerdo al mapeo
+[19:43] de las cuentas,
+[19:44] entonces,
+[19:45] el dato,
+[19:46] mire,
+[19:47] por ejemplo,
+[19:48] aquí es con uno la sociedad,
+[19:49] ¿cierto?
+[19:50] Sí.
+[19:51] Por ejemplo,
+[19:52] aquí,
+[19:53] en este dato,
+[19:54] por ejemplo,
+[19:55] mire,
+[19:56] entonces,
+[19:57] el salto contable
+[19:58] de pesos,
+[19:59] y aquí,
+[20:00] mire,
+[20:01] entonces,
+[20:02] aquí le dice
+[20:03] y él va y suma,
+[20:04] por ejemplo,
+[20:05] todo lo del banco vota,
+[20:06] lo que esté mapeado,
+[20:07] por ejemplo,
+[20:08] en este caso,
+[20:09] por ejemplo,
+[20:10] yo tengo
+[20:11] cuentas para en cinco,
+[20:12] y el F-00-101.
+[20:14] Sí.
+[20:15] Pero si viene uno
+[20:16] de cada VPC
+[20:17] en la administración,
+[20:18] por ejemplo,
+[20:19] en dimensiones,
+[20:20] en cuentas.
+[20:21] Sí.
+[20:22] Entonces,
+[20:23] por ejemplo,
+[20:24] aquí
+[20:25] para defectivo y equivalentes,
+[20:27] entonces,
+[20:28] si yo le doy acá,
+[20:29] F-00-1,
+[20:32] mire,
+[20:33] todas estas son las puntas
+[20:38] que están mapeadas,
+[20:39] y el vídeo que le saca ya,
+[20:40] y acuerdo.
+[20:41] En las agrupas, claro,
+[20:42] ya tiene el cubo,
+[20:43] además, que lo hace,
+[20:44] y que ya está calculado.
+[20:45] Sí.
+[20:46] Ok.
+[20:47] Listo.
+[20:48] Entonces,
+[20:49] paramos ahí
+[20:50] y estructuramos esto hasta acá.
+[20:51] ¿Le parece?
+[20:52] ¿Vale?
+[20:53] Ahora,
+[20:54] tenemos entorno
+[20:55] para trabajar.
+[20:56] O sea,
+[20:57] tiene que ser desde su máquina,
+[20:58] puede ser otra máquina,
+[20:59] ¿cómo es?
+[21:00] No,
+[21:01] tengo que ser en la máquina,
+[21:02] porque yo toca,
+[21:03] y como está,
+[21:04] y además que,
+[21:05] por ejemplo,
+[21:06] para entrar a veces,
+[21:07] toca un poco de parámetro
+[21:09] en el Confit
+[21:10] para poder pintarse.
+[21:11] ¿Vale?
+[21:12] Esa máquina,
+[21:13] de la que usted está conectando
+[21:14] esa máquina,
+[21:15] es una máquina remota.
+[21:16] No,
+[21:17] esta es la mía.
+[21:18] Esa es la suya,
+[21:19] o sea,
+[21:20] que en la suya podemos ejecutar
+[21:21] todo.
+[21:22] Sí,
+[21:23] de ahí se puede ejecutar todo.
+[21:24] O sea,
+[21:25] desde la máquina local
+[21:26] para nuestro caso,
+[21:27] porque le voy a hacer ejecutando ahí.
+[21:28] ¿Listo?
+[21:29] ¿Vale?
+[21:30] Entonces,
+[21:31] vamos a...

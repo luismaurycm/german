@@ -1,0 +1,652 @@
+{
+  "rf": [
+    {
+      "codigo": "RF-01",
+      "nombre": "Registrar y probar conexiones",
+      "descripcion": "El sistema permite al Consultor implementador registrar los parámetros de conexión a SAP ERP, SAP BW y SAP BPC del cliente y probar cada conexión, mostrando para cada sistema el resultado (exitosa o fallida con el mensaje devuelto).",
+      "reglas": [],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 08:40-08:46; 21:05-21:10",
+      "modulo": "5.1 Conexión y diagnóstico"
+    },
+    {
+      "codigo": "RF-02",
+      "nombre": "Validar conexión ERP–BW",
+      "descripcion": "El sistema permite al Consultor implementador validar la conexión entre SAP ERP y SAP BW antes de iniciar las cargas, y registra el resultado de la validación.",
+      "reglas": [
+        "RN-01"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 03:14-03:25",
+      "modulo": "5.1 Conexión y diagnóstico"
+    },
+    {
+      "codigo": "RF-03",
+      "nombre": "Inventariar objetos existentes",
+      "descripcion": "El sistema lista los objetos ya existentes en el sistema del cliente: extractores activos, InfoCubos o aDSO, modelos BPC y campos Z, para que el Consultor implementador decida qué generar.",
+      "reglas": [
+        "RN-03"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 13:40-14:06; 14:45-14:55",
+      "modulo": "5.1 Conexión y diagnóstico"
+    },
+    {
+      "codigo": "RF-04",
+      "nombre": "Identificar la arquitectura",
+      "descripcion": "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes.",
+      "reglas": [
+        "RN-02"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G6 00:00-00:43; Sesión técnica 16-Oct-26, G7 12:31-13:21",
+      "modulo": "5.1 Conexión y diagnóstico"
+    },
+    {
+      "codigo": "RF-05",
+      "nombre": "Seleccionar módulos",
+      "descripcion": "El sistema permite al Consultor implementador marcar o desmarcar los módulos a implementar (consolidación, presupuesto, activos fijos, deterioros); solo los módulos marcados se generan.",
+      "reglas": [],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 14:13-15:35",
+      "modulo": "5.2 Configuración de alcance"
+    },
+    {
+      "codigo": "RF-06",
+      "nombre": "Registrar sociedades del grupo",
+      "descripcion": "El sistema permite registrar las sociedades del grupo a consolidar, indicando para cada una si su información está en SAP o se carga por fuera.",
+      "reglas": [
+        "RN-07"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 03:40-04:33",
+      "modulo": "5.2 Configuración de alcance"
+    },
+    {
+      "codigo": "RF-07",
+      "nombre": "Registrar mapeo de cuentas",
+      "descripcion": "El sistema permite registrar el mapeo de las cuentas contables del cliente a los rubros de reporte (por ejemplo, rubro F-00-101 Efectivo).",
+      "reglas": [
+        "RN-10"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 03:34-03:40; 19:32-20:44",
+      "modulo": "5.2 Configuración de alcance"
+    },
+    {
+      "codigo": "RF-08",
+      "nombre": "Generar la bodega",
+      "descripcion": "Cuando el inventario (RF-03) indica que la bodega no existe, el sistema crea en BW los objetos de los módulos seleccionados: activa los extractores estándar de información financiera (0FI_GL_14 en ECC; el equivalente en S/4HANA se confirma en la pregunta abierta 11) y crea los InfoProviders (InfoCubos o aDSO).",
+      "reglas": [
+        "RN-03"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G6 01:10-01:17; Sesión técnica 16-Oct-26, G7 00:05-00:12; 13:46-13:58",
+      "modulo": "5.3 Bodega de datos en BW"
+    },
+    {
+      "codigo": "RF-09",
+      "nombre": "Incorporar campos Z",
+      "descripcion": "El sistema incorpora a la bodega los campos adicionales (Z) que el cliente haya creado en SAP y que el Consultor implementador seleccione.",
+      "reglas": [],
+      "prioridad": "Media",
+      "origen": "Sesión técnica 16-Oct-26, G7 14:02-14:06",
+      "modulo": "5.3 Bodega de datos en BW"
+    },
+    {
+      "codigo": "RF-10",
+      "nombre": "Generar cadenas de proceso",
+      "descripcion": "El sistema crea las cadenas de proceso que ejecutan una carga full inicial del histórico y, después, una carga delta cada noche.",
+      "reglas": [
+        "RN-04"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 05:47-05:50; 09:40-09:57",
+      "modulo": "5.3 Bodega de datos en BW"
+    },
+    {
+      "codigo": "RF-11",
+      "nombre": "Cargar planes de cuentas",
+      "descripcion": "El sistema carga en BW el plan de cuentas de cada sociedad seleccionada.",
+      "reglas": [
+        "RN-05"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 04:44-04:57",
+      "modulo": "5.4 Datos maestros"
+    },
+    {
+      "codigo": "RF-12",
+      "nombre": "Cargar CeCo y CeBe",
+      "descripcion": "El sistema carga en BW los centros de costo y de beneficio de todas las sociedades seleccionadas.",
+      "reglas": [],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 04:04-04:15",
+      "modulo": "5.4 Datos maestros"
+    },
+    {
+      "codigo": "RF-13",
+      "nombre": "Cargar monedas y tasas",
+      "descripcion": "El sistema carga la moneda local de cada sociedad tal como la maneja SAP y las tasas de cambio entre moneda local y dólares.",
+      "reglas": [
+        "RN-06"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 05:02-05:35; Sesión interna CM 16-Oct-26 (respuesta 6)",
+      "modulo": "5.4 Datos maestros"
+    },
+    {
+      "codigo": "RF-14",
+      "nombre": "Cargar jerarquía de cuentas",
+      "descripcion": "El sistema carga en BW la jerarquía de cuentas del cliente.",
+      "reglas": [],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 05:38-05:44",
+      "modulo": "5.4 Datos maestros"
+    },
+    {
+      "codigo": "RF-15",
+      "nombre": "Cargar sociedades no SAP",
+      "descripcion": "El sistema permite cargar la información contable de las sociedades no SAP registradas en RF-06 al mismo modelo que las sociedades SAP.",
+      "reglas": [],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 04:25-04:33",
+      "modulo": "5.4 Datos maestros"
+    },
+    {
+      "codigo": "RF-16",
+      "nombre": "Configurar dimensiones",
+      "descripcion": "El sistema crea en BPC las dimensiones del modelo de consolidación, entre ellas cuentas y terceros (la lista completa se define en arquitectura), y carga sus miembros con los datos del cliente.",
+      "reglas": [],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 06:02-06:12; 20:16-20:21",
+      "modulo": "5.5 Modelo BPC y consolidación"
+    },
+    {
+      "codigo": "RF-17",
+      "nombre": "Importar datos de BW a BPC",
+      "descripcion": "En el modelo estándar de BPC, el sistema importa al modelo BPC los datos del InfoProvider de BW (InfoCubo o aDSO).",
+      "reglas": [],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 06:15-06:22",
+      "modulo": "5.5 Modelo BPC y consolidación"
+    },
+    {
+      "codigo": "RF-18",
+      "nombre": "Desplegar scripts de lógica",
+      "descripcion": "El sistema despliega en BPC los scripts de consolidación completados con los datos del cliente, en la variante de la arquitectura identificada en RF-04.",
+      "reglas": [
+        "RN-02"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 06:28-06:40; 10:41-10:56",
+      "modulo": "5.5 Modelo BPC y consolidación"
+    },
+    {
+      "codigo": "RF-19",
+      "nombre": "Ejecutar la consolidación",
+      "descripcion": "El sistema ejecuta la consolidación del grupo eliminando las transacciones entre sociedades del grupo, y deja el resultado consultable en el modelo BPC.",
+      "reglas": [
+        "RN-06",
+        "RN-07"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 03:50-04:00; 06:37-06:40",
+      "modulo": "5.5 Modelo BPC y consolidación"
+    },
+    {
+      "codigo": "RF-26",
+      "nombre": "Convertir a la otra moneda",
+      "descripcion": "El sistema convierte los saldos de cada sociedad a la otra moneda de presentación (moneda local o dólares) con las tasas cargadas en RF-13, y deja la consolidación disponible en ambas monedas.",
+      "reglas": [
+        "RN-06",
+        "RN-11"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 05:10-05:20; Sesión interna CM 16-Oct-26 (respuesta 6)",
+      "modulo": "5.5 Modelo BPC y consolidación"
+    },
+    {
+      "codigo": "RF-20",
+      "nombre": "Entregar reportes EPM",
+      "descripcion": "El sistema entrega los 20 reportes iniciales de la tabla 5.6.1, cada uno como un archivo Excel con EPM add-in conectado al modelo BPC, que el cliente conserva y actualiza.",
+      "reglas": [
+        "RN-08"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 15:44-17:10; Sesión interna CM 16-Oct-26",
+      "modulo": "5.6 Reportes EPM"
+    },
+    {
+      "codigo": "RF-21",
+      "nombre": "Seleccionar sociedad y filiales",
+      "descripcion": "Cada reporte permite al Usuario financiero elegir la sociedad, si incluye sus filiales y la moneda de presentación (moneda local o dólares), y actualizar los datos desde BPC.",
+      "reglas": [
+        "RN-06",
+        "RN-09"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 18:27-19:04; Sesión interna CM 16-Oct-26 (respuesta 6)",
+      "modulo": "5.6 Reportes EPM"
+    },
+    {
+      "codigo": "RF-22",
+      "nombre": "Calcular rubros por mapeo",
+      "descripcion": "Cada rubro de un reporte muestra la suma de las cuentas mapeadas a ese rubro en RF-07.",
+      "reglas": [
+        "RN-10"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 19:29-20:44",
+      "modulo": "5.6 Reportes EPM"
+    },
+    {
+      "codigo": "RF-23",
+      "nombre": "Generar módulo de presupuesto",
+      "descripcion": "Cuando el módulo de presupuesto está seleccionado (RF-05), el sistema carga en BW el presupuesto desde el extractor 0FI_GL_14 y genera en BPC un modelo de planeación propio para el presupuesto, separado del modelo de consolidación.",
+      "reglas": [],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 00:05-00:19; 15:31-15:35; Sesión interna CM 16-Oct-26 (respuestas 2, 7 y 8)",
+      "modulo": "5.7 Módulos de presupuesto, activos fijos y deterioros"
+    },
+    {
+      "codigo": "RF-24",
+      "nombre": "Generar módulo de activos fijos",
+      "descripcion": "Cuando el módulo de activos fijos está seleccionado (RF-05), el sistema activa el extractor estándar de activos fijos y genera en BW los InfoProviders y las cargas de esa información, sin crear un modelo en BPC.",
+      "reglas": [
+        "RN-12"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 14:13-14:15; Sesión interna CM 16-Oct-26 (respuestas 2, 7 y 8)",
+      "modulo": "5.7 Módulos de presupuesto, activos fijos y deterioros"
+    },
+    {
+      "codigo": "RF-25",
+      "nombre": "Generar módulo de deterioros",
+      "descripcion": "Cuando el módulo de deterioros está seleccionado (RF-05), el sistema activa el extractor estándar de deterioros y genera en BW los InfoProviders y las cargas de esa información, sin crear un modelo en BPC.",
+      "reglas": [
+        "RN-12"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 14:16-14:18; Sesión interna CM 16-Oct-26 (respuestas 2, 7 y 8)",
+      "modulo": "5.7 Módulos de presupuesto, activos fijos y deterioros"
+    },
+    {
+      "codigo": "RF-27",
+      "nombre": "Entregar reportes de presupuesto",
+      "descripcion": "El sistema entrega los reportes P01 a P04 de la tabla 5.8.1, cada uno como un archivo Excel con EPM add-in conectado al modelo de planeación de presupuesto en BPC.",
+      "reglas": [
+        "RN-08"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión interna CM 16-Oct-26 (respuesta 8, selección delegada)",
+      "modulo": "5.8 Reportes de presupuesto, activos fijos y deterioros"
+    },
+    {
+      "codigo": "RF-28",
+      "nombre": "Capturar presupuesto",
+      "descripcion": "El sistema permite al Usuario financiero ingresar y ajustar valores de presupuesto por sociedad, cuenta, centro de costo y periodo en el formulario P05, y guardarlos en el modelo de planeación de BPC.",
+      "reglas": [
+        "RN-08"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión técnica 16-Oct-26, G7 00:12-00:19; Sesión interna CM 16-Oct-26 (respuesta 8, selección delegada)",
+      "modulo": "5.8 Reportes de presupuesto, activos fijos y deterioros"
+    },
+    {
+      "codigo": "RF-29",
+      "nombre": "Entregar reportes de activos fijos y deterioros",
+      "descripcion": "El sistema entrega los reportes A01 a A03 y D01 a D02 de la tabla 5.8.1, que leen su información de BW.",
+      "reglas": [
+        "RN-12"
+      ],
+      "prioridad": "Alta",
+      "origen": "Sesión interna CM 16-Oct-26 (respuesta 8, selección delegada)",
+      "modulo": "5.8 Reportes de presupuesto, activos fijos y deterioros"
+    },
+    {
+      "codigo": "RF-30",
+      "nombre": "Alimentar reportes de consolidación",
+      "descripcion": "La información de activos fijos y deterioros cargada en BW alimenta los movimientos de los reportes R08 Cuentas por cobrar, R10 Propiedad, planta y equipo y R11 Intangibles.",
+      "reglas": [
+        "RN-12"
+      ],
+      "prioridad": "Media",
+      "origen": "Sesión interna CM 16-Oct-26 (respuesta 8)",
+      "modulo": "5.8 Reportes de presupuesto, activos fijos y deterioros"
+    }
+  ],
+  "rnf": [
+    {
+      "codigo": "RNF-Comp-01",
+      "categoria": "Comp",
+      "requerimiento": "El acelerador soporta las dos arquitecturas: A (BW 7.5 con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido).",
+      "metrica": "Todos los RF aplicables a cada arquitectura se ejecutan completos en un ambiente de prueba de esa arquitectura (2 de 2).",
+      "origen": "Sesión técnica 16-Oct-26, G7 12:47-12:57"
+    },
+    {
+      "codigo": "RNF-Comp-02",
+      "categoria": "Comp",
+      "requerimiento": "Los reportes funcionan con el EPM add-in de Excel. Analysis for Office no se soporta en esta versión.",
+      "metrica": "20 de 20 reportes abren y actualizan datos con EPM add-in.",
+      "origen": "Sesión interna CM 16-Oct-26"
+    },
+    {
+      "codigo": "RNF-Comp-03",
+      "categoria": "Comp",
+      "requerimiento": "Para el prototipo, el configurador web se ejecuta en el equipo del Consultor implementador, sin servidores adicionales. Dónde se aloja el producto se define en la pregunta abierta 4.",
+      "metrica": "Prototipo instalado en 1 equipo con 0 servidores adicionales.",
+      "origen": "Sesión técnica 16-Oct-26, G7 20:56-21:27"
+    },
+    {
+      "codigo": "RNF-Comp-04",
+      "categoria": "Comp",
+      "requerimiento": "El acelerador admite varias versiones de BW y BPC dentro de cada arquitectura; agregar una versión nueva solo agrega una variante de los generadores.",
+      "metrica": "Agregar una versión requiere 0 cambios en la configuración de los clientes y 0 cambios en las variantes existentes.",
+      "origen": "Sesión interna CM 16-Oct-26 (respuesta 5)"
+    },
+    {
+      "codigo": "RNF-Rend-01",
+      "categoria": "Rend",
+      "requerimiento": "La carga delta deja disponibles en los reportes las transacciones registradas en SAP el día anterior.",
+      "metrica": "1 ejecución cada 24 horas; antigüedad de los datos ≤ 24 horas al abrir un reporte. Duración máxima de la ventana: pregunta abierta 7.",
+      "origen": "Sesión técnica 16-Oct-26, G7 09:51-09:57"
+    },
+    {
+      "codigo": "RNF-Seg-01",
+      "categoria": "Seg",
+      "requerimiento": "La solución se verifica con OWASP ASVS nivel 2, según la clasificación de datos de la sección 9.",
+      "metrica": "Verificación ASVS nivel 2 sin hallazgos altos abiertos antes de la entrega.",
+      "origen": "Playbook CM §7.1; sección 9"
+    },
+    {
+      "codigo": "RNF-Seg-02",
+      "categoria": "Seg",
+      "requerimiento": "Las credenciales de conexión a SAP no se guardan en texto plano en el equipo del Consultor implementador.",
+      "metrica": "0 credenciales legibles en archivos de configuración o registros.",
+      "origen": "Playbook CM §7.1; sección 9"
+    },
+    {
+      "codigo": "RNF-Seg-03",
+      "categoria": "Seg",
+      "requerimiento": "El usuario técnico de conexión a SAP opera con los permisos mínimos que requiere cada paso.",
+      "metrica": "Rol técnico documentado; 0 permisos de administración total (SAP_ALL).",
+      "origen": "Playbook CM §7.1"
+    },
+    {
+      "codigo": "RNF-Aud-01",
+      "categoria": "Aud",
+      "requerimiento": "Cada ejecución del acelerador queda registrada: usuario, fecha y hora, sistema destino, paso, objetos creados o modificados y resultado.",
+      "metrica": "100 % de las ejecuciones con registro; retención mínima de 12 meses.",
+      "origen": "Playbook CM §7.1 (observabilidad)"
+    },
+    {
+      "codigo": "RNF-Usa-01",
+      "categoria": "Usa",
+      "requerimiento": "El configurador web cumple accesibilidad WCAG 2.1 nivel AA.",
+      "metrica": "0 incumplimientos de nivel A y AA en una revisión automática de las pantallas.",
+      "origen": "Playbook CM §7.1; Sesión interna CM 16-Oct-26 (respuesta 3)"
+    }
+  ],
+  "rn": [
+    {
+      "codigo": "RN-01",
+      "regla": "La validación de conexión ERP–BW aplica cuando ERP y BW están en sistemas separados.",
+      "origen": "Sesión técnica 16-Oct-26, G6 00:13-00:43"
+    },
+    {
+      "codigo": "RN-02",
+      "regla": "Los scripts de cálculo difieren entre BPC modelo estándar y BPC modelo embebido; cada arquitectura usa su propia variante.",
+      "origen": "Sesión técnica 16-Oct-26, G7 10:49-10:56"
+    },
+    {
+      "codigo": "RN-03",
+      "regla": "Si el cliente ya tiene bodega en BW, no se recrea: se parte de la existente.",
+      "origen": "Sesión técnica 16-Oct-26, G7 13:40-13:51"
+    },
+    {
+      "codigo": "RN-04",
+      "regla": "Después de la carga full inicial, las cargas siguientes son delta y se ejecutan cada noche.",
+      "origen": "Sesión técnica 16-Oct-26, G7 09:40-09:57"
+    },
+    {
+      "codigo": "RN-05",
+      "regla": "Cada sociedad puede tener un plan de cuentas distinto.",
+      "origen": "Sesión técnica 16-Oct-26, G7 04:50-04:57"
+    },
+    {
+      "codigo": "RN-06",
+      "regla": "La consolidación se presenta en dos monedas: la moneda local que maneja SAP y dólares.",
+      "origen": "Sesión técnica 16-Oct-26, G7 05:10-05:20; Sesión interna CM 16-Oct-26 (respuesta 6)"
+    },
+    {
+      "codigo": "RN-07",
+      "regla": "Solo las sociedades del grupo participan como entidades de la consolidación; clientes y proveedores no.",
+      "origen": "Sesión técnica 16-Oct-26, G7 03:55-04:00"
+    },
+    {
+      "codigo": "RN-08",
+      "regla": "En el modelo estándar, los reportes EPM de consolidación y de presupuesto se conectan a su modelo BPC, no directamente a BW.",
+      "origen": "Sesión técnica 16-Oct-26, G7 16:38-16:47"
+    },
+    {
+      "codigo": "RN-09",
+      "regla": "Un reporte puede presentar una sociedad sola o la sociedad con todas sus filiales.",
+      "origen": "Sesión técnica 16-Oct-26, G7 18:44-19:01"
+    },
+    {
+      "codigo": "RN-10",
+      "regla": "El valor de un rubro es la suma de las cuentas mapeadas a ese rubro.",
+      "origen": "Sesión técnica 16-Oct-26, G7 20:02-20:44"
+    },
+    {
+      "codigo": "RN-11",
+      "regla": "La conversión usa tasa de cierre para cuentas de balance, tasa promedio para resultados y tasa histórica para patrimonio.",
+      "origen": "NIC 21 (por confirmar en la pregunta abierta 3)"
+    },
+    {
+      "codigo": "RN-12",
+      "regla": "Activos fijos y deterioros se quedan en BW: no tienen modelo en BPC y sus reportes leen de BW.",
+      "origen": "Sesión interna CM 16-Oct-26 (respuesta 8)"
+    }
+  ],
+  "int": [
+    {
+      "codigo": "INT-01",
+      "sistema": "SAP ERP → SAP BW",
+      "mecanismo": "Extractores estándar SAP (0FI_GL_14 en ECC; extractores estándar de activos fijos y de deterioros)",
+      "origen": "Sesión técnica 16-Oct-26, G6 01:10-01:17; Sesión interna CM 16-Oct-26 (respuesta 7)"
+    },
+    {
+      "codigo": "INT-02",
+      "sistema": "SAP BW",
+      "mecanismo": "RFC con paquete Z (confirmado por CM; se valida con prueba técnica)",
+      "origen": "Sesión técnica 16-Oct-26, G7 14:45-14:55; Sesión interna CM 16-Oct-26"
+    },
+    {
+      "codigo": "INT-03",
+      "sistema": "SAP BPC",
+      "mecanismo": "RFC con paquete Z (confirmado por CM; se valida con prueba técnica)",
+      "origen": "Sesión técnica 16-Oct-26, G7 08:40-08:46; Sesión interna CM 16-Oct-26"
+    },
+    {
+      "codigo": "INT-04",
+      "sistema": "Fuentes no SAP → SAP BW",
+      "mecanismo": "Archivo (formato por definir)",
+      "origen": "Sesión técnica 16-Oct-26, G7 04:25-04:33"
+    },
+    {
+      "codigo": "INT-05",
+      "sistema": "SAP BW → SAP BPC",
+      "mecanismo": "Importación desde InfoProvider (modelo estándar)",
+      "origen": "Sesión técnica 16-Oct-26, G7 06:15-06:22"
+    },
+    {
+      "codigo": "INT-06",
+      "sistema": "SAP BPC → Excel (EPM add-in)",
+      "mecanismo": "Conexión EPM add-in",
+      "origen": "Sesión técnica 16-Oct-26, G7 16:38-16:47"
+    }
+  ],
+  "alcance_propuesta": [
+    "M1 Conector y escáner",
+    "M2 Configurador de alcance",
+    "M3 Generador de bodega BW",
+    "M4 Cargador de datos maestros",
+    "M5 Generador de modelo BPC",
+    "M6 Reportes EPM (30 iniciales)"
+  ],
+  "matriz_alcance": {
+    "M1 Conector y escáner": [
+      "RF-01",
+      "RF-02",
+      "RF-03",
+      "RF-04"
+    ],
+    "M2 Configurador de alcance": [
+      "RF-05",
+      "RF-06",
+      "RF-07"
+    ],
+    "M3 Generador de bodega BW": [
+      "RF-08",
+      "RF-09",
+      "RF-10",
+      "RF-24",
+      "RF-25"
+    ],
+    "M4 Cargador de datos maestros": [
+      "RF-11",
+      "RF-12",
+      "RF-13",
+      "RF-14",
+      "RF-15"
+    ],
+    "M5 Generador de modelo BPC": [
+      "RF-16",
+      "RF-17",
+      "RF-18",
+      "RF-19",
+      "RF-23",
+      "RF-26"
+    ],
+    "M6 Reportes EPM (30 iniciales)": [
+      "RF-20",
+      "RF-21",
+      "RF-22",
+      "RF-27",
+      "RF-28",
+      "RF-29",
+      "RF-30"
+    ]
+  },
+  "clasificacion_datos": [
+    {
+      "grupo": "Saldos y movimientos contables por sociedad",
+      "categoria": "Confidencial"
+    },
+    {
+      "grupo": "Estructura del grupo: sociedades, filiales, CeCo y CeBe",
+      "categoria": "Interna"
+    },
+    {
+      "grupo": "Plan de cuentas, jerarquías y mapeo a rubros",
+      "categoria": "Interna"
+    },
+    {
+      "grupo": "Terceros (clientes, proveedores, contrapartes)",
+      "categoria": "Personal"
+    },
+    {
+      "grupo": "Beneficios a empleados",
+      "categoria": "Confidencial"
+    },
+    {
+      "grupo": "Informe a junta directiva",
+      "categoria": "Confidencial"
+    },
+    {
+      "grupo": "Información contable de sociedades no SAP",
+      "categoria": "Confidencial"
+    },
+    {
+      "grupo": "Scripts de lógica parametrizados",
+      "categoria": "Interna"
+    },
+    {
+      "grupo": "Presupuesto",
+      "categoria": "Confidencial"
+    },
+    {
+      "grupo": "Activos fijos y deterioros",
+      "categoria": "Confidencial"
+    },
+    {
+      "grupo": "Tasas de cambio",
+      "categoria": "Interna"
+    },
+    {
+      "grupo": "Credenciales de conexión a SAP",
+      "categoria": "Confidencial"
+    },
+    {
+      "grupo": "Registro de ejecuciones",
+      "categoria": "Interna"
+    }
+  ],
+  "nivel_asvs": 2,
+  "preguntas_abiertas": [
+    {
+      "texto": "Validar los 10 reportes propuestos por CM para presupuesto, activos fijos y deterioros (tabla 5.8.1) y cuáles reportes de consolidación alimentan (RF-30 propone R08, R10 y R11).",
+      "critica": false
+    },
+    {
+      "texto": "Versiones exactas de los dos ambientes disponibles, que forman la matriz de soporte inicial. A: ¿BW 7.5 con BPC 10.1 modelo estándar o BPC 7.5 NW? B: ¿S/4HANA 2025 con BW y BPC embebidos, o BW/4HANA? (en la grabación se oye 'BWU 2025' y 'BPC 11').",
+      "critica": false
+    },
+    {
+      "texto": "Confirmar los tipos de tasa de RN-11 (NIC 21) y de qué tabla de SAP se toman las tasas de cambio.",
+      "critica": false
+    },
+    {
+      "texto": "¿El configurador web se ejecuta en el equipo del consultor o en un servidor de CM? Define autenticación y despliegue.",
+      "critica": false
+    },
+    {
+      "texto": "Formato de carga de la información de sociedades no SAP (INT-04).",
+      "critica": false
+    },
+    {
+      "texto": "Validar los 8 reportes agregados por CM (R02 a R06, R15, R16, R19) contra el catálogo de cerca de 50 reportes, e identificar dos reportes dictados que no se entendieron: 'certificación proyecti nominal' y 'el de cuentas'.",
+      "critica": false
+    },
+    {
+      "texto": "Volumen esperado (sociedades, movimientos por día) y duración de la ventana nocturna para la carga delta (RNF-Rend-01).",
+      "critica": false
+    },
+    {
+      "texto": "Número aproximado de Usuarios financieros por cliente.",
+      "critica": false
+    },
+    {
+      "texto": "¿El reporte de beneficios a empleados desagrega por empleado? Cambia la clasificación del dato.",
+      "critica": false
+    },
+    {
+      "texto": "¿Algún cliente objetivo está vigilado por la Superintendencia Financiera (Circular 007)?",
+      "critica": false
+    },
+    {
+      "texto": "Confirmar nombres inferidos de la grabación: extractor financiero (0FI_GL_14 en ECC; en S/4HANA, extractores sobre ACDOCA), el rubro 'PIGs' (propiedad, planta y equipo), los dividendos de R17 y R18, los nombres de los extractores de activos fijos (p. ej. 0FI_AA_11 / 0FI_AA_12) y de deterioros, si deterioros se refiere a cartera o a activos, y que el presupuesto quede registrado en el ledger que lee 0FI_GL_14.",
+      "critica": false
+    },
+    {
+      "texto": "¿Cómo leen BW los reportes de activos fijos y deterioros con EPM add-in: conexión directa a consultas BW o un resumen en BPC? Se define en arquitectura.",
+      "critica": false
+    },
+    {
+      "texto": "¿EPM add-in sirve como herramienta de reportes con BPC modelo embebido (arquitectura B), donde SAP orienta hacia Analysis for Office?",
+      "critica": false
+    }
+  ]
+}

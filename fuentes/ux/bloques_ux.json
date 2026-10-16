@@ -1,0 +1,1900 @@
+{
+ "blocks": [
+  {
+   "type": "portada",
+   "text": "DOCUMENTO DE DISEÑO UX — ACELERADOR DE CONSOLIDACIÓN FINANCIERA SAP BW/BPC"
+  },
+  {
+   "type": "paragraph",
+   "text": "Producto interno CM Consulting",
+   "align": "center",
+   "bold": true,
+   "color": "144E8C",
+   "size": 28
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "Control de versiones"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Versión",
+     "Elaborado por",
+     "Fecha",
+     "Observaciones"
+    ],
+    [
+     "1.0",
+     "CM Consulting",
+     "16-Oct-26",
+     "Versión para aprobación"
+    ]
+   ],
+   "col_widths": [
+    1200,
+    2200,
+    1500,
+    3938
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "Confidencialidad"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "La información contenida en este documento es propiedad intelectual de "
+    },
+    {
+     "text": "CM CONSULTING SAS",
+     "bold": true
+    },
+    {
+     "text": "."
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Este documento es de uso interno de "
+    },
+    {
+     "text": "CM CONSULTING SAS",
+     "bold": true
+    },
+    {
+     "text": ". Su reproducción, distribución o comunicación por cualquier medio queda expresamente prohibida sin el consentimiento escrito de "
+    },
+    {
+     "text": "CM CONSULTING SAS",
+     "bold": true
+    },
+    {
+     "text": "."
+    }
+   ]
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "toc"
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "1. Introducción"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Este documento es la línea base de diseño UX del Acelerador de consolidación financiera sobre SAP BW y SAP BPC, producto interno de "
+    },
+    {
+     "text": "CM",
+     "bold": true
+    },
+    {
+     "text": "CONSULTING",
+     "bold": true,
+     "color": "F2B707"
+    },
+    {
+     "text": ". Deriva del Documento de Análisis Funcional v1.0 (16-Oct-26) y del brief de diseño de la misma fecha. Las historias de usuario referencian los códigos UX-XX de este documento en sus criterios de aceptación."
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": "Prototipo navegable: https://claude.ai/artifact/2jZdXEfCaLtmLW7zTrtqnV (privado; se comparte desde su menú Compartir). Permite recorrer las 12 pantallas, ver los estados normal, vacío, carga y error de cada una y cambiar entre la arquitectura A y la B. Los datos que muestra son de ejemplo."
+  },
+  {
+   "type": "paragraph",
+   "text": "Alcance del diseño: dos superficies. El configurador web (UX-01 a UX-10), que usa el Consultor implementador, y las plantillas de Excel con EPM add-in (UX-11 y UX-12), que usa el Usuario financiero."
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "2. Lineamientos visuales"
+  },
+  {
+   "type": "paragraph",
+   "text": "Se aplica la identidad base de CM Consulting; el producto es interno y no tiene sistema de diseño de cliente."
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Elemento",
+     "Definición"
+    ],
+    [
+     "Color primario",
+     "Azul #144E8C (barra superior, botones primarios, encabezados de tabla)"
+    ],
+    [
+     "Acento",
+     "Amarillo #F2B707, solo para resaltar (insignia de arquitectura, foco de teclado); nunca texto sobre blanco"
+    ],
+    [
+     "Títulos",
+     "Azul #365F91"
+    ],
+    [
+     "Estados",
+     "Verde (completo), ámbar (en curso o advertencia), rojo (error); siempre con ícono y texto, no solo color"
+    ],
+    [
+     "Tipografía",
+     "Ubuntu (respaldo Segoe UI); Ubuntu Mono para códigos técnicos"
+    ],
+    [
+     "Componentes globales",
+     "Barra superior con cliente activo e insignia de arquitectura; navegación lateral por pasos con estado; notificaciones; diálogos de confirmación"
+    ],
+    [
+     "Accesibilidad",
+     "WCAG 2.1 AA (RNF-Usa-01): contraste 4,5:1, foco visible, controles de 44 px, etiquetas visibles"
+    ]
+   ],
+   "col_widths": [
+    2400,
+    6438
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "3. Mapa de navegación"
+  },
+  {
+   "type": "paragraph",
+   "text": "Pantallas agrupadas por rol. Las líneas punteadas son entregas de archivos, no navegación dentro de la aplicación."
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D0_navegacion.png",
+   "width_cm": 9,
+   "align": "center"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "4. Flujos de usuario por rol"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "4.1 Implementación de un cliente nuevo (Consultor implementador)"
+  },
+  {
+   "type": "paragraph",
+   "text": "Recorrido principal del configurador. Si la prueba de conexiones falla vuelve a UX-02; si hay sociedades no SAP pasa por UX-07."
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D1_implementacion.png",
+   "width_cm": 4.6,
+   "align": "center"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "4.2 Reintento tras un paso fallido (Consultor implementador)"
+  },
+  {
+   "type": "paragraph",
+   "text": "Desde UX-09 el error enlaza con la pantalla que lo corrige (p. ej. Conexiones, si falta un permiso) y la ejecución se reanuda desde el paso fallido."
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D2_reintento.png",
+   "width_cm": 12.5,
+   "align": "center"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "4.3 Consulta de un reporte (Usuario financiero)"
+  },
+  {
+   "type": "paragraph",
+   "text": "El Usuario financiero elige parámetros y actualiza; sin conexión a BPC ve el error, sin datos ve el estado vacío."
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D3_reporte.png",
+   "width_cm": 11,
+   "align": "center"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "4.4 Captura y seguimiento de presupuesto (Usuario financiero)"
+  },
+  {
+   "type": "paragraph",
+   "text": "Valores no numéricos se marcan en rojo; al guardar, P01 muestra el presupuesto frente a la ejecución."
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\D4_presupuesto.png",
+   "width_cm": 10,
+   "align": "center"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "5. Inventario de pantallas"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Código",
+     "Pantalla",
+     "Rol",
+     "RF que soporta",
+     "Prioridad"
+    ],
+    [
+     "UX-01",
+     "Clientes",
+     "Consultor implementador",
+     "RF-01, RF-04",
+     "Alta"
+    ],
+    [
+     "UX-02",
+     "Conexiones",
+     "Consultor implementador",
+     "RF-01, RF-02, RF-04",
+     "Alta"
+    ],
+    [
+     "UX-03",
+     "Diagnóstico e inventario",
+     "Consultor implementador",
+     "RF-03, RF-04, RF-09",
+     "Alta"
+    ],
+    [
+     "UX-04",
+     "Módulos",
+     "Consultor implementador",
+     "RF-05, RF-23, RF-24, RF-25",
+     "Alta"
+    ],
+    [
+     "UX-05",
+     "Sociedades del grupo",
+     "Consultor implementador",
+     "RF-06, RF-13",
+     "Alta"
+    ],
+    [
+     "UX-06",
+     "Mapeo de cuentas",
+     "Consultor implementador",
+     "RF-07",
+     "Alta"
+    ],
+    [
+     "UX-07",
+     "Carga de sociedades no SAP",
+     "Consultor implementador",
+     "RF-15",
+     "Alta"
+    ],
+    [
+     "UX-08",
+     "Plan de generación",
+     "Consultor implementador",
+     "RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26",
+     "Alta"
+    ],
+    [
+     "UX-09",
+     "Ejecución y registro",
+     "Consultor implementador",
+     "RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26",
+     "Alta"
+    ],
+    [
+     "UX-10",
+     "Reportes",
+     "Consultor implementador",
+     "RF-20, RF-27, RF-29",
+     "Alta"
+    ],
+    [
+     "UX-11",
+     "Plantilla de reporte EPM",
+     "Usuario financiero",
+     "RF-20, RF-21, RF-22, RF-27",
+     "Alta"
+    ],
+    [
+     "UX-12",
+     "Captura de presupuesto",
+     "Usuario financiero",
+     "RF-28",
+     "Alta"
+    ]
+   ],
+   "col_widths": [
+    1000,
+    2200,
+    1900,
+    2738,
+    1000
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "6. Especificación por pantalla"
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.1 UX-01 Clientes"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-01, RF-04"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-01.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Tabla de clientes",
+     "Lista cliente, arquitectura, paso actual, estado, última ejecución y usuario. Clic en el cliente abre su paso actual.",
+     "RF-01, RF-04"
+    ],
+    [
+     "Botón Nuevo cliente",
+     "Abre un diálogo con el campo Nombre del cliente; Crear lleva a UX-02.",
+     "RF-01"
+    ],
+    [
+     "Buscar cliente",
+     "Filtra la tabla por nombre.",
+     "RF-01"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: tabla con los clientes.",
+    "Vacío: «Aún no hay clientes. Crea el primero para empezar.» con el botón Nuevo cliente.",
+    "Carga: filas esqueleto.",
+    "Error: «No se pudo cargar la lista de clientes» con Reintentar."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "El nombre del cliente es obligatorio y no puede repetirse."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px cada cliente se muestra como tarjeta con nombre, arquitectura y estado."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.2 UX-02 Conexiones"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-01, RF-02, RF-04"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-02.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Tarjetas SAP ERP, SAP BW, SAP BPC",
+     "Host, mandante, usuario técnico y credencial por sistema; Probar conexión muestra Conexión exitosa o Fallida con el mensaje del sistema.",
+     "RF-01"
+    ],
+    [
+     "Conexión ERP–BW",
+     "Botón Validar conexión ERP–BW solo en arquitectura A; en la B se reemplaza por una nota.",
+     "RF-02, RN-01"
+    ],
+    [
+     "Arquitectura detectada",
+     "Insignia A o B, versiones detectadas y estado Variante disponible.",
+     "RF-04, RNF-Comp-04"
+    ],
+    [
+     "Credencial",
+     "Siempre enmascarada; Mostrar/Ocultar. Se guarda cifrada.",
+     "RNF-Seg-02"
+    ],
+    [
+     "Continuar al diagnóstico",
+     "Habilitado solo cuando las conexiones pasan la prueba.",
+     "RF-01"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: tres conexiones exitosas y arquitectura detectada.",
+    "Vacío: formulario sin datos y ayuda para pedir el usuario técnico al Administrador SAP del cliente.",
+    "Carga: Probando… dentro de cada tarjeta.",
+    "Error: la tarjeta del sistema que falla en rojo con el mensaje devuelto y qué revisar."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Host, mandante, usuario técnico y credencial son obligatorios.",
+    "Validación ERP–BW solo cuando ERP y BW son sistemas separados (RN-01).",
+    "Versión sin variante disponible: aviso «Versión no soportada aún» y no se puede continuar (RNF-Comp-04). No prototipado."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px las tarjetas se apilan. Botones de 44 px de alto mínimo."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.3 UX-03 Diagnóstico e inventario"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-03, RF-04, RF-09"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-03.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Indicador Bodega existente",
+     "Indica si el cliente ya tiene bodega en BW.",
+     "RF-03, RN-03"
+    ],
+    [
+     "Pestañas",
+     "Extractores activos, InfoProviders (InfoCubos o aDSO según la versión de BW), Modelos BPC y Campos Z.",
+     "RF-03, RF-04"
+    ],
+    [
+     "Campos Z",
+     "Casillas para elegir los campos que se incorporan a la bodega; pasan al plan de generación.",
+     "RF-09"
+    ],
+    [
+     "Volver a escanear",
+     "Repite el inventario.",
+     "RF-03"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: inventario por pestaña.",
+    "Vacío: mensaje por pestaña (p. ej. «El cliente no tiene bodega en BW: se generará completa»).",
+    "Carga: barra de progreso «Escaneando BW y BPC…».",
+    "Error: «El escaneo no terminó» con el paso que falló."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Si la bodega existe se usa la existente y no se recrea (RN-03)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px las tablas pasan a tarjetas; las pestañas se ajustan en varias líneas."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.4 UX-04 Módulos"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-05, RF-23, RF-24, RF-25"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-04.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Tarjetas de módulo",
+     "Consolidación, Presupuesto, Activos fijos y Deterioros, cada una con casilla y lo que genera.",
+     "RF-05, RF-23, RF-24, RF-25"
+    ],
+    [
+     "Resumen",
+     "N módulos · N reportes, se actualiza al marcar.",
+     "RF-05"
+    ],
+    [
+     "Continuar",
+     "Deshabilitado sin módulos marcados.",
+     "RF-05"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: cuatro módulos marcados.",
+    "Vacío: ninguno marcado y aviso «Elige al menos un módulo».",
+    "Carga: tarjetas esqueleto.",
+    "Error: «No se pudo guardar la selección»."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Activos fijos y Deterioros muestran «Se queda en BW; no crea modelo en BPC» (RN-12)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px las tarjetas quedan en una columna."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.5 UX-05 Sociedades del grupo"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-06, RF-13"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-05.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Tabla de sociedades",
+     "Código, nombre, en SAP (interruptor), moneda local, sociedad matriz y plan de cuentas.",
+     "RF-06, RF-13"
+    ],
+    [
+     "Agregar sociedad",
+     "Agrega una fila.",
+     "RF-06"
+    ],
+    [
+     "Aviso de monedas",
+     "Siempre visible: la consolidación se presenta en moneda local y en dólares.",
+     "RN-06"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: tabla con las sociedades y la nota de monedas.",
+    "Vacío: «Agrega las sociedades del grupo».",
+    "Carga: filas esqueleto.",
+    "Error: «No se pudieron guardar las sociedades» con la causa."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Solo sociedades del grupo; clientes y proveedores no son entidades de consolidación (RN-07).",
+    "Cada sociedad puede tener su propio plan de cuentas (RN-05).",
+    "Siempre se informa: «La consolidación se presenta en moneda local y en dólares» (RN-06).",
+    "Una sociedad marcada como no SAP habilita UX-07."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px cada sociedad es una tarjeta con código y nombre como título."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.6 UX-06 Mapeo de cuentas"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-07"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-06.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Lista de rubros",
+     "Rubros con código, nombre y cantidad de cuentas mapeadas.",
+     "RF-07"
+    ],
+    [
+     "Tabla de cuentas",
+     "Cuenta, descripción, nodo de jerarquía y rubro asignado; filtros por sociedad y Solo sin mapear.",
+     "RF-07, RN-05"
+    ],
+    [
+     "Asignar al rubro",
+     "Asigna las cuentas marcadas al rubro seleccionado.",
+     "RF-07"
+    ],
+    [
+     "Vista previa del rubro",
+     "Muestra la suma de las cuentas mapeadas.",
+     "RN-10"
+    ],
+    [
+     "Contador",
+     "Cuentas sin mapear.",
+     "RF-07"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: rubro seleccionado con sus cuentas.",
+    "Vacío: «Aún no hay cuentas mapeadas».",
+    "Carga: esqueleto en la lista y la tabla.",
+    "Error: «No se pudo guardar el mapeo»."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "El valor del rubro es la suma de sus cuentas (RN-10).",
+    "Las cuentas se filtran por el plan de cuentas de la sociedad (RN-05)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px primero la lista de rubros y debajo las cuentas del rubro elegido."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.7 UX-07 Carga de sociedades no SAP"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-15"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-07.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Zona de carga",
+     "Arrastrar y soltar o Elegir archivo, por sociedad no SAP.",
+     "RF-15"
+    ],
+    [
+     "Vista previa",
+     "Sociedad, cuenta, periodo, tercero, CeCo, CeBe e importe.",
+     "RF-15"
+    ],
+    [
+     "Errores por fila",
+     "Fila, columna y motivo, con enlace a Mapeo de cuentas.",
+     "RF-15"
+    ],
+    [
+     "Confirmar carga",
+     "Marca la sociedad como cargada.",
+     "RF-15"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: vista previa y lista de errores.",
+    "Vacío: «Ninguna sociedad está marcada como no SAP»; el paso no aparece en la navegación.",
+    "Carga: barra de progreso de subida.",
+    "Error: tabla de errores por fila; Confirmar deshabilitado."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "El archivo debe ser de una sociedad del grupo (RN-07).",
+    "Cuentas que no están en el mapeo se marcan como «cuenta sin mapear».",
+    "Formato del archivo por definir (DAF, pregunta 5)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px la vista previa se desplaza horizontalmente dentro de su contenedor."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.8 UX-08 Plan de generación"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-08, RF-09, RF-10, RF-16, RF-18, RF-23, RF-24, RF-25, RF-26"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-08.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Sección SAP BW",
+     "Extractores, InfoProviders, campos Z y cadenas de proceso, cada uno como Nuevo o Existente, no se modifica.",
+     "RF-08, RF-09, RF-10, RF-24, RF-25"
+    ],
+    [
+     "Sección SAP BPC",
+     "Modelo de consolidación, script en la variante de la arquitectura, importación (solo A) y modelo de presupuesto.",
+     "RF-16, RF-18, RF-23"
+    ],
+    [
+     "Monedas y tasas",
+     "Moneda local por sociedad, presentación en moneda local y dólares, tipos de tasa.",
+     "RF-26"
+    ],
+    [
+     "Generar",
+     "Abre la confirmación «Se crearán N objetos en el sistema del cliente» y lleva a UX-09.",
+     "RF-08"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: plan completo con total de objetos.",
+    "Vacío: «Completa los pasos anteriores para ver el plan» con el paso faltante.",
+    "Carga: «Calculando el plan…».",
+    "Error: paso previo con error y enlace para corregirlo."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Objetos existentes no se recrean (RN-03).",
+    "Scripts en variante de modelo estándar o embebido (RN-02).",
+    "Full inicial y luego delta cada noche (RN-04).",
+    "Tasas: cierre, promedio e histórica (RN-11, por confirmar en la pregunta 3 del DAF).",
+    "Activos fijos y deterioros solo en BW (RN-12)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px las secciones se apilan; las secciones son desplegables con teclado."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.9 UX-09 Ejecución y registro"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-08, RF-10, RF-11, RF-12, RF-13, RF-14, RF-16, RF-17, RF-18, RF-19, RF-23, RF-24, RF-25, RF-26"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-09.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Línea de pasos",
+     "Objetos BW y carga full inicial, planes de cuentas, CeCo y CeBe, monedas y tasas, jerarquía, activos fijos y deterioros en BW (si se eligieron), modelo BPC y scripts, importación a BPC (solo A), modelo de presupuesto (si se eligió), consolidación y conversión a dólares, con estado y duración.",
+     "RF-08, RF-10, RF-11 a RF-14, RF-16 a RF-19, RF-23 a RF-26"
+    ],
+    [
+     "Paso con error",
+     "Mensaje con la causa (p. ej. falta de permiso de escritura en BPC), enlace a la pantalla que lo corrige y Reintentar desde este paso.",
+     "RF-19"
+    ],
+    [
+     "Registro",
+     "Fecha y hora, usuario, sistema, paso, objetos y resultado; Descargar registro.",
+     "RNF-Aud-01"
+    ],
+    [
+     "Ver reportes",
+     "Lleva a UX-10 al terminar.",
+     "RF-20"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: todos los pasos completos y resumen «Consolidación disponible en moneda local y en dólares».",
+    "Vacío: «Aún no hay ejecuciones».",
+    "Carga: paso en curso y los siguientes pendientes.",
+    "Error: paso fallido en rojo con la causa y la acción."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Solo participan las sociedades del grupo (RN-07).",
+    "Resultado en dos monedas (RN-06).",
+    "Cada ejecución queda registrada (RNF-Aud-01)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px la línea de pasos y el registro se muestran uno debajo del otro; el registro pasa a tarjetas."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.10 UX-10 Reportes"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Consultor implementador"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-20, RF-27, RF-29"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-10.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Filtro por módulo",
+     "Todos, Consolidación, Presupuesto, Activos fijos, Deterioros (solo los módulos elegidos).",
+     "RF-20, RF-27, RF-29"
+    ],
+    [
+     "Catálogo",
+     "ID, reporte, módulo, fuente (BPC o BW), ola y estado; clic en el ID abre la vista previa (UX-11).",
+     "RF-20, RF-27, RF-29"
+    ],
+    [
+     "Generar seleccionados / Descargar reportes (.zip)",
+     "Genera los Excel y descarga el paquete para el cliente.",
+     "RF-20"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: 30 reportes con su estado.",
+    "Vacío: «Ejecuta la generación para habilitar los reportes».",
+    "Carga: progreso por reporte.",
+    "Error: reporte con error y su causa."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Consolidación y presupuesto leen de BPC (RN-08); activos fijos y deterioros leen de BW (RN-12)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "En 360 px cada reporte es una tarjeta con ID, nombre y estado."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.11 UX-11 Plantilla de reporte EPM"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Usuario financiero"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-20, RF-21, RF-22, RF-27"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-11.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Cinta EPM",
+     "Iniciar sesión, Actualizar, estado de conexión a BPC.",
+     "RF-20"
+    ],
+    [
+     "Parámetros",
+     "Reportes de consolidación: Sociedad, Incluir filiales, Moneda (local o dólares) y Periodo en celdas con lista. P01 usa la sociedad y la versión del presupuesto.",
+     "RF-21"
+    ],
+    [
+     "Cuerpo del reporte",
+     "Rubros con código y descripción; columnas por sociedad y total cuando incluye filiales.",
+     "RF-21, RF-22"
+    ],
+    [
+     "Hojas",
+     "R07 Efectivo y P01 Presupuesto frente a ejecución como modelos de la estructura común.",
+     "RF-20, RF-27"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: datos del reporte.",
+    "Vacío: «Sin datos para la sociedad y el periodo elegidos».",
+    "Carga: Actualizando… en la cinta y valores en espera.",
+    "Error: «No se pudo conectar a BPC; revisa la conexión de EPM»."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Incluir filiales cambia entre una sociedad y la sociedad con sus filiales (RN-09).",
+    "Moneda solo local o dólares (RN-06).",
+    "Cada valor es la suma de las cuentas mapeadas (RN-10)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "Excel de escritorio; no aplica responsive. Contraste de encabezados blanco sobre azul corporativo."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "6.12 UX-12 Captura de presupuesto"
+  },
+  {
+   "type": "paragraph",
+   "text": [
+    {
+     "text": "Rol: ",
+     "bold": true
+    },
+    {
+     "text": "Usuario financiero"
+    },
+    {
+     "text": " · RF: ",
+     "bold": true
+    },
+    {
+     "text": "RF-28"
+    }
+   ]
+  },
+  {
+   "type": "image",
+   "path": "C:\\Users\\ger_s\\AppData\\Local\\Temp\\cwx\\ux\\UX-12.png",
+   "width_cm": 15.5,
+   "align": "center"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Zona / componente",
+     "Comportamiento",
+     "RF / RN"
+    ],
+    [
+     "Parámetros",
+     "Sociedad, versión y año.",
+     "RF-28"
+    ],
+    [
+     "Grilla de captura",
+     "Filas por cuenta y centro de costo, columnas por mes; celdas editables en amarillo, totales calculados.",
+     "RF-28"
+    ],
+    [
+     "Guardar datos",
+     "Guarda en el modelo de planeación de BPC; P01 refleja los valores.",
+     "RF-28, RN-08"
+    ]
+   ],
+   "col_widths": [
+    2200,
+    4838,
+    1800
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Estados"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Normal: grilla con valores.",
+    "Vacío: «Sin presupuesto para esta versión: ingresa los valores».",
+    "Carga: Guardando… en la cinta.",
+    "Error: «No se guardaron N celdas» con las celdas marcadas en rojo."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Validaciones visibles"
+  },
+  {
+   "type": "bullets",
+   "items": [
+    "Solo se aceptan números.",
+    "Los totales no se editan.",
+    "Se guarda en el modelo de planeación de BPC, no en BW (RN-08)."
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 3,
+   "text": "Responsive y accesibilidad"
+  },
+  {
+   "type": "paragraph",
+   "text": "Excel de escritorio; no aplica responsive. Las celdas con error se marcan con color y borde, no solo con color."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "7. Matriz RF ↔ UX"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "RF con interfaz",
+     "Pantallas"
+    ],
+    [
+     "RF-01",
+     "UX-01, UX-02"
+    ],
+    [
+     "RF-02",
+     "UX-02"
+    ],
+    [
+     "RF-03",
+     "UX-03"
+    ],
+    [
+     "RF-04",
+     "UX-01, UX-02, UX-03"
+    ],
+    [
+     "RF-05",
+     "UX-04"
+    ],
+    [
+     "RF-06",
+     "UX-05"
+    ],
+    [
+     "RF-07",
+     "UX-06"
+    ],
+    [
+     "RF-08",
+     "UX-08, UX-09"
+    ],
+    [
+     "RF-09",
+     "UX-03, UX-08"
+    ],
+    [
+     "RF-10",
+     "UX-08, UX-09"
+    ],
+    [
+     "RF-11",
+     "UX-09"
+    ],
+    [
+     "RF-12",
+     "UX-09"
+    ],
+    [
+     "RF-13",
+     "UX-05, UX-09"
+    ],
+    [
+     "RF-14",
+     "UX-09"
+    ],
+    [
+     "RF-15",
+     "UX-07"
+    ],
+    [
+     "RF-16",
+     "UX-08, UX-09"
+    ],
+    [
+     "RF-17",
+     "UX-09"
+    ],
+    [
+     "RF-18",
+     "UX-08, UX-09"
+    ],
+    [
+     "RF-19",
+     "UX-09"
+    ],
+    [
+     "RF-20",
+     "UX-10, UX-11"
+    ],
+    [
+     "RF-21",
+     "UX-11"
+    ],
+    [
+     "RF-22",
+     "UX-11"
+    ],
+    [
+     "RF-23",
+     "UX-04, UX-08, UX-09"
+    ],
+    [
+     "RF-24",
+     "UX-04, UX-08, UX-09"
+    ],
+    [
+     "RF-25",
+     "UX-04, UX-08, UX-09"
+    ],
+    [
+     "RF-26",
+     "UX-08, UX-09"
+    ],
+    [
+     "RF-27",
+     "UX-10, UX-11"
+    ],
+    [
+     "RF-28",
+     "UX-12"
+    ],
+    [
+     "RF-29",
+     "UX-10"
+    ]
+   ],
+   "col_widths": [
+    3000,
+    5838
+   ]
+  },
+  {
+   "type": "heading",
+   "level": 2,
+   "text": "7.1 Comportamientos de diseño derivados"
+  },
+  {
+   "type": "paragraph",
+   "text": "No amplían el alcance del DAF. Si se consideran alcance nuevo, pasan por control de cambios."
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Comportamiento",
+     "Pantalla",
+     "Se deriva de"
+    ],
+    [
+     "Gestión de varios clientes (lista, búsqueda, nombre único)",
+     "UX-01",
+     "RF-01 y supuesto 12.1 del DAF (producto reutilizable en varios clientes)"
+    ],
+    [
+     "Reintentar desde el paso fallido",
+     "UX-09",
+     "RF-19 y el registro de RNF-Aud-01"
+    ],
+    [
+     "Descargar registro",
+     "UX-09",
+     "RNF-Aud-01 (consulta del registro)"
+    ],
+    [
+     "Aviso «Versión no soportada aún»",
+     "UX-02",
+     "RNF-Comp-04 (no prototipado)"
+    ]
+   ],
+   "col_widths": [
+    3200,
+    1300,
+    4338
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": "RF sin interfaz: RF-30 (la información de activos fijos y deterioros alimenta R08, R10 y R11 de forma automática; se ve en esos reportes). Los 29 RF con interfaz tienen al menos una pantalla."
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "8. Preguntas abiertas de diseño"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "#",
+     "Pregunta",
+     "Crítica",
+     "Responsable",
+     "Fecha objetivo"
+    ],
+    [
+     "1",
+     "Inicio de sesión del configurador: depende de dónde se aloje (DAF, pregunta 4). El prototipo no incluye pantalla de login.",
+     "No",
+     "CM Consulting – Arquitectura",
+     "30-Oct-26"
+    ],
+    [
+     "2",
+     "Volumen típico de sociedades y cuentas por cliente para paginar UX-05 y UX-06 (DAF, pregunta 7). Supuesto: hasta 50 sociedades y 5.000 cuentas.",
+     "No",
+     "Consultor SAP BPC",
+     "30-Oct-26"
+    ],
+    [
+     "3",
+     "Formato del archivo de sociedades no SAP para la vista previa de UX-07 (DAF, pregunta 5).",
+     "No",
+     "Consultor SAP BPC",
+     "30-Oct-26"
+    ],
+    [
+     "4",
+     "Cómo leen BW con EPM los reportes de activos fijos y deterioros (DAF, pregunta 12). UX-11 muestra solo la conexión a BPC.",
+     "No",
+     "CM Consulting – Arquitectura",
+     "30-Oct-26"
+    ],
+    [
+     "5",
+     "UX-11 y UX-12 suponen EPM add-in también en la arquitectura B (DAF, pregunta 13).",
+     "No",
+     "CM Consulting – Arquitectura",
+     "30-Oct-26"
+    ]
+   ],
+   "col_widths": [
+    500,
+    4438,
+    900,
+    1800,
+    1200
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": "Ninguna pregunta bloquea el arranque de las historias de usuario."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "heading",
+   "level": 1,
+   "text": "9. Aprobación"
+  },
+  {
+   "type": "paragraph",
+   "text": "Mediante la firma del presente documento, el área de CM Consulting SAS responsable del producto aprueba la navegación, la estructura de pantallas y su comportamiento. Los ajustes posteriores siguen el control de cambios."
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "blank"
+  },
+  {
+   "type": "table",
+   "rows": [
+    [
+     "Campo",
+     "Información"
+    ],
+    [
+     "Área responsable del producto",
+     ""
+    ],
+    [
+     "Nombre",
+     ""
+    ],
+    [
+     "Cargo",
+     ""
+    ],
+    [
+     "Fecha de aprobación",
+     ""
+    ],
+    [
+     "Firma",
+     ""
+    ]
+   ],
+   "col_widths": [
+    2800,
+    6038
+   ]
+  }
+ ]
+}

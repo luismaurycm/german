@@ -1,0 +1,21 @@
+flowchart TB
+  subgraph CI["Consultor implementador · configurador web"]
+    U1["UX-01 Clientes"] --> U2["UX-02 Conexiones"]
+    U2 --> U3["UX-03 Diagnóstico e inventario"]
+    U3 --> U4["UX-04 Módulos"]
+    U4 --> U5["UX-05 Sociedades del grupo"]
+    U5 --> U6["UX-06 Mapeo de cuentas"]
+    U6 -->|"hay sociedades no SAP"| U7["UX-07 Carga no SAP"]
+    U6 -->|"todas en SAP"| U8["UX-08 Plan de generación"]
+    U7 --> U8
+    U8 -->|"Generar"| U9["UX-09 Ejecución y registro"]
+    U9 -->|"error de conexión o permisos"| U2
+    U9 --> U10["UX-10 Reportes"]
+  end
+  subgraph UF["Usuario financiero · Excel con EPM"]
+    U11["UX-11 Plantilla de reporte"]
+    U12["UX-12 Captura de presupuesto"]
+    U12 -->|"Guardar datos"| U11
+  end
+  U10 -.->|"entrega de archivos"| U11
+  U10 -.->|"entrega de P05"| U12

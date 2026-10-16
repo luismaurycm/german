@@ -1,0 +1,11 @@
+# New Recording 6 (duracion 1.5 min)
+
+[00:00] listo, ahí estamos. Bueno, listo. Si necesitas manejar proyectos de VW, VPC, VPC de acuerdo
+[00:13] a la versión de VPC, porque hay una versión lo mismo con VW, hay una versión que todavía
+[00:20] se maneja la 7.5 que no es enverido como tal, o sea tiene el servidor de VW aparte y el
+[00:27] servidor de LDP aparte. Si. En las últimas versiones viene todo integrado, entonces viene
+[00:34] el LDP, VW y VPC en los mismos servidores, entonces no hay necesidad de hacer conexiones aparte
+[00:43] pero funciona, pues el funcionamiento es un poco diferente pero la arquitectura
+[00:51] no es igual. En ese caso, lo que hace uno inicialmente es que SAT tiene unos extractores de estándar
+[01:10] para manejar cierta clase de información. Si. Por ejemplo, para VPC el extractor estándar
+[01:17] es el L14, que es donde saca toda la información financiera, entonces hay lo que. Tanto bendito.

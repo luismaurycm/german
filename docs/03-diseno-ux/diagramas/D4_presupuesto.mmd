@@ -1,0 +1,8 @@
+flowchart TB
+  A["UX-12 Elegir sociedad, versión y año"] --> B["Ingresar valores por cuenta, centro de costo y mes"]
+  B --> C["Guardar datos (EPM)"]
+  C --> D{"¿Todas las celdas son números?"}
+  D -->|"No"| E["Celdas marcadas en rojo"]
+  E --> B
+  D -->|"Sí"| F["Guardado en el modelo de planeación BPC"]
+  F --> G["UX-11 P01 Presupuesto frente a ejecución"]
