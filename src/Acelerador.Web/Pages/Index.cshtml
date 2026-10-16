@@ -1,0 +1,116 @@
+@page "/"
+@model IndexModel
+@{
+    ViewData["Title"] = "Clientes";
+}
+<main class="a-main solo" id="contenido">
+    <div class="ph">
+        <div>
+            <h1>Clientes</h1>
+            <p>Implementaciones de consolidación en curso.</p>
+        </div>
+        <div class="row">
+            <a class="btn btn-p" href="/?nuevo=true#nuevo-cliente">@Iconos.Mas Nuevo cliente</a>
+        </div>
+    </div>
+
+    @if (Model.MostrarDialogo)
+    {
+        <section role="dialog" aria-labelledby="titulo-nuevo" class="card dlg" id="nuevo-cliente">
+            <h2 id="titulo-nuevo">Nuevo cliente</h2>
+            <form method="post" asp-page-handler="Crear" class="formulario" data-ocupado="Creando…" novalidate>
+                <div class="fld">
+                    <label for="nombre">Nombre del cliente</label>
+                    <input id="nombre" name="Nombre" type="text" value="@Model.Nombre" autocomplete="off" required maxlength="@ReglasCliente.LongitudMaxima"
+                           autofocus aria-describedby="nombre-ayuda@(Model.ErrorNombre is null ? "" : " nombre-error")" aria-invalid="@(Model.ErrorNombre is null ? "false" : "true")">
+                    <span class="hint" id="nombre-ayuda">Obligatorio. No puede repetir el nombre de un cliente existente.</span>
+                    @if (Model.ErrorNombre is not null)
+                    {
+                        <span class="error" id="nombre-error" role="alert">@Iconos.Error @Model.ErrorNombre</span>
+                    }
+                </div>
+                <div class="row fin">
+                    <a class="btn btn-s" href="/">Cancelar</a>
+                    <button class="btn btn-p" type="submit">Crear y configurar conexiones</button>
+                </div>
+            </form>
+        </section>
+    }
+
+    @if (Model.Estado != EstadoPantalla.Vacio && Model.Estado != EstadoPantalla.Error)
+    {
+        <form method="get" action="/" role="search" id="buscar-clientes">
+            <div class="fld busqueda">
+                <label for="bq">Buscar cliente</label>
+                <span class="linea">
+                    <input id="bq" name="q" type="search" placeholder="Nombre del cliente" value="@Model.Busqueda" autocomplete="off" data-filtro="#tabla-clientes">
+                    <button class="btn btn-s" type="submit">Buscar</button>
+                </span>
+            </div>
+        </form>
+    }
+
+    @switch (Model.Estado)
+    {
+        case EstadoPantalla.Error:
+            <div role="alert" class="note e">
+                @Iconos.Error
+                <div><b>No se pudo cargar la lista de clientes.</b><br>Revisa que el acelerador pueda leer su base local e inténtalo de nuevo.</div>
+                <a class="btn btn-s" href="/">Reintentar</a>
+            </div>
+            break;
+
+        case EstadoPantalla.Vacio:
+            <div class="card empty">
+                @Iconos.Vacio
+                <p class="big">Aún no hay clientes.</p>
+                <p class="muted">Crea el primero para empezar.</p>
+                <a class="btn btn-p" href="/?nuevo=true#nuevo-cliente">@Iconos.Mas Nuevo cliente</a>
+            </div>
+            break;
+
+        default:
+            <p class="muted" id="sin-resultados" role="status" hidden="@(Model.Estado != EstadoPantalla.SinResultados)">
+                Ningún cliente coincide con «@Model.Busqueda».
+            </p>
+            <div class="tblw" hidden="@(Model.Estado == EstadoPantalla.SinResultados)">
+                <table class="tbl cards" id="tabla-clientes">
+                    <caption class="sr">Clientes con su arquitectura, paso actual, estado, última ejecución y usuario</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Arquitectura</th>
+                            <th scope="col">Paso actual</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Última ejecución</th>
+                            <th scope="col">Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var fila in Model.Lista!.Filas)
+                        {
+                            var c = fila.Cliente;
+                            var noSoportado = c.Estado == EstadoCliente.NoSoportado;
+                            <tr data-nombre="@c.Nombre">
+                                <td data-l="Cliente"><a href="@Formato.Ruta(c.Id, noSoportado ? Pasos.Conexiones : c.PasoActual)"><b>@c.Nombre</b></a></td>
+                                <td data-l="Arquitectura"><span class="pill neu">@Textos.Arquitectura(c.Deteccion)</span></td>
+                                <td data-l="Paso actual">@Pasos.Nombre(c.PasoActual)</td>
+                                <td data-l="Estado">
+                                    <div>
+                                        <partial name="_Pill" model="@((noSoportado ? "err" : "warn", Textos.Estado(c.Estado)))" />
+                                        @if (noSoportado && c.MotivoEstado is not null)
+                                        {
+                                            <span class="motivo">@c.MotivoEstado</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td data-l="Última ejecución" class="mono">@Formato.Fecha(fila.Fecha)</td>
+                                <td data-l="Usuario">@fila.Usuario</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            break;
+    }
+</main>

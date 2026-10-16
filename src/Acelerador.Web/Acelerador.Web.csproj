@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <AssemblyName>Acelerador</AssemblyName>
+    <RootNamespace>Acelerador.Web</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Acelerador.Core\Acelerador.Core.csproj" />
+    <ProjectReference Include="..\Acelerador.Infra\Acelerador.Infra.csproj" />
+    <ProjectReference Include="..\Acelerador.Sap\Acelerador.Sap.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Acelerador.Tests" />
+  </ItemGroup>
+
+</Project>

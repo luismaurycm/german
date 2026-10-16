@@ -1,0 +1,90 @@
+@model Acelerador.Web.Pages.Clientes.TarjetaConexion
+@{
+    var c = Model.Conexion;
+    var nombre = Textos.Sistema(c.Sistema);
+    var id = Model.Id;
+    var fallida = c.Estado == EstadoPrueba.Fallida;
+    var (clase, texto) = c.Estado switch
+    {
+        EstadoPrueba.Exitosa => ("ok", "Conexión exitosa"),
+        EstadoPrueba.Fallida => ("err", "Fallida"),
+        _ => ("neu", "Sin probar"),
+    };
+    string? Describe(string campo, string ayuda)
+    {
+        var v = Model.Error(campo) is null ? ayuda : $"{ayuda} {id}-{campo}-error".Trim();
+        return v.Length == 0 ? null : v;
+    }
+}
+<section class="card grilla @(fallida ? "fallida" : "")" id="tarjeta-@id" aria-labelledby="titulo-@id">
+    <div class="row entre">
+        <div>
+            <h2 id="titulo-@id">@nombre</h2>
+            <span class="sub">@(c.Producto ?? (c.Estado == EstadoPrueba.Exitosa ? "" : "Producto sin identificar"))</span>
+        </div>
+        <span id="estado-@id"><partial name="_Pill" model="@((clase, texto))" /></span>
+    </div>
+    <form method="post" asp-page-handler="Probar" asp-route-sistema="@c.Sistema" class="formulario" data-ocupado="Probando…" novalidate>
+        <div class="fld">
+            <label for="@id-host">Host</label>
+            <input id="@id-host" name="host" type="text" value="@Model.Valor(ReglasConexion.CampoHost)" placeholder="servidor.dominio" required autocomplete="off" spellcheck="false"
+                   aria-invalid="@(Model.Error(ReglasConexion.CampoHost) is null ? "false" : "true")" aria-describedby="@Describe(ReglasConexion.CampoHost, "")">
+            @if (Model.Error(ReglasConexion.CampoHost) is { } eh)
+            {
+                <span class="error" id="@id-Host-error">@Iconos.Error @eh</span>
+            }
+        </div>
+        <div class="grid2 compacta">
+            <div class="fld">
+                <label for="@id-mandante">Mandante</label>
+                <input id="@id-mandante" name="mandante" type="text" value="@Model.Valor(ReglasConexion.CampoMandante)" inputmode="numeric" maxlength="3" required autocomplete="off"
+                       aria-invalid="@(Model.Error(ReglasConexion.CampoMandante) is null ? "false" : "true")" aria-describedby="@Describe(ReglasConexion.CampoMandante, "")">
+                @if (Model.Error(ReglasConexion.CampoMandante) is { } em)
+                {
+                    <span class="error" id="@id-Mandante-error">@Iconos.Error @em</span>
+                }
+            </div>
+            <div class="fld">
+                <label for="@id-usuario">Usuario técnico</label>
+                <input id="@id-usuario" name="usuarioTecnico" type="text" value="@Model.Valor(ReglasConexion.CampoUsuario)" maxlength="12" required autocomplete="off" spellcheck="false"
+                       aria-invalid="@(Model.Error(ReglasConexion.CampoUsuario) is null ? "false" : "true")" aria-describedby="@Describe(ReglasConexion.CampoUsuario, "")">
+                @if (Model.Error(ReglasConexion.CampoUsuario) is { } eu)
+                {
+                    <span class="error" id="@id-UsuarioTecnico-error">@Iconos.Error @eu</span>
+                }
+            </div>
+        </div>
+        <div class="fld">
+            <label for="@id-credencial">Credencial</label>
+            <span class="linea">
+                @* La credencial guardada nunca vuelve al navegador: el campo siempre llega vacío (RNF-Seg-02). *@
+                <input id="@id-credencial" name="credencial" type="password" value="" autocomplete="new-password" spellcheck="false"
+                       placeholder="@(c.TieneCredencial ? "•••••••• (guardada)" : "")" required="@(!c.TieneCredencial)"
+                       aria-invalid="@(Model.Error(ReglasConexion.CampoCredencial) is null ? "false" : "true")"
+                       aria-describedby="@Describe(ReglasConexion.CampoCredencial, $"{id}-credencial-ayuda")">
+                <button class="btn btn-s" type="button" data-mostrar="@id-credencial" aria-controls="@id-credencial" aria-pressed="false" hidden>Mostrar</button>
+            </span>
+            <span class="hint" id="@id-credencial-ayuda">
+                @(c.TieneCredencial ? "Credencial guardada; escribe otra solo para cambiarla. " : "")@(Model.AlmacenPersistente
+                    ? "Se guarda cifrada en el Administrador de credenciales de Windows; nunca se muestra en el registro (RNF-Seg-02)."
+                    : "Modo desarrollo: se guarda solo en memoria; nunca se muestra en el registro (RNF-Seg-02).")
+            </span>
+            @if (Model.Error(ReglasConexion.CampoCredencial) is { } ec)
+            {
+                <span class="error" id="@id-Credencial-error">@Iconos.Error @ec</span>
+            }
+        </div>
+        @if (fallida)
+        {
+            <div class="note e" role="alert">
+                @Iconos.Error
+                <div><b>No se pudo conectar a @nombre.</b> El sistema respondió: «@c.Mensaje». Revisa host, mandante o credencial.</div>
+            </div>
+        }
+        else if (c.Estado == EstadoPrueba.Exitosa)
+        {
+            <p class="muted">@c.Mensaje Probada @Formato.Fecha(c.FechaPrueba).</p>
+        }
+        <button class="btn btn-s" type="submit">Probar conexión</button>
+    </form>
+</section>

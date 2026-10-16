@@ -1,0 +1,11 @@
+@model (string Clase, string Texto)
+@{
+    var icono = Model.Clase switch
+    {
+        "ok" => Iconos.Ok,
+        "err" => Iconos.Error,
+        "warn" => Iconos.Aviso,
+        _ => Iconos.SinProbar,
+    };
+}
+<span class="pill @Model.Clase">@icono@Model.Texto</span>

@@ -1,0 +1,50 @@
+@using Acelerador.Core.Puertos
+@using Acelerador.Sap.Simulador
+@using Microsoft.Extensions.Options
+@inject ICredentialStore Credenciales
+@inject ISapGateway Sap
+@inject IOptionsMonitor<OpcionesSimulador> Simulador
+@{
+    var cliente = ViewData["Cliente"] as Cliente;
+}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] · Acelerador de consolidación</title>
+    <link rel="stylesheet" href="~/css/acelerador.css" asp-append-version="true">
+    <script src="~/js/acelerador.js" asp-append-version="true" defer></script>
+</head>
+<body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <header class="a-hdr">
+        <a class="a-logo" href="/" aria-label="CM Consulting, ir a Clientes">CM<span>CONSULTING</span></a>
+        <span class="a-sub">Acelerador de consolidación</span>
+        @if (cliente is not null)
+        {
+            <div class="a-hdr-r">
+                <span class="cli">@cliente.Nombre</span>
+                <a class="lnk" href="/">Cambiar cliente</a>
+                <span class="a-badge @(cliente.Deteccion is null ? "sin" : "")">
+                    @(cliente.Deteccion is null ? "Arquitectura sin detectar" : $"Arquitectura {Textos.Arquitectura(cliente.Deteccion)}")
+                </span>
+            </div>
+        }
+    </header>
+    @if (Sap is SimulatedSapGateway || !Credenciales.EsPersistente)
+    {
+        <p class="aviso-dev" role="note">
+            @if (Sap is SimulatedSapGateway)
+            {
+                <span>Modo desarrollo: conectado al simulador SAP (perfil @Simulador.CurrentValue.Perfil), no a un sistema real.</span>
+            }
+            @if (!Credenciales.EsPersistente)
+            {
+                <span>Las credenciales se guardan solo en memoria y se pierden al cerrar.</span>
+            }
+        </p>
+    }
+    @RenderBody()
+</body>
+</html>

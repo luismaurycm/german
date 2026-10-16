@@ -1,0 +1,17 @@
+@page "/error"
+@{
+    ViewData["Title"] = "Error";
+    var codigo = Request.Query["codigo"].ToString();
+    var noEncontrado = codigo == "404";
+}
+<main class="a-main solo" id="contenido">
+    <div class="ph"><div><h1>@(noEncontrado ? "No encontrado" : "Algo salió mal")</h1></div></div>
+    <div role="alert" class="note e">
+        @Iconos.Error
+        <div>
+            <b>@(noEncontrado ? "La página o el cliente no existen." : "El acelerador no pudo completar la acción.")</b><br>
+            @(noEncontrado ? "Vuelve a la lista de clientes." : "El detalle quedó en la consola de la aplicación. Inténtalo de nuevo.")
+        </div>
+        <a class="btn btn-s" href="/">Ir a Clientes</a>
+    </div>
+</main>
