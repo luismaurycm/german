@@ -1,0 +1,735 @@
+﻿ID,Work Item Type,Title,Test Step,Step Action,Step Expected,Priority,Tags
+,Test Case,CP-001 — Ejecutar el spike con el usuario técnico sin SAP_ALL,1,Consultar en SU01 los roles y perfiles del usuario técnico,,1,HU-01; Manual; criterio-1
+,,,2,Ejecutar la prueba técnica de inyección con ese usuario,,,
+,,,3,Revisar el resultado de cada llamada RFC,"La prueba se ejecuta en el ambiente de arquitectura A con el usuario técnico del cliente, sin permisos SAP_ALL (RNF-Seg-03).",,
+,Test Case,CP-002 — Crear por RFC un objeto en BW y un miembro en BPC,1,Invocar el módulo Z de creación con el InfoObject de prueba ZQA_TEST,,1,HU-01; Manual; criterio-2
+,,,2,Invocar el módulo Z de BPC para crear el miembro QA_TEST en la dimensión de prueba,,,
+,,,3,Buscar ambos objetos en RSA1 y en la administración de BPC desde SAP GUI,"Se crea por RFC un objeto de prueba en BW y un miembro de dimensión en BPC, y se verifica su existencia desde SAP GUI.",,
+,Test Case,CP-003 — Generar y restaurar un respaldo UJBR,1,Generar el respaldo UJBR del ambiente BPC de prueba,,1,HU-01; Manual; criterio-3
+,,,2,Borrar el miembro QA_TEST,,,
+,,,3,Restaurar el respaldo con UJBR,,,
+,,,4,Consultar la dimensión de prueba,Se genera y restaura un respaldo UJBR del ambiente BPC de prueba.,,
+,Test Case,CP-004 — Revisar la nota técnica del spike,1,Abrir la nota técnica adjunta a HU-01 en Azure DevOps,,1,HU-01; Manual; criterio-4
+,,,2,"Buscar el resultado, los permisos mínimos y la recomendación","El entregable es una nota técnica con el resultado, los permisos mínimos requeridos y la recomendación (seguir o cambiar de mecanismo).",,
+,Test Case,CP-005 — Verificar el límite de un sprint y el escalamiento,1,Revisar en Azure DevOps las fechas de inicio y cierre de HU-01,,1,HU-01; Manual; criterio-5
+,,,2,"Si el resultado fue fallido, buscar la decisión registrada antes del inicio de E3","La duración está limitada a un sprint; si el mecanismo falla, la decisión se escala antes de iniciar E3.",,
+,Test Case,CP-006 — Listar los clientes con sus columnas,1,Crear dos clientes de arquitectura A en pasos distintos,,1,HU-02; Automatizado; criterio-1
+,,,2,Abrir UX-01,,,
+,,,3,Leer las columnas y valores de la tabla,"En la pantalla UX-01 se listan los clientes con arquitectura, paso actual, estado, última ejecución y usuario.",,
+,Test Case,CP-007 — Exigir un nombre de cliente único,1,Pulsar Nuevo cliente y dejar el nombre vacío,,1,HU-02; Automatizado; criterio-2
+,,,2,Pulsar Crear,,,
+,,,3,Escribir el nombre de un cliente existente y pulsar Crear,El botón Nuevo cliente pide el nombre; el nombre es obligatorio y no puede repetir uno existente.,,
+,Test Case,CP-008 — Crear un cliente y pasar a Conexiones,1,Pulsar Nuevo cliente,,1,HU-02; Automatizado; criterio-3
+,,,2,Escribir «Cliente QA Demo»,,,
+,,,3,Pulsar Crear,"Al crear el cliente, el sistema lleva a UX-02 Conexiones.",,
+,Test Case,CP-009 — Mostrar el estado vacío sin clientes,1,Abrir UX-01 con la base local vacía,Sin clientes se muestra «Aún no hay clientes. Crea el primero para empezar.»,1,HU-02; Automatizado; criterio-4
+,Test Case,CP-010 — Filtrar clientes por nombre,1,"Crear los clientes «Demo Uno», «Demo Dos» y «Piloto»",,1,HU-02; Automatizado; criterio-5
+,,,2,Escribir «Demo» en Buscar,La búsqueda filtra la lista por nombre.,,
+,Test Case,CP-011 — Ejecutar el configurador sin servidores adicionales,1,Iniciar el configurador en el equipo de pruebas,,1,HU-02; Automatizado; criterio-6
+,,,2,Listar con netstat los puertos en escucha del proceso,,,
+,,,3,Revisar las conexiones salientes del proceso hacia hosts distintos del SAP del cliente,"En el prototipo, el configurador se ejecuta en el equipo del Consultor implementador sin servidores adicionales (RNF-Comp-03).",,
+,Test Case,CP-012 — Mostrar el estado carga de UX-01 Clientes,1,Activar el doble de prueba con 5 s de retardo en la respuesta de la lista de clientes,,1,HU-02; Automatizado
+,,,2,Abrir UX-01,filas esqueleto.,,
+,Test Case,CP-013 — Mostrar el estado error de UX-01 Clientes,1,Activar el doble de prueba que hace fallar la lectura de la base local,,1,HU-02; Automatizado
+,,,2,Abrir UX-01,,,
+,,,3,Restaurar la base y pulsar Reintentar,«No se pudo cargar la lista de clientes» con Reintentar.,,
+,Test Case,CP-014 — Instalar el prototipo en un equipo sin servidores,1,Instalar el .exe firmado desde Azure Artifacts en una VM Windows limpia,,1,HU-02; Automatizado
+,,,2,Iniciar el configurador y crear un cliente,,,
+,,,3,"Listar servicios, procesos y puertos en escucha",El configurador funciona instalado en 1 equipo con 0 servidores adicionales; solo escucha en 127.0.0.1.,,
+,Test Case,CP-015 — Exigir los campos de conexión de cada sistema,1,Abrir UX-02,,1,HU-03; Automatizado; criterio-1
+,,,2,"Dejar vacío, uno a la vez, host, mandante, usuario técnico y credencial de la tarjeta ERP",,,
+,,,3,Intentar guardar,"En la pantalla UX-02 cada sistema tiene su tarjeta con host, mandante, usuario técnico y credencial, todos obligatorios.",,
+,Test Case,CP-016 — Probar una conexión exitosa y una fallida,1,Registrar datos válidos de BW y pulsar Probar conexión,,1,HU-03; Automatizado; criterio-2
+,,,2,Cambiar el mandante por uno inexistente y pulsar Probar conexión,Probar conexión muestra «Conexión exitosa» o «Fallida» con el mensaje que devuelve SAP.,,
+,Test Case,CP-017 — Habilitar Continuar solo con conexiones exitosas,1,Dejar ERP exitosa y BW fallida,,1,HU-03; Automatizado; criterio-3
+,,,2,Revisar el botón Continuar al diagnóstico,,,
+,,,3,"Corregir BW, probar de nuevo y revisar el botón",Continuar al diagnóstico solo se habilita con las conexiones requeridas en estado exitoso.,,
+,Test Case,CP-018 — Registrar cada prueba de conexión,1,"Probar las conexiones de ERP, BW y BPC",,1,HU-03; Automatizado; criterio-4
+,,,2,Abrir el registro de ejecuciones en UX-09 y filtrar por el cliente,Cada prueba queda en el registro de ejecuciones (RNF-Aud-01).,,
+,Test Case,CP-019 — Mostrar el estado vacío de UX-02 Conexiones,1,Crear un cliente nuevo,,1,HU-03; Automatizado
+,,,2,Abrir UX-02 sin datos de conexión,formulario sin datos y ayuda para pedir el usuario técnico al Administrador SAP del cliente.,,
+,Test Case,CP-020 — Mostrar el estado carga de UX-02 Conexiones,1,Activar el doble de prueba con 5 s de retardo en la respuesta de la llamada RFC de prueba de conexión,,1,HU-03; Automatizado
+,,,2,Pulsar Probar conexión en la tarjeta BW,Probando… dentro de cada tarjeta.,,
+,Test Case,CP-021 — Enmascarar la credencial,1,Abrir UX-02 con una credencial guardada,,1,HU-04; Automatizado; criterio-1
+,,,2,Revisar el campo credencial,,,
+,,,3,Pulsar Mostrar,En UX-02 la credencial se muestra enmascarada y solo se revela con Mostrar.,,
+,Test Case,CP-022 — Verificar que ningún archivo contiene la credencial,1,Registrar como credencial un valor centinela único,,1,HU-04; Automatizado; criterio-2
+,,,2,Probar conexión y ejecutar el diagnóstico,,,
+,,,3,"Buscar el centinela en la base SQLite, la configuración, los registros y los temporales del perfil",Ningún archivo de configuración ni registro contiene la credencial legible (RNF-Seg-02).,,
+,Test Case,CP-023 — Revisar la documentación del rol técnico,1,Abrir la documentación del rol técnico,,1,HU-04; Manual; criterio-3
+,,,2,Comparar los permisos por paso con los roles Z asignados en SU01,,,
+,,,3,Buscar SAP_ALL y SAP_NEW,"La documentación del rol técnico lista los permisos mínimos por paso, sin SAP_ALL (RNF-Seg-03).",,
+,Test Case,CP-024 — No exponer la credencial en los errores,1,Registrar como credencial inválida un valor centinela único,,1,HU-04; Automatizado; criterio-4
+,,,2,Pulsar Probar conexión,,,
+,,,3,Revisar el mensaje en pantalla y el registro de ejecuciones,Una credencial inválida se reporta sin escribirla en el mensaje de error.,,
+,Test Case,CP-025 — Buscar credenciales legibles después de una implementación completa,1,Registrar las tres conexiones con credenciales centinela únicas,,1,HU-04; Automatizado
+,,,2,Ejecutar el plan completo y descargar el registro,,,
+,,,3,"Buscar los centinelas en el perfil del usuario, la base SQLite, los registros, los temporales y el volcado de memoria del proceso cerrado",0 credenciales legibles en archivos de configuración o registros; las credenciales solo están en el Administrador de credenciales de Windows.,,
+,Test Case,CP-026 — Verificar los permisos mínimos del usuario técnico,1,Leer por RFC los roles y perfiles del usuario técnico,,1,HU-04; Automatizado
+,,,2,Quitar uno a uno los roles Z de cada paso y ejecutar el plan,"El usuario técnico tiene 0 perfiles SAP_ALL o SAP_NEW, y al quitar un rol Z solo falla el paso que lo necesita.",,
+,Test Case,CP-027 — Mostrar la validación ERP–BW con sistemas separados,1,Abrir UX-02 del cliente con ERP y BW en hosts distintos,,1,HU-05; Automatizado; criterio-1
+,,,2,Buscar el botón Validar conexión ERP–BW,En UX-02 el botón Validar conexión ERP–BW aparece solo si ERP y BW están en sistemas separados (RN-01).,,
+,Test Case,CP-028 — Registrar el resultado de la validación ERP–BW,1,Pulsar Validar conexión ERP–BW,,1,HU-05; Automatizado; criterio-2
+,,,2,Abrir el registro de ejecuciones,"El resultado de la validación queda registrado con fecha, usuario y mensaje.",,
+,Test Case,CP-029 — Bloquear el avance si falla la validación ERP–BW,1,Desactivar en BW (RSA1) el sistema origen del ERP,,1,HU-05; Automatizado; criterio-3
+,,,2,Pulsar Validar conexión ERP–BW,,,
+,,,3,Revisar Continuar al diagnóstico,"Si la validación falla, se muestra el mensaje del sistema y Continuar al diagnóstico queda deshabilitado.",,
+,Test Case,CP-030 — Ocultar la validación ERP–BW con un solo sistema,1,Registrar ERP y BW con el mismo host y mandante,,1,HU-05; Automatizado; criterio-1
+,,,2,Abrir UX-02,,,
+,,,3,Buscar el botón Validar conexión ERP–BW,El botón Validar conexión ERP–BW no aparece y Continuar al diagnóstico depende solo de las pruebas de conexión (RN-01).,,
+,Test Case,CP-031 — Mostrar la arquitectura y las versiones detectadas,1,Probar las conexiones contra el sandbox A,,1,HU-06; Automatizado; criterio-1
+,,,2,Leer en UX-02 la insignia y las versiones de BW y BPC,En UX-02 se muestra la insignia A o B y las versiones detectadas de BW y BPC.,,
+,Test Case,CP-032 — Reconocer BW 7.5 y BW/4HANA como arquitectura A,1,Detectar el sandbox BW 7.5 con BPC 10.1,,1,HU-06; Automatizado; criterio-2
+,,,2,Detectar el ambiente QA BW/4HANA con BPC 2021,,,
+,,,3,Comparar la insignia y las versiones de ambos,La arquitectura A reconoce BW 7.5 y BW/4HANA con BPC modelo estándar (RNF-Comp-05).,,
+,Test Case,CP-033 — Bloquear una versión sin variante,1,Configurar el doble de prueba del paquete Z para responder BW 7.4,,1,HU-06; Automatizado; criterio-3
+,,,2,Probar las conexiones,,,
+,,,3,Revisar el mensaje y Continuar al diagnóstico,Si la versión no tiene variante disponible se muestra «Versión no soportada aún» y no se puede continuar (RNF-Comp-04).,,
+,Test Case,CP-034 — Guardar la arquitectura y la versión en el cliente,1,Detectar la arquitectura,,1,HU-06; Automatizado; criterio-4
+,,,2,Volver a UX-01,,,
+,,,3,Reiniciar el configurador y abrir de nuevo UX-01,La arquitectura y la versión quedan guardadas en el cliente y se ven en UX-01.,,
+,Test Case,CP-035 — Mostrar el inventario en pestañas,1,Abrir UX-03 y pulsar Escanear,,1,HU-07; Automatizado; criterio-1
+,,,2,"Recorrer las pestañas Extractores, InfoProviders, Modelos BPC y Campos Z","En la pantalla UX-03 el inventario se muestra en pestañas: extractores, InfoProviders (InfoCubos o aDSO según la versión), modelos BPC y campos Z.",,
+,Test Case,CP-036 — Marcar la bodega existente y no recrearla,1,Escanear un sandbox que ya tiene la bodega financiera,,1,HU-07; Automatizado; criterio-2
+,,,2,Revisar el indicador Bodega existente,,,
+,,,3,Abrir UX-08 y revisar los objetos de la bodega,El indicador Bodega existente se marca si BW ya tiene la bodega; en ese caso no se recrea (RN-03).,,
+,Test Case,CP-037 — Volver a escanear,1,Anotar la fecha del último escaneo,,1,HU-07; Automatizado; criterio-3
+,,,2,Agregar el campo ZZNUEVO a la tabla de prueba del ERP,,,
+,,,3,Pulsar Volver a escanear,Volver a escanear repite el inventario y actualiza la fecha del último escaneo.,,
+,Test Case,CP-038 — Informar el paso que falló en el escaneo,1,Quitar al usuario técnico la autorización de lectura de BPC,,1,HU-07; Automatizado; criterio-4
+,,,2,Pulsar Escanear,Si el escaneo falla se muestra el paso que falló y el mensaje del sistema.,,
+,Test Case,CP-039 — Generar la bodega completa si no existe,1,Escanear un sandbox sin bodega financiera,,1,HU-07; Automatizado; criterio-2
+,,,2,Revisar el indicador Bodega existente,,,
+,,,3,Abrir UX-08,El indicador Bodega existente queda sin marcar y UX-08 muestra los objetos de la bodega como Nuevo.,,
+,Test Case,CP-040 — Mostrar el estado vacío de UX-03 Diagnóstico e inventario,1,Escanear un sandbox sin bodega en BW y sin campos Z,,1,HU-07; Automatizado
+,,,2,Abrir cada pestaña del inventario,mensaje por pestaña (p. ej. «El cliente no tiene bodega en BW: se generará completa»).,,
+,Test Case,CP-041 — Mostrar el estado carga de UX-03 Diagnóstico e inventario,1,Activar el doble de prueba con 5 s de retardo en la respuesta de cada llamada RFC de inventario,,1,HU-07; Automatizado
+,,,2,Pulsar Escanear,barra de progreso «Escaneando BW y BPC…».,,
+,Test Case,CP-042 — Mostrar los módulos como tarjetas,1,Abrir UX-04,,1,HU-08; Automatizado; criterio-1
+,,,2,"Revisar las tarjetas de consolidación, presupuesto, activos fijos y deterioros",En la pantalla UX-04 cada módulo es una tarjeta con casilla y descripción de lo que genera.,,
+,Test Case,CP-043 — Actualizar el resumen al marcar módulos,1,Marcar Consolidación,,1,HU-08; Automatizado; criterio-2
+,,,2,Marcar Presupuesto,,,
+,,,3,"Desmarcar Presupuesto, leyendo el resumen después de cada cambio",El resumen muestra la cantidad de módulos y de reportes y se actualiza al marcar.,,
+,Test Case,CP-044 — Deshabilitar Continuar sin módulos,1,Desmarcar todos los módulos,,1,HU-08; Automatizado; criterio-3
+,,,2,Revisar el botón Continuar,Continuar está deshabilitado sin módulos marcados.,,
+,Test Case,CP-045 — Avisar que activos fijos y deterioros se quedan en BW,1,Revisar las tarjetas de Activos fijos y de Deterioros,Activos fijos y deterioros muestran «Se queda en BW; no crea modelo en BPC» (RN-12).,1,HU-08; Automatizado; criterio-4
+,Test Case,CP-046 — Mostrar el estado vacío de UX-04 Módulos,1,Abrir UX-04 de un cliente nuevo sin módulos marcados,ninguno marcado y aviso «Elige al menos un módulo».,1,HU-08; Automatizado
+,Test Case,CP-047 — Mostrar el estado carga de UX-04 Módulos,1,Activar el doble de prueba con 5 s de retardo en la respuesta de la configuración del cliente,,1,HU-08; Automatizado
+,,,2,Abrir UX-04,tarjetas esqueleto.,,
+,Test Case,CP-048 — Mostrar el estado error de UX-04 Módulos,1,Activar el doble de prueba que hace fallar la escritura en la base local,,1,HU-08; Automatizado
+,,,2,Marcar un módulo,,,
+,,,3,Pulsar Continuar,«No se pudo guardar la selección».,,
+,Test Case,CP-049 — Agregar y editar sociedades,1,Abrir UX-05,,1,HU-09; Automatizado; criterio-1
+,,,2,Agregar D100 a D400 con los datos del Grupo Demo,,,
+,,,3,"Editar el nombre de D300, guardar y recargar","En la pantalla UX-05 la tabla permite agregar y editar sociedades con código, nombre, en SAP, moneda local, matriz y plan de cuentas.",,
+,Test Case,CP-050 — Registrar solo sociedades del grupo,1,Abrir el selector de código de sociedad,,1,HU-09; Automatizado; criterio-2
+,,,2,Buscar el código del tercero de prueba T9001,,,
+,,,3,Intentar guardarlo como sociedad,Solo se registran sociedades del grupo; clientes y proveedores no son entidades (RN-07).,,
+,Test Case,CP-051 — Asignar un plan de cuentas por sociedad,1,Asignar el plan CO01 a D100 y US01 a D200,,1,HU-09; Automatizado; criterio-3
+,,,2,Guardar,,,
+,,,3,Recargar UX-05,Cada sociedad puede tener su propio plan de cuentas (RN-05).,,
+,Test Case,CP-052 — Exigir la moneda local,1,Agregar la sociedad D500 sin moneda local,,1,HU-09; Automatizado; criterio-4
+,,,2,Pulsar Guardar,"La moneda local es obligatoria; si falta, se muestra «La sociedad X no tiene moneda local» y no se guarda.",,
+,Test Case,CP-053 — Habilitar la carga no SAP,1,Marcar D400 como no SAP y guardar,,1,HU-09; Automatizado; criterio-5
+,,,2,Revisar la navegación lateral,Una sociedad marcada como no SAP habilita el paso UX-07.,,
+,Test Case,CP-054 — Mostrar el estado vacío de UX-05 Sociedades del grupo,1,Abrir UX-05 de un cliente sin sociedades,«Agrega las sociedades del grupo».,1,HU-09; Automatizado
+,Test Case,CP-055 — Mostrar el estado carga de UX-05 Sociedades del grupo,1,Activar el doble de prueba con 5 s de retardo en la respuesta de la lista de sociedades,,1,HU-09; Automatizado
+,,,2,Abrir UX-05,filas esqueleto.,,
+,Test Case,CP-056 — Mostrar el estado error de UX-05 Sociedades del grupo,1,Activar el doble de prueba que hace fallar la escritura en la base local,,1,HU-09; Automatizado
+,,,2,Agregar la sociedad D100,,,
+,,,3,Pulsar Guardar,«No se pudieron guardar las sociedades» con la causa.,,
+,Test Case,CP-057 — Registrar porcentaje y método por sociedad,1,Abrir UX-05,,1,HU-10; Automatizado; criterio-1
+,,,2,Revisar las columnas % propiedad y Método,,,
+,,,3,Abrir la lista de métodos,"En UX-05 cada sociedad tiene % de propiedad (0 a 100) y método: matriz, integración global, participación o fuera del perímetro (RN-13).",,
+,Test Case,CP-058 — Permitir una sola sociedad matriz,1,Asignar el método matriz a D100,,1,HU-10; Automatizado; criterio-2
+,,,2,Asignar el método matriz a D200,,,
+,,,3,Pulsar Guardar,Solo una sociedad del grupo puede tener método matriz.,,
+,Test Case,CP-059 — Rechazar un porcentaje fuera de rango,1,Escribir 120 en % propiedad de D200,,1,HU-10; Automatizado; criterio-3
+,,,2,Pulsar Guardar,Un porcentaje fuera de 0 a 100 se marca en la fila y no se guarda.,,
+,Test Case,CP-060 — Usar la estructura como primer periodo,1,Guardar la estructura del Grupo Demo,,1,HU-10; Automatizado; criterio-4
+,,,2,Ejecutar el paso Modelo de propiedad,,,
+,,,3,Consultar C02 del primer periodo,La estructura se usa como primer periodo del modelo de propiedad (HU-32).,,
+,Test Case,"CP-061 — Rechazar un porcentaje de −0,01",1,"Escribir −0,01 en % propiedad de D200",,1,HU-10; Automatizado; criterio-3
+,,,2,Pulsar Guardar,La fila de D200 se marca con el error de rango y no se guarda.,,
+,Test Case,CP-062 — Aceptar un porcentaje de 0,1,Escribir 0 en % propiedad de D900,,1,HU-10; Automatizado; criterio-3
+,,,2,Pulsar Guardar,,,
+,,,3,Recargar UX-05,La fila se guarda sin error y D900 muestra 0 después de recargar.,,
+,Test Case,CP-063 — Aceptar un porcentaje de 100,1,Escribir 100 en % propiedad de D400,,1,HU-10; Automatizado; criterio-3
+,,,2,Pulsar Guardar,,,
+,,,3,Recargar UX-05,La fila se guarda sin error y D400 muestra 100 después de recargar.,,
+,Test Case,"CP-064 — Rechazar un porcentaje de 100,01",1,"Escribir 100,01 en % propiedad de D200",,1,HU-10; Automatizado; criterio-3
+,,,2,Pulsar Guardar,La fila de D200 se marca con el error de rango y no se guarda.,,
+,Test Case,CP-065 — Asignar cuentas filtradas por plan,1,Abrir UX-06,,1,HU-11; Automatizado; criterio-1
+,,,2,Elegir la sociedad D200 y el rubro Efectivo,,,
+,,,3,Revisar que la lista solo trae cuentas del plan US01,,,
+,,,4,Marcar dos cuentas y asignarlas,"En la pantalla UX-06 se elige un rubro y se le asignan cuentas marcadas, filtradas por el plan de cuentas de la sociedad (RN-05).",,
+,Test Case,CP-066 — Mostrar la suma del rubro,1,Mapear las cuentas 1105 y 1110 al rubro Efectivo,,1,HU-11; Automatizado; criterio-2
+,,,2,Seleccionar el rubro,,,
+,,,3,Comparar la vista previa con la suma de los saldos sintéticos,La vista previa del rubro muestra la suma de sus cuentas mapeadas (RN-10).,,
+,Test Case,CP-067 — Listar las cuentas sin mapear,1,Leer el contador de cuentas sin mapear,,1,HU-11; Automatizado; criterio-3
+,,,2,Activar el filtro Solo sin mapear,,,
+,,,3,Mapear una cuenta y leer de nuevo el contador,El contador muestra las cuentas sin mapear y el filtro Solo sin mapear las lista.,,
+,Test Case,CP-068 — Leer las cuentas del ERP,1,Crear en el ERP la cuenta 1199 en el plan CO01,,1,HU-11; Automatizado; criterio-4
+,,,2,Recargar UX-06,,,
+,,,3,Buscar la cuenta 1199,Las cuentas se leen del ERP del cliente por la conexión registrada en HU-03.,,
+,Test Case,CP-069 — Informar las asignaciones no guardadas,1,Activar el doble de prueba que hace fallar la escritura en la base local,,1,HU-11; Automatizado; criterio-5
+,,,2,Asignar tres cuentas,,,
+,,,3,Pulsar Guardar,Si el guardado falla se informa cuántas asignaciones no se guardaron.,,
+,Test Case,CP-070 — Mostrar el estado vacío de UX-06 Mapeo de cuentas,1,Abrir UX-06 de un cliente sin mapeos,«Aún no hay cuentas mapeadas».,1,HU-11; Automatizado
+,Test Case,CP-071 — Mostrar el estado carga de UX-06 Mapeo de cuentas,1,Activar el doble de prueba con 5 s de retardo en la respuesta de la lectura de cuentas del ERP,,1,HU-11; Automatizado
+,,,2,Abrir UX-06,esqueleto en la lista y la tabla.,,
+,Test Case,CP-072 — Editar las versiones propuestas,1,Marcar Presupuesto en UX-04,,2,HU-12; Automatizado; criterio-1
+,,,2,Agregar la versión V2,,,
+,,,3,Renombrar 3+9,,,
+,,,4,Quitar 9+3,"En UX-04, si Presupuesto está marcado, se muestran las versiones propuestas y se pueden agregar, renombrar o quitar.",,
+,Test Case,CP-073 — Exigir la versión de presupuesto anual,1,Intentar quitar la versión de presupuesto anual,,2,HU-12; Automatizado; criterio-2
+,,,2,Guardar,Debe existir al menos la versión de presupuesto anual.,,
+,Test Case,CP-074 — Rechazar códigos de versión repetidos,1,Agregar una versión con el código de una existente,,2,HU-12; Automatizado; criterio-3
+,,,2,Guardar,Los códigos de versión no se repiten.,,
+,Test Case,CP-075 — Pasar las versiones al plan,1,Guardar las versiones,,2,HU-12; Automatizado; criterio-4
+,,,2,Abrir UX-08 y buscar el modelo de presupuesto,Las versiones pasan al plan de generación (UX-08).,,
+,Test Case,CP-076 — Ocultar las versiones sin el módulo Presupuesto,1,Desmarcar Presupuesto en UX-04,,2,HU-12; Automatizado; criterio-1
+,,,2,Buscar la sección de versiones,,,
+,,,3,Abrir UX-08,UX-04 no muestra la sección de versiones y UX-08 no lista el modelo de presupuesto.,,
+,Test Case,CP-077 — Agrupar el plan y marcar Nuevo o Existente,1,Abrir UX-08,,1,HU-13; Automatizado; criterio-1
+,,,2,"Revisar los grupos SAP BW, SAP BPC y Monedas y tasas",,,
+,,,3,Revisar la marca de cada objeto,"En la pantalla UX-08 el plan se agrupa en SAP BW, SAP BPC y Monedas y tasas, y marca cada objeto como Nuevo o Existente.",,
+,Test Case,CP-078 — No recrear ni modificar objetos existentes,1,Escanear un sandbox con bodega existente,,1,HU-13; Automatizado; criterio-2
+,,,2,Anotar en RSA1 la fecha del último cambio de sus objetos,,,
+,,,3,Generar,,,
+,,,4,Comparar las fechas,Los objetos existentes no se recrean ni se modifican (RN-03).,,
+,Test Case,CP-079 — Confirmar la generación con el total de objetos,1,Leer el total de objetos a crear,,1,HU-13; Automatizado; criterio-3
+,,,2,Pulsar Generar,,,
+,,,3,Leer el diálogo de confirmación,El total de objetos a crear se muestra y Generar pide confirmación con ese número.,,
+,Test Case,CP-080 — Enlazar el paso anterior incompleto,1,Borrar el mapeo de cuentas del cliente,,1,HU-13; Automatizado; criterio-4
+,,,2,Abrir UX-08,,,
+,,,3,Pulsar el enlace del paso faltante,"Si un paso anterior está incompleto, el plan muestra cuál falta con un enlace para completarlo.",,
+,Test Case,CP-081 — Mostrar el estado carga de UX-08 Plan de generación,1,Activar el doble de prueba con 5 s de retardo en la respuesta del cálculo del plan,,1,HU-13; Automatizado
+,,,2,Abrir UX-08,«Calculando el plan…».,,
+,Test Case,CP-082 — Mostrar el estado error de UX-08 Plan de generación,1,Dejar el diagnóstico con el escaneo fallido,,1,HU-13; Automatizado
+,,,2,Abrir UX-08,paso previo con error y enlace para corregirlo.,,
+,Test Case,CP-083 — Mostrar estado y duración de cada paso,1,Iniciar la ejecución del plan,,1,HU-14; Automatizado; criterio-1
+,,,2,Observar la línea de pasos durante la ejecución y al terminar,"En la pantalla UX-09 la línea de pasos muestra cada paso como completo, en curso, pendiente o con error, y su duración.",,
+,Test Case,CP-084 — Mostrar la causa y la acción de un paso con error,1,Quitar al usuario técnico el permiso de escritura en BPC,,1,HU-14; Automatizado; criterio-2
+,,,2,Ejecutar el plan,,,
+,,,3,Revisar el paso fallido,"Un paso con error muestra la causa, el enlace a la pantalla que la corrige y Reintentar desde este paso.",,
+,Test Case,CP-085 — Reintentar sin repetir los pasos completos,1,Devolver el permiso de escritura,,1,HU-14; Automatizado; criterio-3
+,,,2,Pulsar Reintentar desde este paso,,,
+,,,3,Revisar en el registro qué pasos se ejecutaron,Reintentar no vuelve a ejecutar los pasos completos.,,
+,Test Case,CP-086 — Mostrar el resumen y Ver reportes al terminar,1,Ejecutar el plan completo,,1,HU-14; Automatizado; criterio-4
+,,,2,Leer el resumen,,,
+,,,3,Pulsar Ver reportes,Al terminar se muestra el resumen y el botón Ver reportes (UX-10).,,
+,Test Case,CP-087 — Mostrar el estado vacío de UX-09 Ejecución y registro,1,Abrir UX-09 de un cliente sin ejecuciones,«Aún no hay ejecuciones».,1,HU-14; Automatizado
+,Test Case,CP-088 — Mostrar el estado carga de UX-09 Ejecución y registro,1,Iniciar la ejecución del plan,,1,HU-14; Automatizado
+,,,2,Observar la línea de pasos mientras corre el primer paso,paso en curso y los siguientes pendientes.,,
+,Test Case,CP-089 — Activar 0FI_GL_14 y crear los InfoProviders,1,Ejecutar el paso Bodega BW,,1,HU-15; Automatizado; criterio-1
+,,,2,Consultar en RSA6 el estado de 0FI_GL_14,,,
+,,,3,Consultar en RSA1 los InfoProviders del módulo de consolidación,"Si el inventario indica que no hay bodega, se activa 0FI_GL_14 y se crean los InfoProviders del módulo de consolidación.",,
+,Test Case,CP-090 — No crear objetos si la bodega existe,1,Ejecutar el paso Bodega BW en un sandbox con bodega,,1,HU-15; Automatizado; criterio-2
+,,,2,Revisar el estado del paso,,,
+,,,3,Contar los objetos creados en el registro,"Si la bodega existe, el paso queda como Existente y no crea objetos (RN-03).",,
+,Test Case,CP-091 — Registrar cada objeto con su nombre técnico,1,Ejecutar el paso Bodega BW,,1,HU-15; Automatizado; criterio-3
+,,,2,Comparar los nombres técnicos del registro con los objetos de RSA1,Cada objeto creado queda en el registro con su nombre técnico (RNF-Aud-01).,,
+,Test Case,CP-092 — Mostrar el número de objetos creados,1,Ejecutar el paso Bodega BW,,1,HU-15; Automatizado; criterio-4
+,,,2,Leer el resultado en UX-09 y compararlo con el registro,El resultado se ve en UX-09 con el número de objetos creados.,,
+,Test Case,CP-093 — Crear un objeto en BW por RFC,1,Invocar Z_ACC_* de creación con la definición JSON de un InfoObject de prueba,,1,HU-15; Automatizado
+,,,2,Consultar el objeto en RSA1,La llamada responde OK con mensajes y el objeto queda activo en BW.,,
+,Test Case,CP-094 — Agotar el tiempo de una llamada RFC a BW,1,Activar el doble de prueba del gateway con 130 s de retardo,,1,HU-15; Automatizado
+,,,2,Ejecutar el paso Bodega BW,,,
+,,,3,Revisar el registro,"A los 120 s la llamada se corta, se hace un solo reintento automático y el paso queda en error de comunicación con los dos intentos en el registro.",,
+,Test Case,CP-095 — Recibir un error de negocio de BW,1,Quitar al usuario técnico la autorización de creación de InfoProviders,,1,HU-15; Automatizado
+,,,2,Ejecutar el paso Bodega BW,,,
+,,,3,Revisar el registro,"El paso queda en error con el mensaje de SAP, sin reintento automático, y el plan se detiene en ese paso.",,
+,Test Case,CP-096 — Reintentar la creación en BW sin duplicar,1,Devolver la autorización,,1,HU-15; Automatizado
+,,,2,Pulsar Reintentar desde este paso,,,
+,,,3,Contar los objetos en RSA1 y en el registro,"Los objetos ya creados responden EXISTE y no se modifican; se crean solo los faltantes, sin duplicados.",,
+,Test Case,CP-097 — Usar la variante BW/4HANA sin cambiar la configuración,1,Exportar la configuración del Cliente QA BW4,,1,HU-16; Automatizado; criterio-1
+,,,2,Ejecutar la generación,,,
+,,,3,Exportar de nuevo y comparar,,,
+,,,4,Revisar la variante en el registro,"Si la versión detectada es BW/4HANA, la generación usa la variante BW/4HANA sin cambiar la configuración del cliente (RNF-Comp-04).",,
+,Test Case,CP-098 — Crear aDSO y ningún InfoCubo,1,Ejecutar la generación,,1,HU-16; Automatizado; criterio-2
+,,,2,Listar los InfoProviders creados por tipo,Los InfoProviders se crean como aDSO; no se genera ningún InfoCubo (RNF-Comp-05).,,
+,Test Case,CP-099 — Conectar los extractores por ODP,1,Revisar en BW/4HANA las fuentes de datos creadas y su tipo de sistema origen,Los extractores se conectan por ODP.,1,HU-16; Automatizado; criterio-3
+,Test Case,CP-100 — Mostrar aDSO en el plan,1,Abrir UX-08 del Cliente QA BW4,,1,HU-16; Automatizado; criterio-4
+,,,2,Revisar el tipo de los InfoProviders,El plan UX-08 muestra «aDSO» en los InfoProviders de esta variante.,,
+,Test Case,CP-101 — Certificar la variante BW/4HANA con BPC 2021,1,Ejecutar la suite de regresión completa contra el ambiente QA BW/4HANA,,1,HU-16; Automatizado
+,,,2,Listar los InfoProviders creados por tipo,Todos los RF de la arquitectura A se ejecutan completos en BW/4HANA con BPC 2021 modelo estándar y se generan 0 InfoCubos.,,
+,Test Case,CP-102 — Marcar campos Z para incorporar,1,"Abrir UX-03, pestaña Campos Z",,2,HU-17; Automatizado; criterio-1
+,,,2,Marcar ZZSEGMENTO,"En UX-03, pestaña Campos Z, se marcan los campos a incorporar.",,
+,Test Case,CP-103 — Mostrar los campos Z como Nuevo en el plan,1,Marcar ZZSEGMENTO,,2,HU-17; Automatizado; criterio-2
+,,,2,Abrir UX-08,Los campos marcados aparecen como Nuevo en el plan UX-08.,,
+,Test Case,CP-104 — Rechazar un campo Z sin tipo compatible,1,Marcar ZZBLOB,,2,HU-17; Automatizado; criterio-3
+,,,2,Revisar la fila y el plan UX-08,Un campo Z sin tipo de dato compatible se marca con el motivo y no se incorpora.,,
+,Test Case,CP-105 — Crear la cadena full y la delta cada 24 horas,1,Ejecutar el paso Cadenas de proceso,,1,HU-18; Automatizado; criterio-1
+,,,2,Revisar en RSPC las dos cadenas y la programación de la delta,Se crea una cadena de carga full inicial y una cadena delta programada cada 24 horas (RN-04).,,
+,Test Case,CP-106 — Dejar los datos con 24 horas o menos de antigüedad,1,Registrar hoy en el ERP un documento sintético,,1,HU-18; Automatizado; criterio-2
+,,,2,Ejecutar la delta nocturna programada,,,
+,,,3,"Al día siguiente, comparar la hora de la última carga del reporte con la hora actual","Después de la carga delta, la antigüedad de los datos es de 24 horas o menos (RNF-Rend-01).",,
+,Test Case,CP-107 — Evitar duplicados por peticiones solapadas,1,Revisar las variantes de la cadena delta,,1,HU-18; Automatizado; criterio-3
+,,,2,Ejecutar la delta dos veces seguidas,,,
+,,,3,Comparar el total de la bodega con el del ERP,Las cadenas no usan borrado de peticiones solapadas que duplique datos.,,
+,Test Case,CP-108 — Mostrar la carga full en la ejecución,1,Ejecutar el plan,,1,HU-18; Automatizado; criterio-4
+,,,2,Revisar en UX-09 el paso de carga full,La ejecución de la carga full se ve como paso en UX-09.,,
+,Test Case,CP-109 — Medir la frescura de los datos con la carga delta nocturna,1,"Generar en el ERP el volumen diario sintético del Grupo Demo (o el del cliente piloto, si ya se conoce)",,1,HU-18; Automatizado
+,,,2,Dejar correr la cadena delta y la importación encadenada durante 5 noches,,,
+,,,3,Registrar cada noche la hora de inicio y fin de la ventana y la hora de la última carga visible en R01,1 ejecución cada 24 horas en las 5 noches y antigüedad de los datos ≤ 24 horas al abrir un reporte. La duración de la ventana se registra para cerrar la pregunta abierta 7 del DAF.,,
+,Test Case,CP-110 — Extraer la delta del ERP a BW,1,Registrar en el ERP 10 documentos sintéticos,,1,HU-18; Automatizado
+,,,2,Ejecutar la cadena delta,,,
+,,,3,Comparar totales por sociedad entre ERP y BW,BW recibe los 10 documentos y los totales por sociedad coinciden con el ERP.,,
+,Test Case,CP-111 — Perder el sistema origen durante la delta,1,Iniciar la cadena delta,,1,HU-18; Automatizado
+,,,2,Cortar la conexión RFC entre BW y el ERP durante la extracción,,,
+,,,3,Revisar la cadena en RSPC,"La cadena queda en error con la causa de comunicación, sin petición parcial activada y sin importación a BPC.",,
+,Test Case,CP-112 — Fallar la delta por un extractor inactivo,1,Desactivar 0FI_GL_14 en el ERP,,1,HU-18; Automatizado
+,,,2,Ejecutar la cadena delta,La cadena queda en error con el mensaje del extractor y no carga datos parciales.,,
+,Test Case,CP-113 — Repetir la delta sin duplicar datos,1,Restablecer la conexión o el extractor,,1,HU-18; Automatizado
+,,,2,Volver a ejecutar la cadena delta,,,
+,,,3,Comparar totales entre ERP y BW,La repetición carga los documentos pendientes una sola vez y los totales coinciden con el ERP.,,
+,Test Case,CP-114 — Generar activos fijos solo si el módulo está marcado,1,Marcar Activos fijos en UX-04,,1,HU-19; Automatizado; criterio-1
+,,,2,Ejecutar el plan,,,
+,,,3,Revisar el paso y los objetos creados,Solo se genera si Activos fijos está marcado en UX-04.,,
+,Test Case,CP-115 — Crear activos fijos en BW sin modelo BPC,1,Ejecutar el paso,,1,HU-19; Automatizado; criterio-2
+,,,2,Consultar el extractor en RSA6 y los InfoProviders en RSA1,,,
+,,,3,Consultar los modelos de BPC,"Se activa el extractor estándar de activos fijos y se crean sus InfoProviders y cargas en BW, sin modelo en BPC (RN-12).",,
+,Test Case,CP-116 — Mostrar el paso Activos fijos en BW,1,Abrir UX-08,,1,HU-19; Automatizado; criterio-3
+,,,2,Ejecutar y abrir UX-09,El plan UX-08 y la ejecución UX-09 muestran el paso «Activos fijos en BW».,,
+,Test Case,CP-117 — No generar activos fijos sin el módulo,1,Desmarcar Activos fijos en UX-04,,1,HU-19; Automatizado; criterio-1
+,,,2,Ejecutar el plan,,,
+,,,3,Consultar en RSA1 los InfoProviders de activos fijos,UX-08 y UX-09 no muestran el paso «Activos fijos en BW» y en BW no se crea ningún objeto de activos fijos.,,
+,Test Case,CP-118 — Generar deterioros solo si el módulo está marcado,1,Marcar Deterioros en UX-04,,1,HU-20; Automatizado; criterio-1
+,,,2,Ejecutar el plan,,,
+,,,3,Revisar el paso y los objetos creados,Solo se genera si Deterioros está marcado en UX-04.,,
+,Test Case,CP-119 — Crear deterioros en BW sin modelo BPC,1,Ejecutar el paso,,1,HU-20; Automatizado; criterio-2
+,,,2,Consultar el extractor en RSA6 y los InfoProviders en RSA1,,,
+,,,3,Consultar los modelos de BPC,"Se activa el extractor estándar de deterioros y se crean sus InfoProviders y cargas en BW, sin modelo en BPC (RN-12).",,
+,Test Case,CP-120 — Mostrar el paso Deterioros en BW,1,Abrir UX-08,,1,HU-20; Automatizado; criterio-3
+,,,2,Ejecutar y abrir UX-09,El plan UX-08 y la ejecución UX-09 muestran el paso «Deterioros en BW».,,
+,Test Case,CP-121 — No generar deterioros sin el módulo,1,Desmarcar Deterioros en UX-04,,1,HU-20; Automatizado; criterio-1
+,,,2,Ejecutar el plan,,,
+,,,3,Consultar en RSA1 los InfoProviders de deterioros,UX-08 y UX-09 no muestran el paso «Deterioros en BW» y en BW no se crea ningún objeto de deterioros.,,
+,Test Case,CP-122 — Cargar el plan de cuentas de cada sociedad,1,Ejecutar el paso Planes de cuentas,,1,HU-21; Automatizado; criterio-1
+,,,2,Comparar por plan las cuentas de BW con las del ERP (SKA1),Se carga el plan de cuentas de cada sociedad registrada en UX-05 (RN-05).,,
+,Test Case,CP-123 — Mostrar la cantidad de cuentas cargadas,1,Ejecutar el paso,,1,HU-21; Automatizado; criterio-2
+,,,2,Comparar la cantidad de UX-09 con el conteo en BW,El paso «Planes de cuentas» se ve en UX-09 con la cantidad de cuentas cargadas.,,
+,Test Case,CP-124 — Reportar una sociedad sin plan de cuentas,1,Registrar la sociedad D600 con un plan inexistente en el ERP,,1,HU-21; Automatizado; criterio-3
+,,,2,Ejecutar el paso,Una sociedad sin plan de cuentas en el ERP se reporta como error del paso con su código.,,
+,Test Case,CP-125 — Cargar CeCo y CeBe de las sociedades,1,Ejecutar el paso,,1,HU-22; Automatizado; criterio-1
+,,,2,Comparar CeCo y CeBe de BW con CSKS y CEPC del ERP,Se cargan CeCo y CeBe de todas las sociedades seleccionadas.,,
+,Test Case,CP-126 — Mostrar las cantidades de CeCo y CeBe,1,Ejecutar el paso,,1,HU-22; Automatizado; criterio-2
+,,,2,Comparar las cantidades de UX-09 con el conteo en BW,El paso se ve en UX-09 con las cantidades cargadas.,,
+,Test Case,CP-127 — Mostrar la sociedad y el mensaje de un error de carga,1,Asignar a D200 un área de controlling inexistente,,1,HU-22; Automatizado; criterio-3
+,,,2,Ejecutar el paso,Un error de carga muestra la sociedad y el mensaje del sistema.,,
+,Test Case,CP-128 — Tomar la moneda local de SAP,1,Ejecutar el paso Monedas y tasas,,1,HU-23; Automatizado; criterio-1
+,,,2,Comparar la moneda de cada sociedad con T001 del ERP,La moneda local de cada sociedad se toma tal como la maneja SAP (RN-06).,,
+,Test Case,"CP-129 — Cargar tasas de cierre, promedio e histórica",1,Ejecutar el paso,,1,HU-23; Automatizado; criterio-2
+,,,2,Consultar en BW las tasas por moneda y periodo 2026.06,"Se cargan tasas de cierre, promedio e histórica por moneda y periodo (RN-11).",,
+,Test Case,CP-130 — Reportar una moneda sin tasa,1,Borrar en el sandbox la tasa USD de 2026.06,,1,HU-23; Automatizado; criterio-3
+,,,2,Ejecutar el paso,Una moneda sin tasa para el periodo se reporta como error del paso en UX-09.,,
+,Test Case,CP-131 — Mostrar monedas y tipos de tasa en el plan,1,Abrir UX-08,,1,HU-23; Automatizado; criterio-4
+,,,2,Revisar el grupo Monedas y tasas,UX-08 muestra la moneda local por sociedad y los tipos de tasa.,,
+,Test Case,CP-132 — Cargar la jerarquía de cuentas,1,Ejecutar el paso Jerarquía,,1,HU-24; Automatizado; criterio-1
+,,,2,Comparar la jerarquía de BW con la del ERP,Se carga la jerarquía de cuentas desde el ERP.,,
+,Test Case,CP-133 — Reportar una cuenta de la jerarquía fuera del plan,1,Agregar a la jerarquía del ERP la cuenta 8888 inexistente en el plan,,1,HU-24; Automatizado; criterio-2
+,,,2,Ejecutar el paso,Una cuenta en la jerarquía que no existe en el plan de cuentas se reporta en el paso.,,
+,Test Case,CP-134 — Mostrar la cantidad de nodos,1,Ejecutar el paso,,1,HU-24; Automatizado; criterio-3
+,,,2,Comparar la cantidad de UX-09 con los nodos en BW,El paso se ve en UX-09 con la cantidad de nodos cargados.,,
+,Test Case,CP-135 — Ver la vista previa del archivo no SAP,1,Abrir UX-07,,1,HU-25; Automatizado; criterio-1
+,,,2,Subir D400_2026_06_valido.csv,,,
+,,,3,Revisar las columnas de la vista previa,"En la pantalla UX-07 se sube un archivo por sociedad no SAP y se ve la vista previa con sociedad, cuenta, periodo, tercero, CeCo, CeBe e importe.",,
+,Test Case,CP-136 — Listar los errores por fila,1,Subir D400_2026_06_errores.csv (importe no numérico en la fila 3 y cuenta 9999 sin mapear en la fila 5),,1,HU-25; Automatizado; criterio-2
+,,,2,Revisar la lista de errores,"Los errores se listan por fila, columna y motivo; una cuenta fuera del mapeo se marca como «cuenta sin mapear».",,
+,Test Case,CP-137 — Habilitar Confirmar carga solo sin errores,1,Subir el archivo con errores y revisar Confirmar carga,,1,HU-25; Automatizado; criterio-3
+,,,2,Subir el archivo válido y revisar Confirmar carga,"Con el archivo con errores, Confirmar carga queda deshabilitado; con el archivo válido, Confirmar carga se habilita.",,
+,Test Case,CP-138 — Rechazar el archivo de una sociedad no registrada,1,Subir un archivo con el código de sociedad D999,,1,HU-25; Automatizado; criterio-4
+,,,2,Revisar el resultado,El archivo debe ser de una sociedad del grupo registrada (RN-07).,,
+,Test Case,CP-139 — Pasar la carga no SAP por la validación de cuadre,1,Subir D400_2026_06_descuadrado.csv,,1,HU-25; Automatizado; criterio-5
+,,,2,Confirmar la carga,,,
+,,,3,Ejecutar la importación,,,
+,,,4,Consultar C03,La carga pasa por la validación de cuadre de HU-36 antes de llegar a BPC.,,
+,Test Case,CP-140 — Mostrar el estado vacío de UX-07 Carga de sociedades no SAP,1,Dejar todas las sociedades como SAP en UX-05,,1,HU-25; Automatizado
+,,,2,Revisar la navegación lateral,,,
+,,,3,Abrir UX-07 por su dirección directa,«Ninguna sociedad está marcada como no SAP»; el paso no aparece en la navegación.,,
+,Test Case,CP-141 — Mostrar el estado carga de UX-07 Carga de sociedades no SAP,1,Subir el archivo de volumen D400_volumen.csv (100.000 filas),,1,HU-25; Automatizado
+,,,2,Observar la pantalla durante la subida,barra de progreso de subida.,,
+,Test Case,CP-142 — Cargar a BW un archivo no SAP válido,1,Subir y confirmar D400_2026_06_valido.csv,,1,HU-25; Automatizado
+,,,2,Consultar en BW los registros de D400,BW contiene todas las filas del archivo con importes iguales y D400 queda marcada como cargada.,,
+,Test Case,CP-143 — Interrumpir la carga de un archivo no SAP,1,Subir D400_volumen.csv,,1,HU-25; Automatizado
+,,,2,Cerrar el configurador durante la confirmación,,,
+,,,3,Reabrir y consultar BW,No quedan datos parciales de D400 en BW y la sociedad no figura como cargada.,,
+,Test Case,CP-144 — Rechazar un archivo no SAP con formato inválido,1,Subir un archivo con columnas faltantes y codificación distinta,,1,HU-25; Automatizado
+,,,2,Revisar UX-07,El archivo se rechaza con la lista de errores por fila y columna y Confirmar carga queda deshabilitado.,,
+,Test Case,CP-145 — Cargar de nuevo el archivo corregido,1,Subir y confirmar la versión corregida del archivo de D400 para 2026.06,,1,HU-25; Automatizado
+,,,2,Consultar en BW los registros de D400,La nueva carga reemplaza la anterior del periodo y BW no duplica importes.,,
+,Test Case,CP-146 — Crear las dimensiones del modelo,1,Ejecutar el paso Modelo BPC,,1,HU-26; Automatizado; criterio-1
+,,,2,Listar las dimensiones del ambiente BPC,"Se crean las dimensiones definidas en arquitectura, entre ellas cuentas, entidades, intercompañía y terceros.",,
+,Test Case,CP-147 — Cargar los miembros desde los datos maestros,1,Ejecutar el paso,,1,HU-26; Automatizado; criterio-2
+,,,2,Comparar la cantidad de miembros por dimensión con los datos maestros de BW,Los miembros se cargan desde los datos maestros de E4.,,
+,Test Case,CP-148 — Mostrar el modelo en el plan y en la ejecución,1,Abrir UX-08,,1,HU-26; Automatizado; criterio-3
+,,,2,Ejecutar y abrir UX-09,UX-08 lista el modelo de consolidación como objeto a crear y UX-09 muestra el paso.,,
+,Test Case,CP-149 — Reportar un miembro rechazado por BPC,1,Agregar al maestro la cuenta «12/34» con un carácter que BPC no admite,,1,HU-26; Automatizado; criterio-4
+,,,2,Ejecutar el paso,Un miembro rechazado por BPC se reporta con su código.,,
+,Test Case,CP-150 — Crear dimensiones y miembros en BPC por RFC,1,Ejecutar el paso Modelo BPC,,1,HU-26; Automatizado
+,,,2,Consultar dimensiones y miembros en BPC,Las llamadas Z_ACC_BPC_* responden OK y BPC muestra las dimensiones y miembros esperados.,,
+,Test Case,CP-151 — Agotar el tiempo de una llamada RFC a BPC,1,Activar el doble de prueba del gateway con 130 s de retardo en Z_ACC_BPC_*,,1,HU-26; Automatizado
+,,,2,Ejecutar el paso Modelo BPC,,,
+,,,3,Revisar el registro,"A los 120 s la llamada se corta, se hace un solo reintento automático y el paso queda en error de comunicación con los dos intentos en el registro.",,
+,Test Case,CP-152 — Recibir un error de negocio de BPC,1,Quitar al usuario técnico el permiso de escritura en el ambiente BPC,,1,HU-26; Automatizado
+,,,2,Ejecutar el paso Modelo BPC,"El paso queda en error con el mensaje de BPC, sin reintento automático, y el respaldo UJBR previo queda disponible.",,
+,Test Case,CP-153 — Reintentar la configuración de BPC sin duplicar,1,Devolver el permiso,,1,HU-26; Automatizado
+,,,2,Pulsar Reintentar desde este paso,,,
+,,,3,Contar dimensiones y miembros en BPC,Lo ya creado responde EXISTE; BPC queda con una sola copia de cada dimensión y miembro.,,
+,Test Case,CP-154 — Generar la importación solo en arquitectura A,1,Abrir UX-08 de un cliente A y buscar el paso Importación a BPC,,1,HU-27; Automatizado; criterio-1
+,,,2,Abrir UX-08 de un cliente B (doble de prueba) y buscar el mismo paso,"Aplica a la arquitectura A, la única soportada en la versión 1 (RN-19).",,
+,Test Case,CP-155 — Importar por sociedad y periodo con Data Manager,1,Revisar en BPC el paquete de Data Manager generado,,1,HU-27; Automatizado; criterio-2
+,,,2,Ejecutarlo para D100 y 2026.06,,,
+,,,3,Consultar los datos en BPC,La importación se genera como paquete de Data Manager y se ejecuta por sociedad y periodo.,,
+,Test Case,CP-156 — Importar solo las sociedades que cuadran,1,Descuadrar D200 en 2026.06,,1,HU-27; Automatizado; criterio-3
+,,,2,Ejecutar la importación,,,
+,,,3,Consultar en BPC las sociedades con datos,Solo se importan las sociedades que pasan la validación de cuadre (HU-36).,,
+,Test Case,CP-157 — Mostrar la cantidad de registros importados,1,Ejecutar la importación,,1,HU-27; Automatizado; criterio-4
+,,,2,Comparar la cantidad de UX-09 con los registros en BPC,El paso «Importación a BPC» se ve en UX-09 con la cantidad de registros.,,
+,Test Case,CP-158 — Importar de BW a BPC al final de la delta,1,Ejecutar la delta nocturna con la importación encadenada,,1,HU-27; Automatizado
+,,,2,Comparar totales por sociedad entre BW y BPC,Las sociedades que cuadran quedan en BPC con totales iguales a BW.,,
+,Test Case,CP-159 — Fallar la importación por tiempo agotado,1,Activar en BPC un bloqueo del modelo durante la ejecución del paquete,,1,HU-27; Automatizado
+,,,2,Ejecutar la importación,,,
+,,,3,Revisar la cadena y el paso,"El paquete de Data Manager termina en error, la cadena lo muestra en rojo y el periodo no queda con datos parciales de la sociedad.",,
+,Test Case,CP-160 — Rechazar por cuadre en la importación,1,Descuadrar D200,,1,HU-27; Automatizado
+,,,2,Ejecutar la importación,"D200 no se importa (error de negocio, sin reintento automático) y queda en C03 con la diferencia.",,
+,Test Case,CP-161 — Repetir la importación de una sociedad y periodo,1,Corregir el cuadre de D200,,1,HU-27; Automatizado
+,,,2,Ejecutar de nuevo el paquete para D200 y 2026.06,,,
+,,,3,Comparar totales entre BW y BPC,D200 queda en BPC con totales iguales a BW y sin importes duplicados.,,
+,Test Case,CP-162 — Desplegar la variante de modelo estándar,1,Ejecutar el paso Scripts,,1,HU-28; Automatizado; criterio-1
+,,,2,Abrir en UJFS el script desplegado y su encabezado de variante,El script usa la variante de BPC modelo estándar (RN-02); la variante embebida queda fuera de la versión 1 (RN-19).,,
+,Test Case,CP-163 — Insertar los códigos del cliente sin edición manual,1,Ejecutar el paso,,1,HU-28; Automatizado; criterio-2
+,,,2,Comparar las sociedades y cuentas del script con las del Grupo Demo,Los códigos de sociedades y cuentas del cliente se insertan sin edición manual.,,
+,Test Case,CP-164 — Mostrar la variante en el plan,1,Abrir UX-08,,1,HU-28; Automatizado; criterio-3
+,,,2,Revisar la variante de scripts,UX-08 muestra la variante que se va a desplegar.,,
+,Test Case,CP-165 — Respaldar con UJBR antes de reemplazar un script,1,Desplegar los scripts,,1,HU-28; Automatizado; criterio-4
+,,,2,Modificar el script en UJFS,,,
+,,,3,Desplegar de nuevo,,,
+,,,4,Revisar los respaldos UJBR,Antes de reemplazar un script existente se genera respaldo UJBR.,,
+,Test Case,CP-166 — Consolidar solo las sociedades del grupo,1,Ejecutar la consolidación de 2026.06,,1,HU-29; Automatizado; criterio-1
+,,,2,Listar las entidades del resultado,Solo participan las sociedades del grupo (RN-07).,,
+,Test Case,CP-167 — Eliminar las transacciones intercompañía,1,Cargar una venta intercompañía D100 a D200 de 1.000.000 COP,,1,HU-29; Automatizado; criterio-2
+,,,2,Consolidar 2026.06,,,
+,,,3,Consultar los saldos intercompañía consolidados,Las transacciones intercompañía entre sociedades con integración global se eliminan.,,
+,Test Case,CP-168 — Mostrar el resultado o la causa del paso Consolidación,1,Consolidar y revisar el paso en UX-09,,1,HU-29; Automatizado; criterio-3
+,,,2,Desactivar la regla de eliminación en BPC,,,
+,,,3,Consolidar de nuevo y revisar el paso,"El paso «Consolidación» en UX-09 muestra el resultado; si falla, muestra la causa y Reintentar desde este paso.",,
+,Test Case,CP-169 — Consultar las eliminaciones en R05,1,Consolidar 2026.06,,1,HU-29; Automatizado; criterio-4
+,,,2,Abrir R05 con D100 e Incluir filiales,El resultado queda consultable en R05 Hoja de eliminaciones intercompañía.,,
+,Test Case,CP-170 — Convertir con la tasa de cada tipo de cuenta,1,Convertir 2026.06,,1,HU-30; Automatizado; criterio-1
+,,,2,"Comparar una cuenta de balance, una de resultados y una de patrimonio de D100 con su importe local por la tasa sintética","Balance con tasa de cierre, resultados con tasa promedio y patrimonio con tasa histórica (RN-11).",,
+,Test Case,CP-171 — Dejar la consolidación en ambas monedas,1,Consultar en BPC el resultado consolidado en COP y en USD,La consolidación queda disponible en ambas monedas (RN-06).,1,HU-30; Automatizado; criterio-2
+,Test Case,CP-172 — Mostrar el resumen de las dos monedas,1,Ejecutar el plan,,1,HU-30; Automatizado; criterio-3
+,,,2,Leer el resumen en UX-09,UX-09 muestra el resumen «Consolidación disponible en moneda local y en dólares».,,
+,Test Case,CP-173 — Fallar e indicar la moneda sin tasa,1,Borrar la tasa de cierre USD de 2026.06,,1,HU-30; Automatizado; criterio-4
+,,,2,Convertir,,,
+,,,3,Revisar el paso,"Si falta una tasa del periodo, el paso falla e indica la moneda.",,
+,Test Case,CP-174 — Registrar la diferencia en conversión en patrimonio,1,Convertir 2026.06,,1,HU-31; Automatizado; criterio-1
+,,,2,Consultar la cuenta de patrimonio configurada y las cuentas de resultados,"La diferencia se registra en la cuenta de patrimonio configurada, no en resultados (RN-18).",,
+,Test Case,CP-175 — Cuadrar el balance convertido,1,Convertir 2026.06,,1,HU-31; Automatizado; criterio-2
+,,,2,Calcular activo menos pasivo y patrimonio en la moneda de presentación,"Después de convertir, activo menos pasivo y patrimonio da cero en la moneda de presentación.",,
+,Test Case,CP-176 — Mostrar la cuenta de destino y el paso,1,Abrir UX-08,,1,HU-31; Automatizado; criterio-3
+,,,2,Ejecutar y abrir UX-09,UX-08 muestra la cuenta de destino y UX-09 el paso con su resultado.,,
+,Test Case,CP-177 — Crear el modelo de propiedad con la estructura inicial,1,Ejecutar el paso Modelo de propiedad,,1,HU-32; Automatizado; criterio-1
+,,,2,Consultar en BPC los porcentajes y métodos del primer periodo,Se crea el modelo de propiedad con la estructura registrada en HU-10 como primer periodo.,,
+,Test Case,CP-178 — Generar la plantilla C02 conectada,1,Ejecutar el paso,,1,HU-32; Automatizado; criterio-2
+,,,2,Abrir C02 y actualizar,Se genera la plantilla C02 conectada al modelo de propiedad.,,
+,Test Case,CP-179 — Listar el modelo de propiedad y C02 en el plan,1,Abrir UX-08,,1,HU-32; Automatizado; criterio-3
+,,,2,Buscar los dos objetos,UX-08 lista el modelo de propiedad y la plantilla C02 como objetos a crear.,,
+,Test Case,CP-180 — Mostrar C02 en el catálogo,1,Abrir UX-10,,1,HU-32; Automatizado; criterio-4
+,,,2,Buscar C02,C02 aparece en el catálogo de UX-10.,,
+,Test Case,CP-181 — Eliminar inversión solo con integración global,1,Consolidar 2026.06,,1,HU-33; Automatizado; criterio-1
+,,,2,"Revisar las eliminaciones de inversión de D200, D300 y D400",Aplica a las sociedades con método integración global en el periodo (RN-13).,,
+,Test Case,CP-182 — Usar los porcentajes del periodo,1,Cambiar el % de D200 a 90 en 2026.07,,1,HU-33; Automatizado; criterio-2
+,,,2,Consolidar 2026.06 y 2026.07,,,
+,,,3,Comparar el interés minoritario de cada periodo,Usa los porcentajes del periodo; un cambio de porcentaje no altera periodos anteriores (RN-14).,,
+,Test Case,CP-183 — Presentar el interés minoritario separado,1,Consolidar 2026.06,,1,HU-33; Automatizado; criterio-3
+,,,2,Abrir el patrimonio consolidado en R03,El interés minoritario se presenta separado en el patrimonio consolidado.,,
+,Test Case,CP-184 — Mostrar el paso de eliminación de inversión,1,Ejecutar el plan,,1,HU-33; Automatizado; criterio-4
+,,,2,Revisar UX-09,UX-09 muestra el paso «Eliminación de inversión e interés minoritario».,,
+,Test Case,CP-185 — Dejar la diferencia de eliminación en una cuenta identificable,1,Consolidar 2026.06,,1,HU-33; Automatizado; criterio-5
+,,,2,Consultar la cuenta de diferencia entre inversión y patrimonio eliminado,La diferencia entre inversión y patrimonio eliminado queda en una cuenta identificable.,,
+,Test Case,CP-186 — No integrar línea a línea las coligadas,1,Consolidar 2026.06,,1,HU-34; Automatizado; criterio-1
+,,,2,Revisar las cuentas de D300 en el consolidado,Las sociedades con método participación no se integran línea a línea (RN-13).,,
+,Test Case,CP-187 — Reconocer la proporción del resultado de la coligada,1,Consolidar 2026.06,,1,HU-34; Automatizado; criterio-2
+,,,2,Comparar el resultado reconocido con el 30 % del resultado de D300,Se reconoce la proporción del resultado según el porcentaje de propiedad del periodo.,,
+,Test Case,CP-188 — No eliminar transacciones con coligadas,1,Cargar una venta D100 a D300 de 500.000 COP,,1,HU-34; Automatizado; criterio-3
+,,,2,Consolidar,,,
+,,,3,Consultar la transacción en el consolidado,Las transacciones con coligadas no se eliminan.,,
+,Test Case,CP-189 — Excluir sociedades fuera del perímetro,1,Consolidar 2026.06,,1,HU-34; Automatizado; criterio-4
+,,,2,Buscar D900 en el consolidado,Las sociedades fuera del perímetro no participan en el periodo.,,
+,Test Case,CP-190 — Editar participaciones y métodos por periodo,1,Abrir UX-13,,1,HU-35; Automatizado; criterio-1
+,,,2,Elegir Grupo Demo y 2026.07,,,
+,,,3,Editar los cuatro porcentajes y el método de D200,,,
+,,,4,Guardar,"En la pantalla UX-13 se elige grupo y periodo y se editan % control, % consolidación, % propiedad y método por sociedad.",,
+,Test Case,CP-191 — Copiar las participaciones del periodo anterior,1,Elegir 2026.08 sin datos,,1,HU-35; Automatizado; criterio-2
+,,,2,Pulsar Copiar del periodo anterior,Copiar del periodo anterior trae las participaciones del mes previo.,,
+,Test Case,CP-192 — Validar rango y método por celda,1,Escribir 150 en % control de D200,,1,HU-35; Automatizado; criterio-3
+,,,2,Dejar sin método a D300,,,
+,,,3,Guardar,Los porcentajes deben estar entre 0 y 100 y el método es obligatorio; un error marca la celda y no guarda la fila.,,
+,Test Case,CP-193 — Aplicar el cambio desde el periodo elegido,1,Cambiar el % propiedad de D200 a 90 en 2026.07,,1,HU-35; Automatizado; criterio-4
+,,,2,Consultar 2026.06 y 2026.07,Un cambio aplica desde el periodo elegido y no altera los anteriores (RN-14).,,
+,Test Case,CP-194 — Registrar cada cambio de participación,1,Cambiar el % de D200,,1,HU-35; Automatizado; criterio-5
+,,,2,Consultar la auditoría de BPC del cambio,"Cada cambio queda registrado con usuario, fecha, valor anterior y nuevo (RNF-Aud-02).",,
+,Test Case,CP-195 — Mostrar el estado vacío de UX-13 Participaciones y métodos,1,Elegir Grupo Demo y el periodo 2026.12 sin participaciones,«Sin participaciones para este periodo: copia las del periodo anterior o ingrésalas».,1,HU-35; Automatizado
+,Test Case,CP-196 — Mostrar el estado carga de UX-13 Participaciones y métodos,1,Editar un porcentaje,,1,HU-35; Automatizado
+,,,2,Pulsar Guardar con 5 s de retardo simulado hacia BPC,Guardando… en la cinta.,,
+,Test Case,"CP-197 — Rechazar una participación de −0,01 en C02",1,"Escribir −0,01 en % consolidación de D200 en 2026.07",,1,HU-35; Automatizado; criterio-3
+,,,2,Pulsar Guardar,"La celda se marca, se muestra «No se guardó la fila…» con el rango 0 a 100 y la fila no se guarda.",,
+,Test Case,"CP-198 — Rechazar una participación de 100,01 en C02",1,"Escribir 100,01 en % control de D200 en 2026.07",,1,HU-35; Automatizado; criterio-3
+,,,2,Pulsar Guardar,"La celda se marca, se muestra «No se guardó la fila…» con el rango 0 a 100 y la fila no se guarda.",,
+,Test Case,CP-199 — No alterar el periodo anterior al cambio,1,Cambiar el % propiedad de D200 de 80 a 90 en 2026.07,,1,HU-35; Automatizado; criterio-4
+,,,2,Consultar C02 y consolidar 2026.06,2026.06 conserva 80 % y su interés minoritario no cambia.,,
+,Test Case,CP-200 — Aplicar el cambio en el periodo en que se registra,1,Cambiar el % propiedad de D200 de 80 a 90 en 2026.07,,1,HU-35; Automatizado; criterio-4
+,,,2,Consultar C02 y consolidar 2026.07,2026.07 muestra 90 % y el interés minoritario de D200 se calcula con 10 %.,,
+,Test Case,CP-201 — Heredar el cambio en el periodo siguiente,1,"Con 90 % registrado en 2026.07, elegir 2026.08",,1,HU-35; Automatizado; criterio-4
+,,,2,Pulsar Copiar del periodo anterior y guardar,,,
+,,,3,Consolidar 2026.08,2026.08 muestra 90 % y el interés minoritario se calcula con 10 %.,,
+,Test Case,"CP-202 — Auditar participaciones, asientos y bloqueos en BPC",1,"Hacer 10 cambios de participación, 10 asientos y 10 bloqueos o desbloqueos",,1,HU-35; Automatizado
+,,,2,Consultar la auditoría estándar de BPC,,,
+,,,3,Revisar la configuración de retención de la auditoría,"30 de 30 cambios con usuario, fecha y hora, valor anterior y nuevo consultables en BPC, y retención configurada de al menos 12 meses.",,
+,Test Case,CP-203 — Validar activo igual a pasivo más patrimonio,1,Ejecutar la importación de 2026.06 con D100 cuadrada y D200 descuadrada en 5.000.000,,1,HU-36; Automatizado; criterio-1
+,,,2,Revisar el resultado de la validación,El paquete de importación y la carga no SAP comprueban que activo = pasivo + patrimonio dentro de la tolerancia definida (RN-16).,,
+,Test Case,CP-204 — Validar utilidad igual a resultado del ejercicio,1,Alterar la utilidad del estado de resultados de D300,,1,HU-36; Automatizado; criterio-2
+,,,2,Ejecutar la importación,Se comprueba que la utilidad del estado de resultados sea igual al resultado del ejercicio del balance.,,
+,Test Case,CP-205 — Validar que las cuentas con saldo estén mapeadas,1,Registrar saldo en una cuenta sin mapear de D100,,1,HU-36; Automatizado; criterio-3
+,,,2,Ejecutar la importación,Se comprueba que todas las cuentas con saldo estén mapeadas.,,
+,Test Case,CP-206 — Dejar en C03 la sociedad que no cumple,1,Ejecutar la importación con D200 descuadrada,,1,HU-36; Automatizado; criterio-4
+,,,2,Consultar BPC y C03,Una sociedad que no cumple no se importa y queda en C03 con la diferencia.,,
+,Test Case,CP-207 — Mostrar las sociedades rechazadas en el paso,1,Ejecutar la importación con D200 descuadrada,,1,HU-36; Automatizado; criterio-5
+,,,2,Revisar el paso en UX-09,UX-09 muestra el paso «Validación de cuadre» con las sociedades rechazadas.,,
+,Test Case,"CP-208 — Importar con diferencia de balance menor que la tolerancia (1,00 − 0,01)",1,"Ajustar los datos de D100 para que activo − (pasivo + patrimonio) sea 0,99",,1,HU-36; Automatizado; criterio-1
+,,,2,Ejecutar la importación de 2026.06,,,
+,,,3,Consultar C03,"D100 se importa a BPC y C03 la muestra como importada con diferencia 0,99.",,
+,Test Case,"CP-209 — Importar con diferencia de balance igual a la tolerancia (1,00)",1,"Ajustar los datos de D100 para que la diferencia sea 1,00",,1,HU-36; Automatizado; criterio-1
+,,,2,Ejecutar la importación de 2026.06,,,
+,,,3,Consultar C03,"D100 se importa a BPC: la diferencia igual a la tolerancia está dentro de ella. C03 la muestra como importada con diferencia 1,00.",,
+,Test Case,"CP-210 — Rechazar con diferencia de balance mayor que la tolerancia (1,00 + 0,01)",1,"Ajustar los datos de D100 para que la diferencia sea 1,01",,1,HU-36; Automatizado; criterio-1
+,,,2,Ejecutar la importación de 2026.06,,,
+,,,3,Consultar BPC y C03,"D100 no se importa a BPC y C03 la marca «No importada» con diferencia 1,01.",,
+,Test Case,CP-211 — Ver la validación de cuadre en C03,1,Abrir C03 en UX-11,,1,HU-37; Automatizado; criterio-1
+,,,2,Elegir 2026.06 y actualizar,"En la pantalla UX-11, hoja C03, se ve por sociedad la diferencia de balance, la diferencia entre utilidad y resultado, las cuentas mapeadas y si se importó.",,
+,Test Case,CP-212 — Marcar la sociedad no importada,1,Ejecutar la importación con D200 descuadrada,,1,HU-37; Automatizado; criterio-2
+,,,2,Abrir C03,Una sociedad no importada se marca «No importada» con texto e ícono.,,
+,Test Case,CP-213 — Mostrar C03 sin importaciones,1,Elegir el periodo 2026.12 sin importaciones,,1,HU-37; Automatizado; criterio-3
+,,,2,Actualizar C03,Sin importaciones en el periodo se muestra «Aún no hay importaciones en el periodo elegido».,,
+,Test Case,CP-214 — Mostrar el error de conexión en C03,1,Desconectar EPM de BPC,,1,HU-37; Automatizado; criterio-4
+,,,2,Actualizar C03,Sin conexión a BPC se muestra el error de conexión de EPM.,,
+,Test Case,CP-215 — Conciliar intercompañía por pareja,1,Cargar D100 cuenta por cobrar a D200 de 1.000.000 y D200 cuenta por pagar de 990.000,,1,HU-38; Automatizado; criterio-1
+,,,2,Abrir C01 y actualizar,"En la pantalla UX-11, hoja C01, se ve por pareja de sociedades y cuentas lo que registra cada parte y la diferencia.",,
+,Test Case,CP-216 — Marcar las parejas que superan el umbral,1,Cargar una diferencia de 10.000 entre D100 y D200,,1,HU-38; Automatizado; criterio-2
+,,,2,Actualizar C01,Las parejas que superan el umbral se marcan «Supera el umbral» con texto e ícono.,,
+,Test Case,CP-217 — Mostrar solo sociedades del grupo en C01,1,Cargar una transacción con el tercero T9001,,1,HU-38; Automatizado; criterio-3
+,,,2,Actualizar C01,Solo aparecen sociedades del grupo (RN-07).,,
+,Test Case,CP-218 — Ejecutar C01 antes de consolidar,1,Importar 2026.07 sin consolidar,,1,HU-38; Automatizado; criterio-4
+,,,2,Actualizar C01,C01 se puede ejecutar antes de la consolidación del periodo.,,
+,Test Case,"CP-219 — No marcar una diferencia intercompañía bajo el umbral (1.000,00 − 0,01)",1,"Cargar entre D100 y D200 una diferencia de 999,99",,1,HU-38; Automatizado; criterio-2
+,,,2,Actualizar C01,"La pareja D100-D200 muestra la diferencia 999,99 sin la marca «Supera el umbral».",,
+,Test Case,"CP-220 — No marcar una diferencia igual al umbral (1.000,00)",1,"Cargar entre D100 y D200 una diferencia de 1.000,00",,1,HU-38; Automatizado; criterio-2
+,,,2,Actualizar C01,"La pareja D100-D200 muestra la diferencia 1.000,00 sin la marca «Supera el umbral»: solo se marca lo que lo supera.",,
+,Test Case,"CP-221 — Marcar una diferencia sobre el umbral (1.000,00 + 0,01)",1,"Cargar entre D100 y D200 una diferencia de 1.000,01",,1,HU-38; Automatizado; criterio-2
+,,,2,Actualizar C01,La pareja D100-D200 se marca «Supera el umbral» con texto e ícono.,,
+,Test Case,CP-222 — Registrar un asiento con encabezado y líneas,1,Abrir UX-14,,1,HU-39; Automatizado; criterio-1
+,,,2,"Ingresar grupo, periodo y moneda",,,
+,,,3,"Agregar dos líneas con sociedad, cuenta, intercompañía, débito, crédito y observación","En la pantalla UX-14 el asiento tiene grupo, periodo y moneda, y líneas con sociedad, cuenta, intercompañía, débito, crédito y observación.",,
+,Test Case,CP-223 — Guardar solo asientos cuadrados,1,Ingresar débitos por 1.000.000 y créditos por 900.000,,1,HU-39; Automatizado; criterio-2
+,,,2,Revisar Guardar asiento,,,
+,,,3,Igualar los créditos y revisar de nuevo,"Guardar asiento solo se habilita si los débitos son iguales a los créditos (RN-15); si no, se muestra «Descuadrado» con la diferencia.",,
+,Test Case,CP-224 — Rechazar líneas de sociedades bloqueadas,1,Bloquear D200 en 2026.06,,1,HU-39; Automatizado; criterio-3
+,,,2,Agregar una línea de D200,,,
+,,,3,Guardar,No se aceptan líneas de una sociedad bloqueada en el periodo (RN-17).,,
+,Test Case,"CP-225 — Listar cada asiento con número, usuario y fecha",1,Guardar un asiento cuadrado,,1,HU-39; Automatizado; criterio-4
+,,,2,Revisar la lista de asientos del periodo,"Cada asiento queda con número, usuario y fecha en la lista del periodo (RNF-Aud-02).",,
+,Test Case,CP-226 — Mostrar el estado vacío de UX-14 Asientos de ajuste,1,Crear un asiento nuevo sin líneas,«Aún no hay líneas: usa Agregar línea».,1,HU-39; Automatizado
+,Test Case,CP-227 — Mostrar el estado carga de UX-14 Asientos de ajuste,1,Registrar un asiento cuadrado,,1,HU-39; Automatizado
+,,,2,Pulsar Guardar asiento con 5 s de retardo simulado hacia BPC,Guardando… en la cinta.,,
+,Test Case,"CP-228 — Rechazar créditos menores en 0,01",1,"Ingresar débitos por 1.000.000,00 y créditos por 999.999,99",,1,HU-39; Automatizado; criterio-2
+,,,2,Revisar Guardar asiento,"Guardar asiento queda deshabilitado y se muestra «Descuadrado» con la diferencia 0,01.",,
+,Test Case,CP-229 — Guardar un asiento con débitos iguales a créditos,1,"Ingresar débitos y créditos por 1.000.000,00",,1,HU-39; Automatizado; criterio-2
+,,,2,Pulsar Guardar asiento,Guardar asiento está habilitado y el asiento aparece en la lista del periodo con su número.,,
+,Test Case,"CP-230 — Rechazar créditos mayores en 0,01",1,"Ingresar débitos por 1.000.000,00 y créditos por 1.000.000,01",,1,HU-39; Automatizado; criterio-2
+,,,2,Revisar Guardar asiento,"Guardar asiento queda deshabilitado y se muestra «Descuadrado» con la diferencia 0,01.",,
+,Test Case,CP-231 — Mostrar Bloquear o Desbloquear por sociedad,1,Abrir UX-15,,2,HU-40; Automatizado; criterio-1
+,,,2,Revisar el botón de cada sociedad,En la pantalla UX-15 cada sociedad tiene el botón Bloquear o Desbloquear.,,
+,Test Case,"CP-232 — Impedir cargas, asientos y reprocesos de una sociedad bloqueada",1,Bloquear D200 en 2026.06,,2,HU-40; Automatizado; criterio-2
+,,,2,"Ejecutar la carga, registrar un asiento y reprocesar la consolidación de D200","Una sociedad bloqueada no admite cargas, asientos ni reprocesos del periodo (RN-17).",,
+,Test Case,CP-233 — Bloquear una sociedad sin afectar a las demás,1,Bloquear D200,,2,HU-40; Automatizado; criterio-3
+,,,2,Registrar un asiento de D100 en el mismo periodo,Bloquear una sociedad no bloquea a las demás del grupo.,,
+,Test Case,CP-234 — Registrar bloqueos y desbloqueos,1,Bloquear y desbloquear D200,,2,HU-40; Automatizado; criterio-4
+,,,2,Consultar la auditoría de BPC,Cada bloqueo y desbloqueo queda registrado con usuario y fecha (RNF-Aud-02).,,
+,Test Case,CP-235 — Mostrar la matriz del cierre en orden,1,Abrir UX-15 en 2026.06,,2,HU-41; Automatizado; criterio-1
+,,,2,Leer las columnas de la matriz,"En la pantalla UX-15 la matriz muestra por sociedad el estado de carga, cuadre, conciliación, conversión, consolidación y reportes, en ese orden.",,
+,Test Case,CP-236 — Enlazar el reporte que explica un error,1,Descuadrar D200,,2,HU-41; Automatizado; criterio-2
+,,,2,Abrir UX-15,,,
+,,,3,Pulsar el enlace del paso de cuadre,Un paso con error enlaza al reporte que explica la causa (p. ej. C03).,,
+,Test Case,CP-237 — Acceder a C02 y a Asientos desde el cierre,1,Abrir UX-15,,2,HU-41; Automatizado; criterio-3
+,,,2,Pulsar las hojas C02 y Asientos,Las hojas dan acceso a C02 (UX-13) y a Asientos (UX-14).,,
+,Test Case,CP-238 — Mostrar el cierre no iniciado,1,Elegir el periodo 2026.09 sin cargas,,2,HU-41; Automatizado; criterio-4
+,,,2,Abrir UX-15,Si el cierre no ha iniciado se muestra «El cierre del periodo aún no ha iniciado».,,
+,Test Case,CP-239 — Mostrar el estado carga de UX-15 Estado del cierre,1,Simular con el proxy de red de pruebas 5 s de retardo hacia BPC,,2,HU-41; Automatizado
+,,,2,Abrir UX-15,«Consultando el estado del cierre…».,,
+,Test Case,CP-240 — Mostrar el estado error de UX-15 Estado del cierre,1,Descuadrar D200 en 2026.06,,2,HU-41; Automatizado
+,,,2,Ejecutar la importación,,,
+,,,3,Abrir UX-15,"aviso de sociedades que no cuadran, con el paso marcado y el enlace a C03.",,
+,Test Case,CP-241 — Elegir los parámetros de la plantilla,1,Abrir un reporte en UX-11,,1,HU-42; Automatizado; criterio-1
+,,,2,"Abrir la lista de Sociedad, Incluir filiales, Moneda y Periodo","En la pantalla UX-11 los parámetros Sociedad, Incluir filiales, Moneda y Periodo están en celdas con lista.",,
+,Test Case,CP-242 — Cambiar entre sociedad sola y con filiales,1,Elegir D100 sin filiales y actualizar,,1,HU-42; Automatizado; criterio-2
+,,,2,Elegir Incluir filiales y actualizar,"Incluir filiales cambia entre la sociedad sola y la sociedad con sus filiales, con columna Total (RN-09).",,
+,Test Case,CP-243 — Limitar la moneda a local o dólares,1,Abrir la lista Moneda,,1,HU-42; Automatizado; criterio-3
+,,,2,Escribir EUR en la celda,Moneda permite solo moneda local o dólares (RN-06).,,
+,Test Case,CP-244 — Mostrar sin conexión y sin datos,1,Desconectar EPM y actualizar,,1,HU-42; Automatizado; criterio-4
+,,,2,"Reconectar, elegir 2026.12 y actualizar","Sin conexión a BPC se muestra «No se pudo conectar a BPC; revisa la conexión de EPM»; sin datos, «Sin datos para la sociedad y el periodo elegidos».",,
+,Test Case,CP-245 — Mostrar el estado carga de UX-11 Plantilla de reporte EPM,1,Simular con el proxy de red de pruebas 5 s de retardo hacia BPC,,1,HU-42; Automatizado
+,,,2,Pulsar Actualizar en la cinta de EPM,Actualizando… en la cinta y valores en espera.,,
+,Test Case,CP-246 — Actualizar un reporte EPM desde BPC,1,Abrir R01 con la conexión con nombre,,1,HU-42; Automatizado
+,,,2,Actualizar 2026.06,R01 muestra los datos del modelo y los totales coinciden con BPC.,,
+,Test Case,CP-247 — Perder la conexión de EPM durante la actualización,1,Iniciar la actualización de R01,,1,HU-42; Automatizado
+,,,2,Cortar la red hacia BPC durante la actualización,Se muestra «No se pudo conectar a BPC; revisa la conexión de EPM» y el reporte no queda con valores a medias.,,
+,Test Case,CP-248 — Actualizar sin permiso en BPC,1,Iniciar sesión en EPM con un usuario sin acceso al modelo,,1,HU-42; Automatizado
+,,,2,Actualizar R01,EPM muestra el error de autorización de BPC y el reporte no muestra datos.,,
+,Test Case,CP-249 — Actualizar de nuevo al recuperar la conexión,1,Restablecer la red o el permiso,,1,HU-42; Automatizado
+,,,2,Pulsar Actualizar,R01 se actualiza con los datos del modelo sin reabrir el archivo.,,
+,Test Case,CP-250 — Calcular cada rubro como suma de cuentas,1,Actualizar R01 de D100 en 2026.06,,1,HU-43; Automatizado; criterio-1
+,,,2,Comparar el rubro Efectivo con la suma de las cuentas mapeadas,En UX-11 cada rubro muestra la suma de las cuentas mapeadas en UX-06 (RN-10).,,
+,Test Case,CP-251 — Reflejar un cambio de mapeo,1,Mapear la cuenta 1199 al rubro Efectivo en UX-06,,1,HU-43; Automatizado; criterio-2
+,,,2,Regenerar la plantilla,,,
+,,,3,Actualizar el reporte,Un cambio en el mapeo se refleja al actualizar el reporte.,,
+,Test Case,CP-252 — Ver las cuentas de un rubro,1,Abrir el detalle del rubro Efectivo,El detalle de un rubro permite ver las cuentas que lo forman.,1,HU-43; Automatizado; criterio-3
+,Test Case,"CP-253 — Entregar R01, R05 y R07 conectados a BPC",1,"Abrir R01, R05 y R07",,1,HU-44; Automatizado; criterio-1
+,,,2,Revisar la conexión EPM de cada uno,"R01, R05 y R07 se entregan como Excel con EPM conectados al modelo BPC (UX-11).",,
+,Test Case,CP-254 — Cuadrar R01 con el balance consolidado,1,Actualizar R01 del Grupo Demo en 2026.06,,1,HU-44; Automatizado; criterio-2
+,,,2,Comparar cada total con el consolidado de BPC,Las cifras de R01 cuadran con el balance consolidado del modelo para el periodo de prueba.,,
+,Test Case,CP-255 — Mostrar en R05 las eliminaciones por pareja,1,Actualizar R05 de 2026.06,,1,HU-44; Automatizado; criterio-3
+,,,2,Revisar las parejas D100-D200,R05 muestra las eliminaciones intercompañía por pareja de sociedades.,,
+,Test Case,CP-256 — Abrir y actualizar la ola 1 con EPM,1,"Abrir R01, R05 y R07 en Excel con EPM add-in",,1,HU-44; Automatizado; criterio-4
+,,,2,Actualizar cada uno,Cada reporte abre y actualiza con EPM add-in (RNF-Comp-02).,,
+,Test Case,"CP-257 — Entregar R02, R03, R04 y R06 con la estructura común",1,Abrir los cuatro reportes,,1,HU-45; Automatizado; criterio-1
+,,,2,Revisar parámetros y tabla de rubros,"R02, R03, R04 y R06 se entregan con la estructura común de UX-11.",,
+,Test Case,CP-258 — Separar interés minoritario y diferencia en conversión en R03,1,Actualizar R03 del Grupo Demo en 2026.06,R03 muestra por separado el interés minoritario y la diferencia en conversión.,1,HU-45; Automatizado; criterio-2
+,Test Case,CP-259 — Reportar un rubro de flujo sin clasificar,1,Agregar al mapeo un rubro de flujo sin clasificación,,1,HU-45; Automatizado; criterio-3
+,,,2,Generar los reportes,,,
+,,,3,Revisar R04 en UX-10,R04 clasifica los rubros del flujo de efectivo; un rubro sin clasificar se reporta en UX-10 como error del reporte.,,
+,Test Case,CP-260 — Entregar R08 a R14 con la estructura común,1,Abrir las siete notas,,1,HU-46; Automatizado; criterio-1
+,,,2,Revisar parámetros y tabla de rubros,R08 a R14 se entregan con la estructura común de UX-11.,,
+,Test Case,CP-261 — Incluir movimientos de activos fijos y deterioros,1,Cargar en BW movimientos sintéticos de activos fijos y deterioros de 2026.06,,1,HU-46; Automatizado; criterio-2
+,,,2,"Actualizar R08, R10 y R11","R08, R10 y R11 incluyen los movimientos que vienen de activos fijos y deterioros en BW (RF-30).",,
+,Test Case,CP-262 — Cuadrar las notas con R01,1,Actualizar R01 y R08 a R14 de 2026.06,,1,HU-46; Automatizado; criterio-3
+,,,2,Comparar cada nota con su rubro de R01,Cada nota cuadra con el rubro correspondiente de R01.,,
+,Test Case,CP-263 — Entregar R15 a R20 con la estructura común,1,Abrir los seis reportes,,1,HU-47; Automatizado; criterio-1
+,,,2,Revisar parámetros y tabla de rubros,R15 a R20 se entregan con la estructura común de UX-11.,,
+,Test Case,CP-264 — Resumir el grupo en dos monedas en R20,1,Actualizar R20 de 2026.06 en COP y en USD,R20 resume las cifras principales del grupo en moneda local y en dólares.,1,HU-47; Automatizado; criterio-2
+,Test Case,CP-265 — Abrir y actualizar los 20 reportes con EPM,1,Abrir R01 a R20 en Excel con EPM add-in,,1,HU-47; Automatizado; criterio-3
+,,,2,Actualizar cada uno,Los 20 reportes abren y actualizan con EPM add-in (RNF-Comp-02).,,
+,Test Case,CP-266 — Abrir y actualizar los 34 reportes y plantillas con EPM add-in,1,Descargar el paquete completo de reportes,,1,HU-47; Automatizado
+,,,2,"Abrir cada reporte y plantilla de las tablas 5.6.1, 5.8.1 y 5.9.1 del DAF en Excel con EPM add-in",,,
+,,,3,Actualizar cada uno con el periodo 2026.06,"34 de 34 reportes y plantillas abren y actualizan datos con EPM add-in, sin errores de conexión ni de fórmula.",,
+,Test Case,CP-267 — Listar y filtrar el catálogo,1,Abrir UX-10,,1,HU-48; Automatizado; criterio-1
+,,,2,Revisar las columnas,,,
+,,,3,Filtrar por el módulo Presupuesto,"En la pantalla UX-10 el catálogo lista ID, reporte, módulo, fuente (BPC o BW), ola y estado, filtrable por módulo.",,
+,Test Case,CP-268 — Abrir la vista previa de C01 a C04,1,"Pulsar los ID C01, C02, C03 y C04","El catálogo incluye C01 a C04; el clic en el ID abre su vista previa (UX-11, UX-13 o UX-15).",1,HU-48; Automatizado; criterio-2
+,Test Case,CP-269 — Descargar el paquete de reportes,1,Elegir Consolidación y Presupuesto,,1,HU-48; Automatizado; criterio-3
+,,,2,Pulsar Descargar reportes,,,
+,,,3,Abrir el .zip,Descargar reportes genera un .zip con los Excel de los módulos elegidos.,,
+,Test Case,CP-270 — Mostrar la causa de un reporte con error,1,Quitar el rubro de una plantilla del catálogo,,1,HU-48; Automatizado; criterio-4
+,,,2,Generar,,,
+,,,3,Revisar el estado del reporte,Un reporte con error muestra la causa en su estado.,,
+,Test Case,CP-271 — Mostrar el estado vacío de UX-10 Reportes,1,Abrir UX-10 de un cliente sin generación ejecutada,«Ejecuta la generación para habilitar los reportes».,1,HU-48; Automatizado
+,Test Case,CP-272 — Mostrar el estado carga de UX-10 Reportes,1,Elegir los 34 reportes y plantillas,,1,HU-48; Automatizado
+,,,2,Pulsar Generar seleccionados,,,
+,,,3,Observar el catálogo durante la generación,progreso por reporte.,,
+,Test Case,CP-273 — Generar el modelo de presupuesto solo si está marcado,1,Marcar Presupuesto en UX-04,,1,HU-49; Automatizado; criterio-1
+,,,2,Ejecutar el plan,,,
+,,,3,Revisar el paso y el modelo en BPC,Solo se genera si Presupuesto está marcado en UX-04.,,
+,Test Case,CP-274 — Separar el modelo de planeación del de consolidación,1,Guardar un valor en el modelo de planeación,,1,HU-49; Automatizado; criterio-2
+,,,2,Consultar el modelo de consolidación,El modelo de planeación es independiente del modelo de consolidación.,,
+,Test Case,CP-275 — Mostrar el modelo de presupuesto en el plan y la ejecución,1,Abrir UX-08,,1,HU-49; Automatizado; criterio-3
+,,,2,Ejecutar y abrir UX-09,UX-08 lista el modelo de presupuesto y UX-09 muestra el paso «Modelo de presupuesto».,,
+,Test Case,CP-276 — Disponer del presupuesto del ERP en el modelo,1,Cargar presupuesto sintético 2027 en el ERP,,1,HU-49; Automatizado; criterio-4
+,,,2,Ejecutar el paso,,,
+,,,3,Consultar el modelo de planeación,El presupuesto cargado desde el ERP queda disponible en el modelo.,,
+,Test Case,CP-277 — No generar el modelo de presupuesto sin el módulo,1,Desmarcar Presupuesto en UX-04,,1,HU-49; Automatizado; criterio-1
+,,,2,Ejecutar el plan,,,
+,,,3,Listar los modelos del ambiente BPC,UX-09 no muestra el paso «Modelo de presupuesto» y en BPC solo existe el modelo de consolidación.,,
+,Test Case,CP-278 — Capturar con celdas editables y totales,1,Abrir UX-12,,1,HU-50; Automatizado; criterio-1
+,,,2,"Elegir D100, versión anual y 2027",,,
+,,,3,Ingresar valores en dos celdas,"En la pantalla UX-12 se eligen sociedad, versión y año; las celdas editables están en amarillo y los totales se calculan.",,
+,Test Case,CP-279 — Aceptar solo números,1,Escribir «abc» en una celda editable,,1,HU-50; Automatizado; criterio-2
+,,,2,Pulsar Guardar datos,Solo se aceptan números; una celda inválida se marca en rojo y no se guarda.,,
+,Test Case,CP-280 — Guardar en el modelo de planeación,1,Ingresar 1.000.000 en una celda,,1,HU-50; Automatizado; criterio-3
+,,,2,Pulsar Guardar datos,,,
+,,,3,Consultar el valor en BPC,Guardar datos escribe en el modelo de planeación de BPC (RN-08).,,
+,Test Case,CP-281 — Mostrar la versión sin presupuesto,1,Elegir la versión 6+6 sin datos,Sin presupuesto para la versión se muestra «Sin presupuesto para esta versión: ingresa los valores».,1,HU-50; Automatizado; criterio-4
+,Test Case,CP-282 — Mostrar el estado carga de UX-12 Captura de presupuesto,1,Ingresar valores en tres celdas,,1,HU-50; Automatizado
+,,,2,Pulsar Guardar datos con 5 s de retardo simulado hacia BPC,Guardando… en la cinta.,,
+,Test Case,CP-283 — Mostrar el estado error de UX-12 Captura de presupuesto,1,Ingresar valores válidos en tres celdas,,1,HU-50; Automatizado
+,,,2,Quitar al usuario financiero el permiso de escritura en el modelo de planeación,,,
+,,,3,Pulsar Guardar datos,«No se guardaron N celdas» con las celdas marcadas en rojo.,,
+,Test Case,CP-284 — Elegir la versión de una lista,1,Abrir la lista de versión en UX-12 y en P01,En UX-12 y en la hoja P01 de UX-11 la versión se elige de una lista con las versiones definidas en HU-12.,2,HU-51; Automatizado; criterio-1
+,Test Case,CP-285 — Mantener independientes las versiones,1,Guardar un valor en la versión 3+9,,2,HU-51; Automatizado; criterio-2
+,,,2,Consultar la misma celda en la versión anual,Los valores guardados en una versión no cambian las demás.,,
+,Test Case,CP-286 — Mostrar la versión en el encabezado,1,Elegir 3+9,,2,HU-51; Automatizado; criterio-3
+,,,2,Abrir P01 a P05,P01 a P05 muestran en el encabezado la versión elegida.,,
+,Test Case,CP-287 — Entregar P01 a P04 conectados al modelo de planeación,1,Abrir P01 a P04,,1,HU-52; Automatizado; criterio-1
+,,,2,Revisar la conexión EPM de cada uno,P01 a P04 se entregan como Excel con EPM conectados al modelo de planeación (RN-08).,,
+,Test Case,"CP-288 — Mostrar presupuesto, ejecución y variación en P01",1,Actualizar P01 de D100 en 2027,"En UX-11, P01 muestra presupuesto, ejecución, variación y porcentaje de ejecución.",1,HU-52; Automatizado; criterio-2
+,Test Case,CP-289 — Reflejar en P01 lo guardado en P05,1,Guardar un valor en P05,,1,HU-52; Automatizado; criterio-3
+,,,2,Actualizar P01,Los valores guardados en P05 se reflejan en P01 al actualizar.,,
+,Test Case,CP-290 — Leer de BW los reportes de activos fijos y deterioros,1,Abrir A01 a A03 y D01 a D02,,1,HU-53; Automatizado; criterio-1
+,,,2,Revisar la conexión de cada uno,A01 a A03 y D01 a D02 leen su información de BW (RN-12).,,
+,Test Case,CP-291 — Mostrar BW como fuente en el catálogo,1,Abrir UX-10,,1,HU-53; Automatizado; criterio-2
+,,,2,Revisar la fuente de A01 a D02,En UX-10 la fuente de estos reportes se muestra como BW.,,
+,Test Case,"CP-292 — Mostrar saldo inicial, movimientos y saldo final",1,Actualizar A01 y D01 de 2026.06,,1,HU-53; Automatizado; criterio-3
+,,,2,Sumar saldo inicial y movimientos de cada clase,"A01 y D01 muestran saldo inicial, movimientos y saldo final por clase o cuenta.",,
+,Test Case,CP-293 — Mostrar los campos del registro,1,Ejecutar el plan,,1,HU-54; Automatizado; criterio-1
+,,,2,Abrir el registro en UX-09,"En UX-09 el registro muestra fecha y hora, usuario, sistema, paso, objetos y resultado.",,
+,Test Case,CP-294 — Registrar el 100 % de las ejecuciones con 12 meses de retención,1,Ejecutar el plan completo,,1,HU-54; Automatizado; criterio-2
+,,,2,Comparar los pasos ejecutados con las entradas del registro,,,
+,,,3,Revisar la política de retención de la base local,El 100 % de las ejecuciones queda registrado y se conserva al menos 12 meses (RNF-Aud-01).,,
+,Test Case,CP-295 — Descargar el registro con los mismos campos,1,Pulsar Descargar registro,,1,HU-54; Automatizado; criterio-3
+,,,2,Abrir el archivo,Descargar registro entrega un archivo con los mismos campos.,,
+,Test Case,CP-296 — Excluir credenciales del registro,1,Ejecutar el plan con una credencial centinela,,1,HU-54; Automatizado; criterio-4
+,,,2,Buscar el centinela en el registro y en su descarga,El registro no contiene credenciales (RNF-Seg-02).,,
+,Test Case,CP-297 — Registrar el 100 % de las ejecuciones y conservarlas 12 meses,1,Ejecutar el plan completo con un error y un reintento,,1,HU-54; Automatizado
+,,,2,Comparar los pasos ejecutados con las entradas del registro,,,
+,,,3,"Insertar entradas sintéticas con 11 meses y 29 días, 12 meses y 12 meses y 1 día de antigüedad y ejecutar la depuración","100 % de las ejecuciones con registro (usuario, fecha y hora, sistema, paso, objetos y resultado). La depuración conserva las entradas de hasta 12 meses.",,
+,Test Case,CP-298 — Verificar ASVS nivel 2 sin hallazgos altos,1,Ejecutar la lista de verificación ASVS nivel 2 sobre el release candidato,,1,HU-55; Manual; criterio-1
+,,,2,Consolidar los hallazgos por severidad,La verificación ASVS nivel 2 termina sin hallazgos altos abiertos (RNF-Seg-01).,,
+,Test Case,CP-299 — Validar entradas en el servidor,1,"Enviar directamente al configurador, sin la interfaz, formularios con valores fuera de rango y un archivo no SAP con tipo falso",,1,HU-55; Automatizado; criterio-2
+,,,2,Revisar las respuestas y la base local,Las entradas de archivos y formularios se validan del lado del servidor.,,
+,Test Case,CP-300 — Verificar que las dependencias no tienen vulnerabilidades altas,1,Ejecutar el análisis SCA del pipeline sobre el release candidato,Las dependencias del configurador no tienen vulnerabilidades altas conocidas.,1,HU-55; Automatizado; criterio-3
+,Test Case,CP-301 — Verificar el tratamiento de datos de terceros,1,Revisar que la base local no guarda datos de terceros,,1,HU-55; Manual; criterio-4
+,,,2,Revisar que los archivos no SAP se borran del equipo después de cargarlos,,,
+,,,3,Contrastar con la sección 9 del DAF,"Los datos de terceros se tratan según la Ley 1581/2012 (DAF, sección 9).",,
+,Test Case,CP-302 — Ejecutar DAST sobre el configurador,1,Iniciar el release candidato en el ambiente de QA,,1,HU-55; Automatizado
+,,,2,Ejecutar OWASP ZAP (escaneo activo autenticado con el token de sesión) contra 127.0.0.1,,,
+,,,3,Clasificar los hallazgos por severidad,0 hallazgos altos o críticos abiertos antes de la entrega.,,
+,Test Case,"CP-303 — Ejecutar SAST, SCA y escaneo de secretos",1,Ejecutar el pipeline de release del configurador y del paquete Z,,1,HU-55; Automatizado
+,,,2,"Revisar los reportes de SAST, SCA y secretos","0 hallazgos altos abiertos en SAST y SCA, y 0 secretos detectados en el código y los artefactos.",,
+,Test Case,CP-304 — Verificar la lista ASVS nivel 2,1,"Recorrer los capítulos aplicables de ASVS 4.0 nivel 2 con la evidencia de diseño, código y pruebas",,1,HU-55; Manual
+,,,2,"Registrar cada control como cumple, no cumple o no aplica",Verificación ASVS nivel 2 sin hallazgos altos abiertos y con justificación de cada control no aplicable.,,
+,Test Case,CP-305 — Revisar la accesibilidad automática de UX-01 a UX-10,1,Ejecutar axe-core con las reglas WCAG 2.1 A y AA sobre UX-01 a UX-10 en sus cuatro estados,Las pantallas UX-01 a UX-10 tienen 0 incumplimientos A y AA en una revisión automática (RNF-Usa-01).,1,HU-56; Automatizado; criterio-1
+,Test Case,CP-306 — Operar el configurador con teclado y foco visible,1,"Recorrer UX-01 a UX-10 solo con Tab, Shift+Tab, Enter y Espacio",,1,HU-56; Manual; criterio-2
+,,,2,Revisar el indicador de foco en cada control,El foco es visible y todos los controles se operan con teclado.,,
+,Test Case,CP-307 — Mostrar los estados con texto e ícono,1,"Revisar en escala de grises los estados de UX-02, UX-09 y UX-10","Los estados usan texto e ícono, no solo color.",1,HU-56; Manual; criterio-3
+,Test Case,CP-308 — Revisar WCAG 2.1 AA de forma automática,1,Ejecutar axe-core con las reglas WCAG 2.1 A y AA sobre cada pantalla del configurador en sus cuatro estados,0 incumplimientos de nivel A y AA en la revisión automática de las pantallas.,1,HU-56; Automatizado
+,Test Case,CP-309 — Recorrer el configurador con lector de pantalla,1,"Recorrer con NVDA el flujo de crear cliente, conexiones, diagnóstico y generación",,1,HU-56; Manual
+,,,2,"Registrar controles sin nombre, orden de lectura incorrecto o mensajes no anunciados",El flujo completo se puede ejecutar con NVDA y teclado; todos los mensajes de estado y error se anuncian.,,
+,Test Case,CP-310 — Avisar que la arquitectura B no está soportada,1,Probar las conexiones con el doble de prueba de arquitectura B,,1,HU-57; Automatizado; criterio-1
+,,,2,Leer el aviso en UX-02,"En la pantalla UX-02, si RF-04 detecta la arquitectura B, se muestra «Arquitectura B no soportada en la versión 1» con la explicación.",,
+,Test Case,CP-311 — Bloquear el avance con arquitectura B,1,Revisar Continuar al diagnóstico,,1,HU-57; Automatizado; criterio-2
+,,,2,Consultar en el registro y en el doble de prueba las llamadas de creación,Continuar al diagnóstico queda deshabilitado y no se crea ningún objeto en el cliente (RN-19).,,
+,Test Case,CP-312 — Marcar el cliente B como No soportado,1,Volver a UX-01,,1,HU-57; Automatizado; criterio-3
+,,,2,Leer el estado y el motivo del cliente,El cliente queda en UX-01 con estado «No soportado» y el motivo.,,
+,Test Case,CP-313 — Registrar la detección de arquitectura B,1,Abrir el registro de ejecuciones del cliente,La detección queda en el registro de ejecuciones (RNF-Aud-01).,1,HU-57; Automatizado; criterio-4
+,Test Case,CP-314 — Regresión completa en arquitectura A y rechazo de B,1,Ejecutar la suite de regresión completa contra el sandbox BW 7.5 con BPC 10.1,,1,HU-57; Automatizado
+,,,2,Ejecutar la detección con el doble de prueba de arquitectura B,,,
+,,,3,Consolidar el resultado por RF,"Los 39 RF pasan en el ambiente de arquitectura A (1 de 1). La arquitectura B se detecta, se rechaza con mensaje y no crea objetos.",,
+,Test Case,CP-315 — Ejecutar todos los RF de arquitectura A en BW/4HANA,1,Ejecutar la suite de regresión completa contra el ambiente QA BW/4HANA,,1,HU-58; Automatizado; criterio-1
+,,,2,Consolidar el resultado por RF,Todos los RF de la arquitectura A se ejecutan completos en el ambiente BW/4HANA (RNF-Comp-05).,,
+,Test Case,CP-316 — No generar InfoCubos en BW/4HANA,1,Ejecutar la generación completa,,1,HU-58; Automatizado; criterio-2
+,,,2,Listar en BW/4HANA los InfoProviders creados por tipo,No se genera ningún InfoCubo en esta variante.,,
+,Test Case,CP-317 — Agregar la variante sin cambiar clientes existentes,1,Comparar la configuración exportada de los clientes antes y después de instalar la versión con la variante,Agregar la variante no cambia la configuración de clientes existentes (RNF-Comp-04).,1,HU-58; Automatizado; criterio-3
+,Test Case,CP-318 — Agregar una variante sin tocar clientes ni variantes existentes,1,Calcular el hash de la configuración de los clientes y de las variantes del catálogo,,1,HU-58; Automatizado
+,,,2,Agregar al catálogo una variante de prueba,,,
+,,,3,Calcular de nuevo los hashes y comparar,Agregar la variante requiere 0 cambios en la configuración de los clientes y 0 cambios en las variantes existentes.,,
