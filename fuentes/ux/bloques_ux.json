@@ -40,6 +40,12 @@
      "CM Consulting",
      "16-Oct-26",
      "Alineado con el DAF v1.1: pantallas UX-13 a UX-15, flujo de cierre mensual y ajustes en UX-04, UX-05 y UX-08 a UX-12 para RF-31 a RF-39."
+    ],
+    [
+     "1.2",
+     "CM Consulting",
+     "16-Oct-26",
+     "Alineado con el DAF v1.2: UX-01 y UX-02 muestran el rechazo de la arquitectura B (RN-19, HU-57)."
     ]
    ],
    "col_widths": [
@@ -121,7 +127,7 @@
      "color": "F2B707"
     },
     {
-     "text": ". Deriva del Documento de Análisis Funcional v1.1 (16-Oct-26) y del brief de diseño de la misma fecha. Las historias de usuario referencian los códigos UX-XX de este documento en sus criterios de aceptación."
+     "text": ". Deriva del Documento de Análisis Funcional v1.2 (16-Oct-26) y del brief de diseño de la misma fecha. Las historias de usuario referencian los códigos UX-XX de este documento en sus criterios de aceptación."
     }
    ]
   },
@@ -455,8 +461,8 @@
     ],
     [
      "Tabla de clientes",
-     "Lista cliente, arquitectura, paso actual, estado, última ejecución y usuario. Clic en el cliente abre su paso actual.",
-     "RF-01, RF-04"
+     "Lista cliente, arquitectura, paso actual, estado, última ejecución y usuario. Clic en el cliente abre su paso actual. Un cliente con arquitectura B aparece «No soportado».",
+     "RF-01, RF-04, RN-19"
     ],
     [
      "Botón Nuevo cliente",
@@ -562,8 +568,8 @@
     ],
     [
      "Arquitectura detectada",
-     "Insignia A o B, versiones detectadas y estado Variante disponible.",
-     "RF-04, RNF-Comp-04"
+     "Insignia A o B y versiones detectadas. En A: Variante disponible. En B: «Arquitectura B no soportada en la versión 1» y Continuar deshabilitado.",
+     "RF-04, RNF-Comp-04, RN-19"
     ],
     [
      "Credencial",
@@ -606,7 +612,8 @@
    "items": [
     "Host, mandante, usuario técnico y credencial son obligatorios.",
     "Validación ERP–BW solo cuando ERP y BW son sistemas separados (RN-01).",
-    "Versión sin variante disponible: aviso «Versión no soportada aún» y no se puede continuar (RNF-Comp-04). No prototipado."
+    "Versión sin variante disponible: aviso «Versión no soportada aún» y no se puede continuar (RNF-Comp-04). No prototipado.",
+    "Arquitectura B: se informa que no está soportada en la versión 1 y no se puede continuar (RN-19, HU-57)."
    ]
   },
   {

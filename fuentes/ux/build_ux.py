@@ -10,7 +10,7 @@ PROTO = "https://claude.ai/artifact/2jZdXEfCaLtmLW7zTrtqnV"
 # código, nombre, rol, RF, prioridad, [(zona, comportamiento, rf/rn)], estados{normal,vacío,carga,error}, validaciones, responsive
 P = [
  ("UX-01", "Clientes", "Consultor implementador", "RF-01, RF-04", "Alta",
-  [("Tabla de clientes", "Lista cliente, arquitectura, paso actual, estado, última ejecución y usuario. Clic en el cliente abre su paso actual.", "RF-01, RF-04"),
+  [("Tabla de clientes", "Lista cliente, arquitectura, paso actual, estado, última ejecución y usuario. Clic en el cliente abre su paso actual. Un cliente con arquitectura B aparece «No soportado».", "RF-01, RF-04, RN-19"),
    ("Botón Nuevo cliente", "Abre un diálogo con el campo Nombre del cliente; Crear lleva a UX-02.", "RF-01"),
    ("Buscar cliente", "Filtra la tabla por nombre.", "RF-01")],
   ["Normal: tabla con los clientes.", "Vacío: «Aún no hay clientes. Crea el primero para empezar.» con el botón Nuevo cliente.", "Carga: filas esqueleto.", "Error: «No se pudo cargar la lista de clientes» con Reintentar."],
@@ -19,11 +19,11 @@ P = [
  ("UX-02", "Conexiones", "Consultor implementador", "RF-01, RF-02, RF-04", "Alta",
   [("Tarjetas SAP ERP, SAP BW, SAP BPC", "Host, mandante, usuario técnico y credencial por sistema; Probar conexión muestra Conexión exitosa o Fallida con el mensaje del sistema.", "RF-01"),
    ("Conexión ERP–BW", "Botón Validar conexión ERP–BW solo en arquitectura A; en la B se reemplaza por una nota.", "RF-02, RN-01"),
-   ("Arquitectura detectada", "Insignia A o B, versiones detectadas y estado Variante disponible.", "RF-04, RNF-Comp-04"),
+   ("Arquitectura detectada", "Insignia A o B y versiones detectadas. En A: Variante disponible. En B: «Arquitectura B no soportada en la versión 1» y Continuar deshabilitado.", "RF-04, RNF-Comp-04, RN-19"),
    ("Credencial", "Siempre enmascarada; Mostrar/Ocultar. Se guarda cifrada.", "RNF-Seg-02"),
    ("Continuar al diagnóstico", "Habilitado solo cuando las conexiones pasan la prueba.", "RF-01")],
   ["Normal: tres conexiones exitosas y arquitectura detectada.", "Vacío: formulario sin datos y ayuda para pedir el usuario técnico al Administrador SAP del cliente.", "Carga: Probando… dentro de cada tarjeta.", "Error: la tarjeta del sistema que falla en rojo con el mensaje devuelto y qué revisar."],
-  ["Host, mandante, usuario técnico y credencial son obligatorios.", "Validación ERP–BW solo cuando ERP y BW son sistemas separados (RN-01).", "Versión sin variante disponible: aviso «Versión no soportada aún» y no se puede continuar (RNF-Comp-04). No prototipado."],
+  ["Host, mandante, usuario técnico y credencial son obligatorios.", "Validación ERP–BW solo cuando ERP y BW son sistemas separados (RN-01).", "Versión sin variante disponible: aviso «Versión no soportada aún» y no se puede continuar (RNF-Comp-04). No prototipado.", "Arquitectura B: se informa que no está soportada en la versión 1 y no se puede continuar (RN-19, HU-57)."],
   "En 360 px las tarjetas se apilan. Botones de 44 px de alto mínimo."),
  ("UX-03", "Diagnóstico e inventario", "Consultor implementador", "RF-03, RF-04, RF-09", "Alta",
   [("Indicador Bodega existente", "Indica si el cliente ya tiene bodega en BW.", "RF-03, RN-03"),
@@ -161,7 +161,7 @@ B += [{"type": "portada", "text": "DOCUMENTO DE DISEÑO UX — ACELERADOR DE CON
       {"type": "paragraph", "text": "Producto interno CM Consulting", "align": "center", "bold": True, "color": "144E8C", "size": 28},
       {"type": "page_break"}]
 H(1, "Control de versiones")
-T([["Versión", "Elaborado por", "Fecha", "Observaciones"], ["1.0", "CM Consulting", "16-Oct-26", "Versión para aprobación"], ["1.1", "CM Consulting", "16-Oct-26", "Alineado con el DAF v1.1: pantallas UX-13 a UX-15, flujo de cierre mensual y ajustes en UX-04, UX-05 y UX-08 a UX-12 para RF-31 a RF-39."]], [1200, 2200, 1500, 3938])
+T([["Versión", "Elaborado por", "Fecha", "Observaciones"], ["1.0", "CM Consulting", "16-Oct-26", "Versión para aprobación"], ["1.1", "CM Consulting", "16-Oct-26", "Alineado con el DAF v1.1: pantallas UX-13 a UX-15, flujo de cierre mensual y ajustes en UX-04, UX-05 y UX-08 a UX-12 para RF-31 a RF-39."], ["1.2", "CM Consulting", "16-Oct-26", "Alineado con el DAF v1.2: UX-01 y UX-02 muestran el rechazo de la arquitectura B (RN-19, HU-57)."]], [1200, 2200, 1500, 3938])
 H(1, "Confidencialidad")
 Pp([{"text": "La información contenida en este documento es propiedad intelectual de "}, {"text": "CM CONSULTING SAS", "bold": True}, {"text": "."}])
 Pp([{"text": "Este documento es de uso interno de "}, {"text": "CM CONSULTING SAS", "bold": True}, {"text": ". Su reproducción, distribución o comunicación por cualquier medio queda expresamente prohibida sin el consentimiento escrito de "}, {"text": "CM CONSULTING SAS", "bold": True}, {"text": "."}])
@@ -169,7 +169,7 @@ B += [{"type": "page_break"}, {"type": "toc"}, {"type": "page_break"}]
 
 H(1, "1. Introducción")
 Pp([{"text": "Este documento es la línea base de diseño UX del Acelerador de consolidación financiera sobre SAP BW y SAP BPC, producto interno de "}, {"text": "CM", "bold": True}, {"text": "CONSULTING", "bold": True, "color": "F2B707"},
-    {"text": ". Deriva del Documento de Análisis Funcional v1.1 (16-Oct-26) y del brief de diseño de la misma fecha. Las historias de usuario referencian los códigos UX-XX de este documento en sus criterios de aceptación."}])
+    {"text": ". Deriva del Documento de Análisis Funcional v1.2 (16-Oct-26) y del brief de diseño de la misma fecha. Las historias de usuario referencian los códigos UX-XX de este documento en sus criterios de aceptación."}])
 Pp("Prototipo navegable: " + PROTO + " (privado; se comparte desde su menú Compartir). Permite recorrer las 15 pantallas, ver los estados normal, vacío, carga y error de cada una y cambiar entre la arquitectura A y la B. Los datos que muestra son de ejemplo.")
 Pp("Alcance del diseño: dos superficies. El configurador web (UX-01 a UX-10), que usa el Consultor implementador, y las plantillas de Excel con EPM add-in y las funciones de BPC (UX-11 a UX-15), que usa el Usuario financiero.")
 

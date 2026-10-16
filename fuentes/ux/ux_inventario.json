@@ -62,7 +62,8 @@
         "botón nuevo cliente"
       ],
       "validaciones": [
-        "RNF-Comp-04"
+        "RNF-Comp-04",
+        "RN-19"
       ]
     },
     {
@@ -86,7 +87,8 @@
       ],
       "validaciones": [
         "RN-01",
-        "RNF-Seg-02"
+        "RNF-Seg-02",
+        "RN-19"
       ]
     },
     {

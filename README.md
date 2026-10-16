@@ -14,7 +14,7 @@ Cubre los módulos de consolidación, presupuesto, activos fijos y deterioros, s
 | Fase | Entregable | Estado |
 |---|---|---|
 | F3 · Análisis funcional | [DAF v1.2](docs/02-analisis-funcional/Analisis_Funcional_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 39 RF, 12 RNF, 19 RN, 6 INT, ASVS nivel 2. La v1.1 agrega reglas de consolidación y control del cierre (RF-31 a RF-39) y la variante BW/4HANA; la v1.2 deja la arquitectura B fuera de la versión 1 | Listo para aprobación |
-| F4 · Diseño UX | [Brief de diseño](docs/03-diseno-ux/Brief_Design_Acelerador_Consolidacion_BPC_CM_Consulting.md), [prototipo navegable](docs/03-diseno-ux/prototipo-acelerador-bpc.html) y [Documento UX v1.1](docs/03-diseno-ux/Documento_UX_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 15 pantallas, gate F4 cumplido | Listo para aprobación |
+| F4 · Diseño UX | [Brief de diseño](docs/03-diseno-ux/Brief_Design_Acelerador_Consolidacion_BPC_CM_Consulting.md), [prototipo navegable](docs/03-diseno-ux/prototipo-acelerador-bpc.html) y [Documento UX v1.2](docs/03-diseno-ux/Documento_UX_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 15 pantallas, gate F4 cumplido; UX-01 y UX-02 rechazan la arquitectura B | Listo para aprobación |
 | F5 · Historias de usuario | [Historias de usuario v1.1](docs/04-historias-usuario/Historias_Usuario_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 9 épicas, 58 HU, 327 SP (unos 11 sprints de 30 SP) | Listo para revisión |
 | F6 · Arquitectura | [Documento de arquitectura v1.0](docs/05-arquitectura/Arquitectura_Acelerador_Consolidacion_BPC_CM_Consulting.docx) y [ADRs](docs/05-arquitectura/adr): app .NET 8 local, RFC con paquete Z, 11 ADRs; gate F6 cumplido | Aprobado internamente |
 
