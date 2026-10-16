@@ -157,8 +157,8 @@
       "para": "no descubrir en mitad de la generación que los extractores no pueden llegar a BW",
       "criterios": [
         "En UX-02 el botón Validar conexión ERP–BW aparece solo si ERP y BW están en sistemas separados (RN-01).",
-        "En la arquitectura B se reemplaza por una nota que explica por qué no aplica.",
-        "El resultado de la validación queda registrado con fecha, usuario y mensaje."
+        "El resultado de la validación queda registrado con fecha, usuario y mensaje.",
+        "Si la validación falla, se muestra el mensaje del sistema y Continuar al diagnóstico queda deshabilitado."
       ],
       "prioridad": "Alta",
       "sp": 3,
@@ -780,7 +780,7 @@
       "quiero": "importar al modelo BPC los datos del InfoProvider de BW en el modelo estándar",
       "para": "consolidar con la información que ya está en la bodega",
       "criterios": [
-        "Aplica solo a la arquitectura A; en la B el paso no aparece en UX-09.",
+        "Aplica a la arquitectura A, la única soportada en la versión 1 (RN-19).",
         "La importación se genera como paquete de Data Manager y se ejecuta por sociedad y periodo.",
         "Solo se importan las sociedades que pasan la validación de cuadre (HU-36).",
         "El paso «Importación a BPC» se ve en UX-09 con la cantidad de registros."
@@ -809,7 +809,7 @@
       "quiero": "desplegar en BPC los scripts completados con los datos del cliente en la variante de su arquitectura",
       "para": "no reescribir la lógica de consolidación en cada cliente",
       "criterios": [
-        "El script usa la variante de modelo estándar o embebido según la arquitectura (RN-02).",
+        "El script usa la variante de BPC modelo estándar (RN-02); la variante embebida queda fuera de la versión 1 (RN-19).",
         "Los códigos de sociedades y cuentas del cliente se insertan sin edición manual.",
         "UX-08 muestra la variante que se va a desplegar.",
         "Antes de reemplazar un script existente se genera respaldo UJBR."
@@ -1621,25 +1621,29 @@
       "codigo": "HU-57",
       "epica": "E9",
       "rol": "Consultor implementador",
-      "titulo": "Certificar la arquitectura B",
-      "quiero": "ejecutar todos los RF aplicables en un ambiente de arquitectura B",
-      "para": "ofrecer el acelerador a clientes con ERP, BW y BPC integrados",
+      "titulo": "Rechazar la arquitectura B en la versión 1",
+      "quiero": "que el acelerador me avise si el cliente opera la arquitectura B y no me deje configurarlo ni generar",
+      "para": "no crear en el cliente objetos que la versión 1 no soporta",
       "criterios": [
-        "Los RF aplicables a la arquitectura B se ejecutan completos en un ambiente B (RNF-Comp-01).",
-        "Los scripts usan la variante de modelo embebido (RN-02).",
-        "Se documenta qué funciones de E6 están disponibles en el modelo embebido (DAF, pregunta 17)."
+        "En la pantalla UX-02, si RF-04 detecta la arquitectura B, se muestra «Arquitectura B no soportada en la versión 1» con la explicación.",
+        "Continuar al diagnóstico queda deshabilitado y no se crea ningún objeto en el cliente (RN-19).",
+        "El cliente queda en UX-01 con estado «No soportado» y el motivo.",
+        "La detección queda en el registro de ejecuciones (RNF-Aud-01)."
       ],
-      "prioridad": "Media",
-      "sp": 8,
+      "prioridad": "Alta",
+      "sp": 2,
       "dependencias": [
-        "HU-29",
-        "HU-41"
+        "HU-06"
       ],
       "trazabilidad": [
+        "RF-04",
         "RNF-Comp-01"
       ],
-      "ux": [],
-      "tiene_interfaz": false,
+      "ux": [
+        "UX-02",
+        "UX-01"
+      ],
+      "tiene_interfaz": true,
       "nota_prioridad": ""
     },
     {

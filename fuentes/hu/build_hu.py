@@ -18,7 +18,7 @@ EPICAS = [
     ("E6", "Control del cierre", "Lo que usa el Usuario financiero cada mes: participaciones por periodo, validación de cuadre, conciliación intercompañía, asientos de ajuste, bloqueo por sociedad y estado del cierre."),
     ("E7", "Reportes EPM de consolidación", "Plantilla común de reportes con EPM add-in, cálculo de rubros por mapeo, los 20 reportes de consolidación por olas y el catálogo de descarga."),
     ("E8", "Presupuesto, activos fijos y deterioros", "Modelo de planeación de presupuesto con sus versiones, captura P05, reportes P01 a P04 y reportes de activos fijos y deterioros que leen de BW."),
-    ("E9", "Seguridad, auditoría y compatibilidad", "Capacidades transversales: registro de ejecuciones, controles ASVS nivel 2, accesibilidad y certificación de la arquitectura B y de la variante BW/4HANA."),
+    ("E9", "Seguridad, auditoría y compatibilidad", "Capacidades transversales: registro de ejecuciones, controles ASVS nivel 2, accesibilidad, rechazo controlado de la arquitectura B (fuera de la versión 1) y certificación de la variante BW/4HANA."),
 ]
 
 # (código, épica, rol, título, quiero, para, criterios, prioridad, SP, dependencias, trazabilidad, ux, nota_prioridad)
@@ -63,8 +63,8 @@ H = [
   "validar que BW recibe datos del ERP antes de iniciar las cargas",
   "no descubrir en mitad de la generación que los extractores no pueden llegar a BW",
   ["En UX-02 el botón Validar conexión ERP–BW aparece solo si ERP y BW están en sistemas separados (RN-01).",
-   "En la arquitectura B se reemplaza por una nota que explica por qué no aplica.",
-   "El resultado de la validación queda registrado con fecha, usuario y mensaje."],
+   "El resultado de la validación queda registrado con fecha, usuario y mensaje.",
+   "Si la validación falla, se muestra el mensaje del sistema y Continuar al diagnóstico queda deshabilitado."],
   "Alta", 3, ["HU-03"], ["RF-02"], ["UX-02"], ""),
  ("HU-06", "E1", CI, "Identificar arquitectura y versión",
   "que el acelerador detecte si el cliente opera la arquitectura A o B y qué versiones de BW y BPC tiene",
@@ -238,7 +238,7 @@ H = [
  ("HU-27", "E5", SI, "Importar los datos de BW a BPC",
   "importar al modelo BPC los datos del InfoProvider de BW en el modelo estándar",
   "consolidar con la información que ya está en la bodega",
-  ["Aplica solo a la arquitectura A; en la B el paso no aparece en UX-09.",
+  ["Aplica a la arquitectura A, la única soportada en la versión 1 (RN-19).",
    "La importación se genera como paquete de Data Manager y se ejecuta por sociedad y periodo.",
    "Solo se importan las sociedades que pasan la validación de cuadre (HU-36).",
    "El paso «Importación a BPC» se ve en UX-09 con la cantidad de registros."],
@@ -246,7 +246,7 @@ H = [
  ("HU-28", "E5", SI, "Desplegar los scripts de consolidación por variante",
   "desplegar en BPC los scripts completados con los datos del cliente en la variante de su arquitectura",
   "no reescribir la lógica de consolidación en cada cliente",
-  ["El script usa la variante de modelo estándar o embebido según la arquitectura (RN-02).",
+  ["El script usa la variante de BPC modelo estándar (RN-02); la variante embebida queda fuera de la versión 1 (RN-19).",
    "Los códigos de sociedades y cuentas del cliente se insertan sin edición manual.",
    "UX-08 muestra la variante que se va a desplegar.",
    "Antes de reemplazar un script existente se genera respaldo UJBR."],
@@ -473,13 +473,14 @@ H = [
    "El foco es visible y todos los controles se operan con teclado.",
    "Los estados usan texto e ícono, no solo color."],
   "Alta", 3, ["HU-14"], ["RNF-Usa-01"], ["UX-01"], ""),
- ("HU-57", "E9", CI, "Certificar la arquitectura B",
-  "ejecutar todos los RF aplicables en un ambiente de arquitectura B",
-  "ofrecer el acelerador a clientes con ERP, BW y BPC integrados",
-  ["Los RF aplicables a la arquitectura B se ejecutan completos en un ambiente B (RNF-Comp-01).",
-   "Los scripts usan la variante de modelo embebido (RN-02).",
-   "Se documenta qué funciones de E6 están disponibles en el modelo embebido (DAF, pregunta 17)."],
-  "Media", 8, ["HU-29", "HU-41"], ["RNF-Comp-01"], [], ""),
+ ("HU-57", "E9", CI, "Rechazar la arquitectura B en la versión 1",
+  "que el acelerador me avise si el cliente opera la arquitectura B y no me deje configurarlo ni generar",
+  "no crear en el cliente objetos que la versión 1 no soporta",
+  ["En la pantalla UX-02, si RF-04 detecta la arquitectura B, se muestra «Arquitectura B no soportada en la versión 1» con la explicación.",
+   "Continuar al diagnóstico queda deshabilitado y no se crea ningún objeto en el cliente (RN-19).",
+   "El cliente queda en UX-01 con estado «No soportado» y el motivo.",
+   "La detección queda en el registro de ejecuciones (RNF-Aud-01)."],
+  "Alta", 2, ["HU-06"], ["RF-04", "RNF-Comp-01"], ["UX-02", "UX-01"], ""),
  ("HU-58", "E9", CI, "Certificar la variante BW/4HANA con BPC 2021",
   "ejecutar todos los RF de la arquitectura A en un ambiente BW/4HANA con BPC 2021 modelo estándar",
   "confirmar el soporte para los clientes que dejan BW 7.5",
@@ -526,7 +527,7 @@ B += [{"type": "portada", "text": "DOCUMENTO DE HISTORIAS DE USUARIO — ACELERA
       {"type": "page_break"}]
 Hd(1, "Control de versiones")
 T([["Versión", "Elaborado por", "Fecha", "Observaciones"],
-   ["1.0", "CM Consulting", "16-Oct-26", "Versión para revisión y aprobación, derivada del DAF v1.1 y del Documento UX v1.1."]], [1200, 2200, 1500, 3938])
+   ["1.0", "CM Consulting", "16-Oct-26", "Versión para revisión y aprobación, derivada del DAF v1.1 y del Documento UX v1.1."], ["1.1", "CM Consulting", "16-Oct-26", "Alineada con el DAF v1.2: la arquitectura B queda fuera de la versión 1; HU-57 pasa a ser el rechazo controlado de B (2 SP en lugar de 8)."]], [1200, 2200, 1500, 3938])
 Hd(1, "Confidencialidad")
 P([{"text": "La información contenida en este documento es propiedad intelectual de "}, {"text": "CM CONSULTING SAS", "bold": True}, {"text": "."}])
 P([{"text": "Este documento es de uso interno de "}, {"text": "CM CONSULTING SAS", "bold": True},
@@ -541,7 +542,7 @@ Hd(2, "1.2 Alcance del documento")
 P(f"{len(EPICAS)} épicas y {TOT_N} historias de usuario que cubren los {len(rf_daf)} RF del DAF v1.1, sus RNF relevantes y las {len(ux_ok)} pantallas del Documento UX v1.1. Los story points incluyen las pruebas unitarias de cada historia: no hay historias separadas para escribir pruebas.")
 Hd(2, "1.3 Fuentes y trazabilidad")
 T([["Fuente", "Uso en este documento"],
-   ["Documento de Análisis Funcional v1.1 (16-Oct-26)", "Fuente autoritativa de RF, RNF, RN, roles y prioridades. Cada HU cita sus códigos."],
+   ["Documento de Análisis Funcional v1.2 (16-Oct-26)", "Fuente autoritativa de RF, RNF, RN, roles y prioridades. Cada HU cita sus códigos."],
    ["Documento de Diseño UX v1.1 (16-Oct-26)", "Pantallas UX-01 a UX-15 citadas en los criterios de aceptación."],
    ["Prototipo navegable", "Comportamiento detallado de cada pantalla y de sus estados normal, vacío, carga y error."]], [3400, 5438])
 
@@ -573,7 +574,7 @@ T(rows, [700, 1900, 3838, 600, 700, 1100])
 Hd(2, "4.1 Recomendación de planeación")
 P("Se sugiere iniciar con HU-01, la prueba técnica del mecanismo de inyección: es el mayor riesgo del producto y condiciona todos los generadores. En paralelo se construye la base de E1 y E2 (clientes, conexiones seguras, arquitectura, inventario y configuración de alcance). Después se avanza en el orden del proceso de implementación: E3 bodega en BW, E4 datos maestros y E5 modelo BPC y consolidación. Las capacidades de E9 (registro de ejecuciones, ASVS y accesibilidad) se construyen desde los primeros sprints, porque cada generador escribe en el registro.")
 P("E6 control del cierre y E7 reportes arrancan cuando E5 deja una consolidación ejecutable (HU-29), y avanzan en paralelo. E8 puede construirse en paralelo con E6 una vez exista la bodega (HU-18) y el modelo BPC (HU-26). Puntos de demostración sugeridos: conexión, diagnóstico y configuración (fin de E2); bodega y datos maestros cargados (fin de E4); consolidación en dos monedas con los reportes de la ola 1 (HU-44); cierre mensual completo con C01 a C04.")
-P(f"La estimación de {TOT_SP} story points equivale a unos {SPRINTS} sprints de dos semanas, con una velocidad de referencia de 30 story points por sprint para un equipo de 4 a 5 personas. Es referencial y se ajusta en el Sprint Planning. La certificación de la arquitectura B (HU-57) y de la variante BW/4HANA (HU-58) depende de que existan esos ambientes.")
+P(f"La estimación de {TOT_SP} story points equivale a unos {SPRINTS} sprints de dos semanas, con una velocidad de referencia de 30 story points por sprint para un equipo de 4 a 5 personas. Es referencial y se ajusta en el Sprint Planning. La certificación de la variante BW/4HANA (HU-58) depende de que exista ese ambiente. La arquitectura B queda fuera de la versión 1; HU-57 solo la detecta y la rechaza.")
 
 for i, (c, n, f) in enumerate(EPICAS, 5):
     hs = [h for h in H if h[1] == c]
@@ -613,7 +614,6 @@ UL(["El backlog se mantiene en Azure DevOps durante la construcción.",
 Hd(2, f"{n_sec + 1}.3 Dependencias críticas")
 UL(["HU-01 y todo E3 a E5: acceso al ambiente de arquitectura A, usuario técnico y permiso para paquete Z y transportes (DAF, dependencias 12.2).",
     "HU-16 y HU-58: ambiente BW/4HANA con BPC 2021 modelo estándar y sus versiones exactas (DAF, pregunta 18).",
-    "HU-57: ambiente de arquitectura B; HU-39 a HU-41 en esa arquitectura dependen de la pregunta 17 del DAF.",
     "HU-25: formato del archivo de sociedades no SAP (DAF, pregunta 5).",
     "HU-23 y HU-30: tipos de tasa y tabla de origen en SAP (DAF, pregunta 3).",
     "HU-33 y HU-34: métodos de consolidación y cuentas de destino (DAF, pregunta 15).",

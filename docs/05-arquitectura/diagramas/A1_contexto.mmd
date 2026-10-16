@@ -1,0 +1,20 @@
+flowchart TB
+  CI(["Consultor implementador<br/>(CM Consulting)"])
+  UF(["Usuario financiero<br/>(cliente)"])
+  AS(["Administrador SAP<br/>del cliente"])
+  ACC["<b>Acelerador de consolidación</b><br/>configurador web local + generadores"]
+  ERP[("SAP ERP<br/>ECC o S/4HANA")]
+  BW[("SAP BW<br/>7.5 o BW/4HANA")]
+  BPC[("SAP BPC<br/>modelo estándar")]
+  XL["Excel con EPM add-in"]
+  NS["Archivos de sociedades no SAP"]
+  CI -->|"configura y ejecuta"| ACC
+  AS -->|"crea usuario técnico e importa paquete Z"| BW
+  ACC -->|"INT-02 · RFC paquete Z"| BW
+  ACC -->|"INT-03 · RFC paquete Z"| BPC
+  NS -->|"INT-04 · archivo"| ACC
+  ERP -->|"INT-01 · extractores"| BW
+  BW -->|"INT-05 · importación"| BPC
+  BPC -->|"INT-06 · EPM"| XL
+  ACC -.->|"entrega plantillas .xlsx"| XL
+  UF --> XL

@@ -34,12 +34,13 @@
     {
       "codigo": "RF-04",
       "nombre": "Identificar la arquitectura",
-      "descripcion": "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 o BW/4HANA y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes.",
+      "descripcion": "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 o BW/4HANA y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes. En la versión 1, si detecta la arquitectura B informa que no está soportada y no permite continuar.",
       "reglas": [
-        "RN-02"
+        "RN-02",
+        "RN-19"
       ],
       "prioridad": "Alta",
-      "origen": "Sesión técnica 16-Oct-26, G6 00:00-00:43; Sesión técnica 16-Oct-26, G7 12:31-13:21",
+      "origen": "Sesión técnica 16-Oct-26, G6 00:00-00:43; Sesión técnica 16-Oct-26, G7 12:31-13:21; Decisión CM 16-Oct-26 (arquitectura B fuera de la versión 1)",
       "modulo": "5.1 Conexión y diagnóstico"
     },
     {
@@ -419,9 +420,9 @@
     {
       "codigo": "RNF-Comp-01",
       "categoria": "Comp",
-      "requerimiento": "El acelerador soporta las dos arquitecturas: A (BW 7.5 o BW/4HANA con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido).",
-      "metrica": "Todos los RF aplicables a cada arquitectura se ejecutan completos en un ambiente de prueba de esa arquitectura (2 de 2).",
-      "origen": "Sesión técnica 16-Oct-26, G7 12:47-12:57"
+      "requerimiento": "La versión 1 soporta la arquitectura A (BW 7.5 o BW/4HANA con BPC modelo estándar). La arquitectura B (ERP, BW y BPC integrados, con BPC modelo embebido) queda para una versión posterior.",
+      "metrica": "Todos los RF se ejecutan completos en un ambiente de prueba de la arquitectura A (1 de 1); la arquitectura B se detecta y se rechaza con mensaje.",
+      "origen": "Sesión técnica 16-Oct-26, G7 12:47-12:57; Decisión CM 16-Oct-26 (arquitectura B fuera de la versión 1)"
     },
     {
       "codigo": "RNF-Comp-02",
@@ -591,6 +592,11 @@
       "codigo": "RN-18",
       "regla": "La diferencia en conversión se registra en el patrimonio y no en el estado de resultados.",
       "origen": "NIC 21 (por confirmar en la pregunta abierta 3)"
+    },
+    {
+      "codigo": "RN-19",
+      "regla": "En la versión 1 solo se generan objetos en la arquitectura A; un cliente con arquitectura B se identifica pero no se configura ni se genera.",
+      "origen": "Decisión CM 16-Oct-26 (arquitectura B fuera de la versión 1)"
     }
   ],
   "int": [
@@ -805,7 +811,7 @@
       "critica": false
     },
     {
-      "texto": "¿EPM add-in sirve como herramienta de reportes con BPC modelo embebido (arquitectura B), donde SAP orienta hacia Analysis for Office?",
+      "texto": "Para una versión posterior (B fuera de la versión 1): ¿EPM add-in sirve como herramienta de reportes con BPC modelo embebido (arquitectura B), donde SAP orienta hacia Analysis for Office?",
       "critica": false
     },
     {
@@ -821,7 +827,7 @@
       "critica": false
     },
     {
-      "texto": "¿Los asientos de ajuste (RF-35), el bloqueo por sociedad (RF-37) y el flujo de cierre (RF-38) están disponibles en BPC modelo embebido (arquitectura B) en las versiones de la matriz de soporte?",
+      "texto": "Para una versión posterior (B fuera de la versión 1): ¿los asientos de ajuste (RF-35), el bloqueo por sociedad (RF-37) y el flujo de cierre (RF-38) están disponibles en BPC modelo embebido (arquitectura B)?",
       "critica": false
     },
     {

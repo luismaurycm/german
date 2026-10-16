@@ -1,0 +1,16 @@
+sequenceDiagram
+  autonumber
+  participant CAD as Cadena de proceso BW (nocturna)
+  participant PKG as Paquete Data Manager
+  participant VAL as Validación de cuadre (script / BAdI)
+  participant MOD as Modelo de consolidación BPC
+  participant C03 as Reporte C03
+  CAD->>PKG: Delta cargada · iniciar importación (INT-05)
+  PKG->>VAL: Saldos por sociedad y periodo
+  VAL->>VAL: Activo = pasivo + patrimonio · utilidad = resultado · cuentas mapeadas (RN-16)
+  alt Sociedad cuadra
+    VAL->>MOD: Escribir saldos
+  else No cuadra
+    VAL->>C03: Registrar sociedad y diferencia
+  end
+  PKG-->>CAD: Resultado y sociedades rechazadas

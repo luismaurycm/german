@@ -1,0 +1,21 @@
+flowchart TB
+  subgraph EQ["Equipo del Consultor implementador (Windows)"]
+    UI["Configurador web<br/>ASP.NET Core 8 · Razor Pages<br/>solo 127.0.0.1"]
+    MOT["Motor de generación<br/>.NET 8 · monolito modular"]
+    CAT["Catálogo de variantes<br/>plantillas versionadas"]
+    DB[("Base local SQLite<br/>clientes, mapeos, plan, registro")]
+    VAULT[("Almacén de credenciales<br/>de Windows (DPAPI)")]
+    UI --> MOT
+    MOT --> CAT
+    MOT --> DB
+    MOT --> VAULT
+  end
+  subgraph CL["Landscape SAP del cliente"]
+    Z["Paquete Z<br/>módulos de función RFC (ABAP)"]
+    BW[("SAP BW")]
+    BPC[("SAP BPC")]
+    Z --> BW
+    Z --> BPC
+  end
+  MOT -->|"SAP NCo 3.1 · RFC · SNC si el cliente lo exige"| Z
+  MOT -->|"genera .xlsx con OpenXML"| XLSX["Plantillas EPM (.xlsx)"]

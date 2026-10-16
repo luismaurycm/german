@@ -14,3 +14,5 @@ proto_captura.html
 fuentes/ux/D*.html
 fuentes/ux/.perfil_captura/
 .DS_Store
+fuentes/arq/.perfil_render/
+fuentes/arq/*.html

@@ -1,0 +1,28 @@
+sequenceDiagram
+  autonumber
+  actor CI as Consultor implementador
+  participant UI as Configurador
+  participant ORQ as Orquestador
+  participant GEN as Generador (variante)
+  participant Z as Paquete Z (RFC)
+  participant SAP as BW / BPC
+  participant REG as Registro
+  CI->>UI: Generar (UX-08)
+  UI->>ORQ: Ejecutar plan
+  loop Por cada paso pendiente
+    ORQ->>GEN: Construir definición del objeto
+    GEN->>Z: Z_ACC_CREAR_OBJETO (definición)
+    alt Objeto existente (RN-03)
+      Z-->>GEN: EXISTE, sin cambios
+    else Objeto nuevo
+      Z->>SAP: Crear y activar
+      SAP-->>Z: Resultado
+      Z-->>GEN: CREADO / ERROR + mensaje
+    end
+    GEN-->>ORQ: Resultado del paso
+    ORQ->>REG: Usuario, sistema, paso, objetos, resultado
+    opt Error
+      ORQ-->>UI: Paso con error + acción (UX-09)
+    end
+  end
+  ORQ-->>UI: Resumen de la ejecución

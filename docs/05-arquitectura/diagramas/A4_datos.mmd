@@ -1,0 +1,39 @@
+erDiagram
+  CLIENTE ||--|{ CONEXION : tiene
+  CLIENTE ||--|{ SOCIEDAD : agrupa
+  CLIENTE ||--|{ MODULO : selecciona
+  CLIENTE ||--o{ VERSION_PPTO : define
+  SOCIEDAD ||--o{ PARTICIPACION_INICIAL : tiene
+  SOCIEDAD ||--o{ CUENTA : usa
+  RUBRO ||--o{ MAPEO : agrupa
+  CUENTA ||--o| MAPEO : "se asigna"
+  CLIENTE ||--o{ PLAN_GENERACION : genera
+  PLAN_GENERACION ||--|{ PASO : contiene
+  PASO ||--o{ EJECUCION : registra
+  CLIENTE {
+    int id
+    string nombre
+    string arquitectura
+    string version_bw
+    string version_bpc
+  }
+  CONEXION {
+    string sistema
+    string host
+    string mandante
+    string usuario_tecnico
+    string ref_credencial
+  }
+  SOCIEDAD {
+    string codigo
+    string moneda_local
+    bool en_sap
+    string matriz
+  }
+  EJECUCION {
+    datetime fecha
+    string usuario
+    string sistema
+    string objetos
+    string resultado
+  }

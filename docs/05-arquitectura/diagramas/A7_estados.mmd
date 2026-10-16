@@ -1,0 +1,12 @@
+stateDiagram-v2
+  [*] --> Nuevo: Crear cliente (UX-01)
+  Nuevo --> Conectado: Conexiones exitosas (UX-02)
+  Conectado --> Diagnosticado: Inventario (UX-03)
+  Diagnosticado --> Configurado: Módulos, sociedades y mapeo (UX-04 a UX-07)
+  Configurado --> Generando: Generar (UX-08)
+  Generando --> ConError: Paso falla
+  ConError --> Generando: Reintentar desde el paso (UX-09)
+  ConError --> Conectado: Corregir conexión o permisos
+  Generando --> Generado: Todos los pasos completos
+  Generado --> Entregado: Reportes descargados (UX-10)
+  Entregado --> Configurado: Cambio de alcance

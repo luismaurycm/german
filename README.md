@@ -7,16 +7,16 @@ Producto interno de CM Consulting: una herramienta que se conecta al SAP del cli
 
 Cubre los módulos de consolidación, presupuesto, activos fijos y deterioros, sobre dos arquitecturas:
 - **A:** BW 7.5 o BW/4HANA con BPC modelo estándar (BPC 10.1 o 2021).
-- **B:** ERP, BW y BPC integrados, con BPC modelo embebido.
+- **B:** ERP, BW y BPC integrados, con BPC modelo embebido. Fuera de la versión 1: se detecta y se rechaza.
 
 ## Estado según el Playbook CM
 
 | Fase | Entregable | Estado |
 |---|---|---|
-| F3 · Análisis funcional | [DAF v1.1](docs/02-analisis-funcional/Analisis_Funcional_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 39 RF, 12 RNF, 18 RN, 6 INT, ASVS nivel 2. La v1.1 agrega reglas de consolidación y control del cierre (RF-31 a RF-39) y la variante BW/4HANA | Listo para aprobación |
+| F3 · Análisis funcional | [DAF v1.2](docs/02-analisis-funcional/Analisis_Funcional_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 39 RF, 12 RNF, 19 RN, 6 INT, ASVS nivel 2. La v1.1 agrega reglas de consolidación y control del cierre (RF-31 a RF-39) y la variante BW/4HANA; la v1.2 deja la arquitectura B fuera de la versión 1 | Listo para aprobación |
 | F4 · Diseño UX | [Brief de diseño](docs/03-diseno-ux/Brief_Design_Acelerador_Consolidacion_BPC_CM_Consulting.md), [prototipo navegable](docs/03-diseno-ux/prototipo-acelerador-bpc.html) y [Documento UX v1.1](docs/03-diseno-ux/Documento_UX_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 15 pantallas, gate F4 cumplido | Listo para aprobación |
-| F5 · Historias de usuario | [Historias de usuario v1.0](docs/04-historias-usuario/Historias_Usuario_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 9 épicas, 58 HU, 333 SP (unos 12 sprints de 30 SP) | Listo para revisión |
-| F6 · Arquitectura | — | Pendiente |
+| F5 · Historias de usuario | [Historias de usuario v1.1](docs/04-historias-usuario/Historias_Usuario_Acelerador_Consolidacion_BPC_CM_Consulting.docx): 9 épicas, 58 HU, 327 SP (unos 11 sprints de 30 SP) | Listo para revisión |
+| F6 · Arquitectura | [Documento de arquitectura v1.0](docs/05-arquitectura/Arquitectura_Acelerador_Consolidacion_BPC_CM_Consulting.docx) y [ADRs](docs/05-arquitectura/adr): app .NET 8 local, RFC con paquete Z, 11 ADRs; gate F6 cumplido | Aprobado internamente |
 
 ## Contenido
 
@@ -27,11 +27,13 @@ docs/
   02-analisis-funcional/        Documento de Análisis Funcional (Word)
   03-diseno-ux/                 Brief, prototipo HTML, Documento UX, capturas y diagramas
   04-historias-usuario/         Documento de historias de usuario (Word)
+  05-arquitectura/              Documento de arquitectura, diagramas y ADRs en Markdown
 fuentes/
   transcripcion/                Script de transcripción (faster-whisper)
   daf/                          Generador del DAF y su JSON de requerimientos
   ux/                           Generador del Documento UX, inventario de pantallas y capturas
   hu/                           Generador de las historias de usuario y su backlog.json
+  arq/                          Generador de arquitectura, arquitectura.json y render de diagramas
 ```
 
 ## Prototipo
@@ -49,6 +51,7 @@ Los generadores producen el JSON de bloques que consume la skill base `documento
 python fuentes/daf/build_daf.py fuentes/daf
 python fuentes/ux/build_ux.py
 python fuentes/hu/build_hu.py
+python fuentes/arq/build_arq.py
 ```
 
 Después:

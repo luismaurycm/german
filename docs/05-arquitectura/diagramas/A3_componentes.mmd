@@ -1,0 +1,21 @@
+flowchart LR
+  subgraph MOT["Motor de generación (.NET 8)"]
+    ORQ["Orquestador de pasos<br/>HU-14"]
+    CON["Conector SAP<br/>interfaz ISapGateway"]
+    ESC["Escáner e inventario<br/>RF-03 · RF-04"]
+    GBW["Generadores BW<br/>variantes 7.5 / BW4"]
+    GMD["Cargador de datos maestros<br/>RF-11 a RF-15"]
+    GBP["Generadores BPC<br/>modelo estándar 10.1 / 2021"]
+    GRP["Generador de reportes EPM<br/>RF-20 · RF-27 · RF-29"]
+    REG["Registro de ejecuciones<br/>RNF-Aud-01"]
+  end
+  ORQ --> ESC
+  ORQ --> GBW
+  ORQ --> GMD
+  ORQ --> GBP
+  ORQ --> GRP
+  ESC --> CON
+  GBW --> CON
+  GMD --> CON
+  GBP --> CON
+  ORQ --> REG

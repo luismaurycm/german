@@ -34,6 +34,12 @@
      "CM Consulting",
      "16-Oct-26",
      "Versión para revisión y aprobación, derivada del DAF v1.1 y del Documento UX v1.1."
+    ],
+    [
+     "1.1",
+     "CM Consulting",
+     "16-Oct-26",
+     "Alineada con el DAF v1.2: la arquitectura B queda fuera de la versión 1; HU-57 pasa a ser el rechazo controlado de B (2 SP en lugar de 8)."
     ]
    ],
    "col_widths": [
@@ -130,7 +136,7 @@
      "Uso en este documento"
     ],
     [
-     "Documento de Análisis Funcional v1.1 (16-Oct-26)",
+     "Documento de Análisis Funcional v1.2 (16-Oct-26)",
      "Fuente autoritativa de RF, RNF, RN, roles y prioridades. Cada HU cita sus códigos."
     ],
     [
@@ -429,10 +435,10 @@
       "text": "Seguridad, auditoría y compatibilidad",
       "bold": true
      },
-     "Capacidades transversales: registro de ejecuciones, controles ASVS nivel 2, accesibilidad y certificación de la arquitectura B y de la variante BW/4HANA.",
+     "Capacidades transversales: registro de ejecuciones, controles ASVS nivel 2, accesibilidad, rechazo controlado de la arquitectura B (fuera de la versión 1) y certificación de la variante BW/4HANA.",
      "5",
-     "29",
-     "4 / 1 / 0"
+     "23",
+     "5 / 0 / 0"
     ],
     [
      {
@@ -446,11 +452,11 @@
       "bold": true
      },
      {
-      "text": "333",
+      "text": "327",
       "bold": true
      },
      {
-      "text": "52 / 6 / 0",
+      "text": "53 / 5 / 0",
       "bold": true
      }
     ]
@@ -479,7 +485,7 @@
   },
   {
    "type": "paragraph",
-   "text": "La estimación de 333 story points equivale a unos 12 sprints de dos semanas, con una velocidad de referencia de 30 story points por sprint para un equipo de 4 a 5 personas. Es referencial y se ajusta en el Sprint Planning. La certificación de la arquitectura B (HU-57) y de la variante BW/4HANA (HU-58) depende de que existan esos ambientes."
+   "text": "La estimación de 327 story points equivale a unos 11 sprints de dos semanas, con una velocidad de referencia de 30 story points por sprint para un equipo de 4 a 5 personas. Es referencial y se ajusta en el Sprint Planning. La certificación de la variante BW/4HANA (HU-58) depende de que exista ese ambiente. La arquitectura B queda fuera de la versión 1; HU-57 solo la detecta y la rechaza."
   },
   {
    "type": "page_break"
@@ -1118,8 +1124,8 @@
    "type": "bullets",
    "items": [
     "En UX-02 el botón Validar conexión ERP–BW aparece solo si ERP y BW están en sistemas separados (RN-01).",
-    "En la arquitectura B se reemplaza por una nota que explica por qué no aplica.",
-    "El resultado de la validación queda registrado con fecha, usuario y mensaje."
+    "El resultado de la validación queda registrado con fecha, usuario y mensaje.",
+    "Si la validación falla, se muestra el mensaje del sistema y Continuar al diagnóstico queda deshabilitado."
    ]
   },
   {
@@ -3911,7 +3917,7 @@
   {
    "type": "bullets",
    "items": [
-    "Aplica solo a la arquitectura A; en la B el paso no aparece en UX-09.",
+    "Aplica a la arquitectura A, la única soportada en la versión 1 (RN-19).",
     "La importación se genera como paquete de Data Manager y se ejecuta por sociedad y periodo.",
     "Solo se importan las sociedades que pasan la validación de cuadre (HU-36).",
     "El paso «Importación a BPC» se ve en UX-09 con la cantidad de registros."
@@ -4032,7 +4038,7 @@
   {
    "type": "bullets",
    "items": [
-    "El script usa la variante de modelo estándar o embebido según la arquitectura (RN-02).",
+    "El script usa la variante de BPC modelo estándar (RN-02); la variante embebida queda fuera de la versión 1 (RN-19).",
     "Los códigos de sociedades y cuentas del cliente se insertan sin edición manual.",
     "UX-08 muestra la variante que se va a desplegar.",
     "Antes de reemplazar un script existente se genera respaldo UJBR."
@@ -7177,7 +7183,7 @@
       "fill": "144E8C",
       "align": "center"
      },
-     "Capacidades transversales: registro de ejecuciones, controles ASVS nivel 2, accesibilidad y certificación de la arquitectura B y de la variante BW/4HANA."
+     "Capacidades transversales: registro de ejecuciones, controles ASVS nivel 2, accesibilidad, rechazo controlado de la arquitectura B (fuera de la versión 1) y certificación de la variante BW/4HANA."
     ],
     [
      {
@@ -7185,7 +7191,7 @@
       "fill": "144E8C",
       "align": "center"
      },
-     "5 historia(s) de usuario · 29 story points · 4 Alta / 1 Media / 0 Baja"
+     "5 historia(s) de usuario · 23 story points · 5 Alta / 0 Media / 0 Baja"
     ]
    ],
    "col_widths": [
@@ -7569,7 +7575,7 @@
       "align": "center"
      },
      {
-      "text": "Certificar la arquitectura B",
+      "text": "Rechazar la arquitectura B en la versión 1",
       "bold": true
      },
      {
@@ -7578,9 +7584,9 @@
       "align": "center"
      },
      {
-      "text": "Media",
+      "text": "Alta",
       "align": "center",
-      "fill": "FFF3CD"
+      "fill": "F8D7DA"
      }
     ],
     [
@@ -7590,7 +7596,7 @@
       "align": "center"
      },
      {
-      "text": "8",
+      "text": "2",
       "align": "center"
      },
      {
@@ -7599,7 +7605,7 @@
       "align": "center"
      },
      {
-      "text": "HU-29, HU-41",
+      "text": "HU-06",
       "align": "center"
      }
     ],
@@ -7610,7 +7616,7 @@
       "align": "center"
      },
      {
-      "text": "RNF-Comp-01",
+      "text": "RF-04 · RNF-Comp-01 · UX-02 · UX-01",
       "colspan": 3
      }
     ]
@@ -7640,7 +7646,7 @@
      "italic": true
     },
     {
-     "text": "ejecutar todos los RF aplicables en un ambiente de arquitectura B",
+     "text": "que el acelerador me avise si el cliente opera la arquitectura B y no me deje configurarlo ni generar",
      "italic": true
     },
     {
@@ -7648,7 +7654,7 @@
      "italic": true
     },
     {
-     "text": "ofrecer el acelerador a clientes con ERP, BW y BPC integrados",
+     "text": "no crear en el cliente objetos que la versión 1 no soporta",
      "bold": true,
      "italic": true
     },
@@ -7671,9 +7677,10 @@
   {
    "type": "bullets",
    "items": [
-    "Los RF aplicables a la arquitectura B se ejecutan completos en un ambiente B (RNF-Comp-01).",
-    "Los scripts usan la variante de modelo embebido (RN-02).",
-    "Se documenta qué funciones de E6 están disponibles en el modelo embebido (DAF, pregunta 17)."
+    "En la pantalla UX-02, si RF-04 detecta la arquitectura B, se muestra «Arquitectura B no soportada en la versión 1» con la explicación.",
+    "Continuar al diagnóstico queda deshabilitado y no se crea ningún objeto en el cliente (RN-19).",
+    "El cliente queda en UX-01 con estado «No soportado» y el motivo.",
+    "La detección queda en el registro de ejecuciones (RNF-Aud-01)."
    ]
   },
   {
@@ -8436,11 +8443,11 @@
       "text": "HU-57",
       "bold": true
      },
-     "Certificar la arquitectura B",
+     "Rechazar la arquitectura B en la versión 1",
      "E9",
-     "Media",
-     "8",
-     "RNF-Comp-01"
+     "Alta",
+     "2",
+     "RF-04, RNF-Comp-01"
     ],
     [
      {
@@ -8494,7 +8501,7 @@
     [
      "RF-04",
      "Alta",
-     "HU-06"
+     "HU-06, HU-57"
     ],
     [
      "RF-05",
@@ -8716,7 +8723,6 @@
    "items": [
     "HU-01 y todo E3 a E5: acceso al ambiente de arquitectura A, usuario técnico y permiso para paquete Z y transportes (DAF, dependencias 12.2).",
     "HU-16 y HU-58: ambiente BW/4HANA con BPC 2021 modelo estándar y sus versiones exactas (DAF, pregunta 18).",
-    "HU-57: ambiente de arquitectura B; HU-39 a HU-41 en esa arquitectura dependen de la pregunta 17 del DAF.",
     "HU-25: formato del archivo de sociedades no SAP (DAF, pregunta 5).",
     "HU-23 y HU-30: tipos de tasa y tabla de origen en SAP (DAF, pregunta 3).",
     "HU-33 y HU-34: métodos de consolidación y cuentas de destino (DAF, pregunta 15).",

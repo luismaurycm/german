@@ -8,6 +8,7 @@ G6 = "Sesión técnica 16-Oct-26, G6 "
 SI = "Sesión interna CM 16-Oct-26"
 PB = "Playbook CM §7.1"
 S11 = "Sesión interna CM 16-Oct-26 (ampliación v1.1)"
+S12 = "Decisión CM 16-Oct-26 (arquitectura B fuera de la versión 1)"
 CR = "Caso de referencia BW 7.5/BPC 10.1"
 
 # ---------------- Requerimientos funcionales ----------------
@@ -23,8 +24,8 @@ MODULOS = [
          "El sistema lista los objetos ya existentes en el sistema del cliente: extractores activos, InfoCubos o aDSO, modelos BPC y campos Z, para que el Consultor implementador decida qué generar.",
          ["RN-03"], "Alta", G7 + "13:40-14:06; 14:45-14:55"),
         ("RF-04", "Identificar la arquitectura",
-         "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 o BW/4HANA y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes.",
-         ["RN-02"], "Alta", G6 + "00:00-00:43; " + G7 + "12:31-13:21"),
+         "El sistema identifica si el cliente opera la arquitectura A (ERP, BW 7.5 o BW/4HANA y BPC modelo estándar en sistemas separados) o la B (ERP, BW y BPC integrados en el mismo sistema, p. ej. S/4HANA con BW embebido y BPC embebido), y usa la variante de generación de esa arquitectura en los pasos siguientes. En la versión 1, si detecta la arquitectura B informa que no está soportada y no permite continuar.",
+         ["RN-02", "RN-19"], "Alta", G6 + "00:00-00:43; " + G7 + "12:31-13:21; " + S12),
     ]),
     ("5.2 Configuración de alcance", [
         ("RF-05", "Seleccionar módulos",
@@ -193,8 +194,8 @@ REPORTES3 = [
 ]
 
 RNF = [
-    ("RNF-Comp-01", "Comp", "El acelerador soporta las dos arquitecturas: A (BW 7.5 o BW/4HANA con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido).",
-     "Todos los RF aplicables a cada arquitectura se ejecutan completos en un ambiente de prueba de esa arquitectura (2 de 2).", G7 + "12:47-12:57"),
+    ("RNF-Comp-01", "Comp", "La versión 1 soporta la arquitectura A (BW 7.5 o BW/4HANA con BPC modelo estándar). La arquitectura B (ERP, BW y BPC integrados, con BPC modelo embebido) queda para una versión posterior.",
+     "Todos los RF se ejecutan completos en un ambiente de prueba de la arquitectura A (1 de 1); la arquitectura B se detecta y se rechaza con mensaje.", G7 + "12:47-12:57; " + S12),
     ("RNF-Comp-02", "Comp", "Los reportes funcionan con el EPM add-in de Excel. Analysis for Office no se soporta en esta versión.",
      "34 de 34 reportes y plantillas (tablas 5.6.1, 5.8.1 y 5.9.1) abren y actualizan datos con EPM add-in.", SI),
     ("RNF-Comp-03", "Comp", "Para el prototipo, el configurador web se ejecuta en el equipo del Consultor implementador, sin servidores adicionales. Dónde se aloja el producto se define en la pregunta abierta 4.",
@@ -238,6 +239,7 @@ RN = [
     ("RN-16", "Una sociedad solo se importa a BPC si en el periodo el activo es igual al pasivo más el patrimonio, la utilidad del estado de resultados es igual al resultado del ejercicio del balance y todas sus cuentas con saldo están mapeadas; la tolerancia de redondeo se define en la pregunta abierta 14.", "RF-36", S11 + "; " + CR + " (validaciones de cuadre)"),
     ("RN-17", "Una sociedad bloqueada en un periodo no admite cargas, asientos de ajuste ni reprocesos de ese periodo hasta que se desbloquee.", "RF-37", S11),
     ("RN-18", "La diferencia en conversión se registra en el patrimonio y no en el estado de resultados.", "RF-33", "NIC 21 (por confirmar en la pregunta abierta 3)"),
+    ("RN-19", "En la versión 1 solo se generan objetos en la arquitectura A; un cliente con arquitectura B se identifica pero no se configura ni se genera.", "RF-04", S12),
 ]
 
 INT = [
@@ -280,11 +282,11 @@ PREGUNTAS = [
     ("¿Algún cliente objetivo está vigilado por la Superintendencia Financiera (Circular 007)?", False, "CM Consulting – Dirección", "30-Oct-26"),
     ("Confirmar nombres inferidos de la grabación: extractor financiero (0FI_GL_14 en ECC; en S/4HANA, extractores sobre ACDOCA), el rubro 'PIGs' (propiedad, planta y equipo), los dividendos de R17 y R18, los nombres de los extractores de activos fijos (p. ej. 0FI_AA_11 / 0FI_AA_12) y de deterioros, si deterioros se refiere a cartera o a activos, y que el presupuesto quede registrado en el ledger que lee 0FI_GL_14.", False, "Consultor SAP BPC", "30-Oct-26"),
     ("¿Cómo leen BW los reportes de activos fijos y deterioros con EPM add-in: conexión directa a consultas BW o un resumen en BPC? Se define en arquitectura.", False, "CM Consulting – Arquitectura", "30-Oct-26"),
-    ("¿EPM add-in sirve como herramienta de reportes con BPC modelo embebido (arquitectura B), donde SAP orienta hacia Analysis for Office?", False, "CM Consulting – Arquitectura", "30-Oct-26"),
+    ("Para una versión posterior (B fuera de la versión 1): ¿EPM add-in sirve como herramienta de reportes con BPC modelo embebido (arquitectura B), donde SAP orienta hacia Analysis for Office?", False, "CM Consulting – Arquitectura", "30-Oct-26"),
     ("Tolerancia de redondeo para la validación de cuadre (RN-16) y umbral de diferencia que marca una pareja en la conciliación intercompañía (RF-34). ¿Fijos o configurables por cliente?", False, "Consultor SAP BPC", "30-Oct-26"),
     ("Confirmar los métodos de consolidación de RN-13 y su tratamiento, y si las cuentas de destino de la eliminación de inversión, el interés minoritario y la diferencia en conversión se configuran por cliente.", False, "Consultor SAP BPC", "30-Oct-26"),
     ("¿La moneda de presentación del grupo debe poder configurarse (p. ej. peso chileno o peso colombiano) o siempre es el dólar (RN-06)?", False, "CM Consulting – Dirección", "30-Oct-26"),
-    ("¿Los asientos de ajuste (RF-35), el bloqueo por sociedad (RF-37) y el flujo de cierre (RF-38) están disponibles en BPC modelo embebido (arquitectura B) en las versiones de la matriz de soporte?", False, "CM Consulting – Arquitectura", "30-Oct-26"),
+    ("Para una versión posterior (B fuera de la versión 1): ¿los asientos de ajuste (RF-35), el bloqueo por sociedad (RF-37) y el flujo de cierre (RF-38) están disponibles en BPC modelo embebido (arquitectura B)?", False, "CM Consulting – Arquitectura", "30-Oct-26"),
     ("Versiones exactas de BW/4HANA y BPC 2021 para la variante de RNF-Comp-05 y ambiente disponible para probarla.", False, "CM Consulting – Dirección", "30-Oct-26"),
 ]
 
@@ -328,7 +330,8 @@ T([["Versión", "Elaborado por", "Fecha", "Observaciones"],
    ["0.1", "CM Consulting", "16-Oct-26", "Versión inicial a partir de la sesión técnica"],
    ["0.2", "CM Consulting", "16-Oct-26", "BORRADOR PARA REVISIÓN — pendiente de resolver preguntas abiertas. Incorpora las respuestas 1 a 6 de CM."],
    ["1.0", "CM Consulting", "16-Oct-26", "Versión para aprobación: incorpora las respuestas 7 y 8 de CM; sin preguntas críticas abiertas."],
-   ["1.1", "CM Consulting", "16-Oct-26", "Amplía las reglas de consolidación y el control del cierre (RF-31 a RF-39, RN-13 a RN-18, RNF-Comp-05, RNF-Aud-02, reportes C01 a C04) y agrega la variante BW/4HANA con BPC 2021. Sin preguntas críticas abiertas."]],
+   ["1.1", "CM Consulting", "16-Oct-26", "Amplía las reglas de consolidación y el control del cierre (RF-31 a RF-39, RN-13 a RN-18, RNF-Comp-05, RNF-Aud-02, reportes C01 a C04) y agrega la variante BW/4HANA con BPC 2021. Sin preguntas críticas abiertas."],
+   ["1.2", "CM Consulting", "16-Oct-26", "La arquitectura B queda fuera de la versión 1 (RNF-Comp-01, RF-04, RN-19, alcance 2.2), tras la revisión de arquitectura F6. Sin preguntas críticas abiertas."]],
   [1200, 2200, 1500, 3938])
 H(1, "Confidencialidad")
 P([{"text": "La información contenida en este documento es propiedad intelectual de "}, {"text": "CM CONSULTING SAS", "bold": True}, {"text": "."}])
@@ -348,6 +351,7 @@ T([["Identificador", "Fuente"],
    ["Sesión técnica 16-Oct-26, G6 mm:ss", "Sesión técnica con el consultor SAP BPC, grabación 6 (1,5 min). Transcripción automática."],
    ["Sesión técnica 16-Oct-26, G7 mm:ss", "Sesión técnica con el consultor SAP BPC, grabación 7 (21,5 min), con demostración del ambiente BW/BPC. Transcripción automática."],
    ["Sesión interna CM 16-Oct-26", "Decisiones confirmadas por CM Consulting: producto interno, solo EPM, 20 reportes iniciales, código Z permitido, mecanismo RFC con paquete Z, y respuestas a las preguntas críticas de la versión 0.1: 1 a 6 (alcance formalizado, todos los módulos, configurador web, varias versiones, moneda local y dólares) y 7 y 8 (fuentes y alcance de presupuesto, activos fijos y deterioros; reportes propuestos por CM por selección delegada)."],
+   ["Decisión CM 16-Oct-26 (arquitectura B fuera de la versión 1)", "Decisión de CM Consulting en la revisión de arquitectura (F6): la consolidación y los reportes EPM sobre BPC embebido no están confirmados, por lo que la versión 1 se limita a la arquitectura A."],
    ["Sesión interna CM 16-Oct-26 (ampliación v1.1)", "Decisión de CM Consulting de ampliar la línea base con las reglas de consolidación y el control del cierre, y de agregar la variante BW/4HANA con BPC 2021, tras revisar el caso de referencia."],
    ["Caso de referencia BW 7.5/BPC 10.1", "Diagnóstico técnico y propuesta de mejora de un grupo empresarial multinacional que consolida en BW 7.5 y BPC 10.1, revisados por CM Consulting el 16-Oct-26. Son documentos confidenciales de terceros: no se incluyen y solo se cita el hallazgo entre paréntesis."],
    ["Borrador de solución v3", "Página de solución elaborada por CM Consulting el 16-Oct-26; usada como referencia de alcance en la sección 11."],
@@ -365,9 +369,10 @@ UL(["Conexión a SAP ERP, BW y BPC del cliente, validación de conexiones e inve
     "Reglas de consolidación: participaciones y métodos por periodo, eliminación de inversión, interés minoritario, diferencia en conversión, conciliación intercompañía y asientos de ajuste.",
     "Control del cierre: validación de cuadre antes de importar, bloqueo por sociedad y flujo de cierre con su estado.",
     "34 reportes y plantillas iniciales en Excel con EPM add-in: 20 de consolidación (tabla 5.6.1), 10 de presupuesto, activos fijos y deterioros (tabla 5.8.1) y 4 de control de consolidación (tabla 5.9.1).",
-    "Soporte de dos arquitecturas: A (BW 7.5 o BW/4HANA con BPC modelo estándar) y B (ERP, BW y BPC integrados, con BPC modelo embebido; varias versiones por arquitectura, RNF-Comp-04)."])
+    "Soporte de la arquitectura A (BW 7.5 o BW/4HANA con BPC modelo estándar), con varias versiones (RNF-Comp-04 y RNF-Comp-05). La arquitectura B se identifica pero no se soporta en la versión 1 (RN-19)."])
 H(2, "2.2 Fuera del alcance")
-UL(["Reportes en Analysis for Office.",
+UL(["Arquitectura B (ERP, BW y BPC integrados con BPC modelo embebido) en la versión 1 (RN-19); se reevalúa para una versión posterior.",
+    "Reportes en Analysis for Office.",
     "Mejorar, migrar u optimizar un modelo BW/BPC existente del cliente (cadenas, código ABAP, migración de base de datos a HANA): el acelerador parte de lo existente (RN-03) pero no lo corrige.",
     "Los reportes del catálogo existente que no están en la tabla 5.6.1 (entre 30 y 38, según la pregunta abierta 6).",
     "Licencias de SAP ERP, BW, BPC y EPM, que aporta cada cliente."])
@@ -456,14 +461,13 @@ UL(["El acelerador es un producto interno de CM Consulting, reutilizable en vari
     "El mecanismo de inyección es RFC con paquete Z y transportes, con respaldo UJBR para el modelo estándar (Sesión interna CM 16-Oct-26). Se valida con una prueba técnica en la arquitectura A antes del desarrollo.",
     "La matriz de soporte inicial son las versiones de los dos ambientes disponibles; otras versiones se agregan como variantes (RNF-Comp-04).",
     "Las tasas de cambio se toman de SAP y siguen NIC 21 (RN-11), sujeto a la pregunta abierta 3.",
-    "Las reglas de consolidación de la sección 5.9 se generan con las funciones estándar de BPC (modelo de propiedad, reglas de negocio, asientos, bloqueo y flujo de proceso); su disponibilidad en la arquitectura B se confirma en la pregunta abierta 17."])
+    "Las reglas de consolidación de la sección 5.9 se generan con las funciones estándar de BPC (modelo de propiedad, reglas de negocio, asientos, bloqueo y flujo de proceso); la arquitectura B, donde su disponibilidad está por confirmar (pregunta abierta 17), queda fuera de la versión 1."])
 H(2, "12.2 Dependencias")
 T([["Dependencia", "Responsable", "Fecha propuesta", "Impacto"],
    ["Acceso al ambiente de arquitectura A desde el equipo del consultor", "Consultor SAP BPC", "23-Oct-26", "Sin acceso no hay prueba técnica ni prototipo."],
    ["Documento de pasos de implementación y casos de uso existentes", "Consultor SAP BPC", "23-Oct-26", "Detalla RF-08 a RF-19 para las historias de usuario."],
    ["Catálogo de cerca de 50 reportes existentes", "Consultor SAP BPC", "23-Oct-26", "Necesario para cerrar la pregunta 6."],
    ["Usuario técnico y permiso para paquete Z y transportes en el ambiente de prueba", "Administrador SAP del cliente", "23-Oct-26", "Bloquea la prueba técnica del mecanismo de inyección."],
-   ["Ambiente de arquitectura B para pruebas", "CM Consulting – Dirección", "Por definir", "Bloquea RNF-Comp-01 para la segunda arquitectura."],
    ["Ambiente BW/4HANA con BPC 2021 modelo estándar para pruebas", "CM Consulting – Dirección", "Por definir", "Bloquea RNF-Comp-05."]],
   [3000, 1800, 1400, 2638])
 H(2, "12.3 Preguntas abiertas")

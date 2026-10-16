@@ -1,0 +1,19 @@
+flowchart TB
+  subgraph ADO["Azure DevOps (CM)"]
+    REPO["Repositorio + PR"] --> PIPE["Pipeline: build · pruebas · SAST · SCA · secretos"]
+    PIPE --> ART["Azure Artifacts<br/>.exe firmado + transporte del paquete Z"]
+  end
+  subgraph LAP["Equipo del consultor"]
+    APP["Acelerador .exe autocontenido<br/>BitLocker activo"]
+  end
+  subgraph AMB["Ambientes SAP"]
+    DEV["DEV · sandbox arquitectura A"]
+    QA["QA · BW/4HANA + BPC 2021 estándar<br/>(SAP CAL, encendido bajo demanda)"]
+    UAT["UAT · sistema de calidad del cliente piloto"]
+    PRD["PROD · sistema productivo del cliente<br/>(vía transportes del cliente)"]
+  end
+  ART --> APP
+  APP --> DEV
+  APP --> QA
+  APP --> UAT
+  UAT -.->|"transportes del cliente"| PRD
