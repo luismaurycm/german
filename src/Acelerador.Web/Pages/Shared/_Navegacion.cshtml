@@ -1,0 +1,30 @@
+@model ModeloNavegacion
+@{
+    var actual = Pasos.Indice(Model.Cliente.PasoActual);
+}
+<nav class="a-nav" aria-label="Pasos de la implementación">
+    <h2>Pasos</h2>
+    <ol>
+        @for (var i = 0; i < Pasos.Todos.Count; i++)
+        {
+            var paso = Pasos.Todos[i];
+            var estado = i < actual ? "Completo" : i == actual ? "Actual" : "Pendiente";
+            var icono = i < actual ? Iconos.Ok : i == actual ? Iconos.Actual : Iconos.Pendiente;
+            var visto = paso.Codigo == Model.PasoVisto;
+            <li>
+                @if (ReglaAvance.PuedeAbrir(Model.Cliente, paso.Codigo))
+                {
+                    <a class="step" href="@Formato.Ruta(Model.Cliente.Id, paso.Codigo)" aria-current="@(visto ? "step" : null)">
+                        @icono<span class="t">@(i + 1). @paso.Nombre</span><span class="s @(i < actual ? "ok" : "")">@estado</span>
+                    </a>
+                }
+                else
+                {
+                    <span class="step" aria-current="@(visto ? "step" : null)">
+                        @icono<span class="t">@(i + 1). @paso.Nombre</span><span class="s">@estado</span>
+                    </span>
+                }
+            </li>
+        }
+    </ol>
+</nav>

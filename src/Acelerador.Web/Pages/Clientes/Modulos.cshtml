@@ -1,0 +1,64 @@
+@page "/clientes/{id:guid}/modulos"
+@model Acelerador.Web.Pages.Clientes.ModulosModel
+@{
+    ViewData["Title"] = "Módulos";
+    var hay = Model.Seleccion.Count > 0;
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(Model.Cliente, Pasos.Modulos))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Módulos</h1>
+                <p>Elige qué módulos se implementan para este cliente.</p>
+            </div>
+        </div>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (Model.ErrorAlGuardar)
+        {
+            <div role="alert" class="note e">
+                @Iconos.Error
+                <div><b>No se pudo guardar la selección.</b><br>Los cambios no se perdieron en pantalla. Intenta guardar de nuevo.</div>
+            </div>
+        }
+
+        <form method="post" data-modulos data-ocupado="Guardando…">
+            <fieldset class="sin-marco">
+                <legend class="sr">Módulos a implementar</legend>
+                <div class="grid2">
+                    @foreach (var f in CatalogoModulos.Todos)
+                    {
+                        var idm = $"md-{f.Modulo}";
+                        <label class="card mod" for="@idm">
+                            <span class="row entre">
+                                <span class="h-mod">@f.Nombre</span>
+                                <input id="@idm" type="checkbox" name="modulos" value="@f.Modulo" data-reportes="@f.Reportes"
+                                       checked="@Model.Seleccion.Contains(f.Modulo)" aria-describedby="@idm-desc">
+                            </span>
+                            <span class="muted" id="@idm-desc">@f.Genera</span>
+                            @if (f.Nota is not null)
+                            {
+                                <span class="note">@Iconos.Info<span>@f.Nota <span class="rn">RN-12</span></span></span>
+                            }
+                        </label>
+                    }
+                </div>
+            </fieldset>
+
+            <div class="note w" role="status" data-sin-modulos hidden="@hay">@Iconos.Aviso<div>@(Model.Error ?? ReglasModulos.MensajeSinModulos)</div></div>
+
+            <div class="row entre">
+                <p aria-live="polite"><b data-resumen>@Model.Resumen.Texto</b></p>
+                <div class="row">
+                    <button class="btn btn-s" type="submit" name="accion" value="guardar">Guardar selección</button>
+                    <button class="btn btn-p" type="submit" name="accion" value="continuar" disabled="@(!hay)" data-continuar>Continuar</button>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>

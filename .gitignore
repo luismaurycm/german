@@ -16,3 +16,13 @@ fuentes/ux/.perfil_captura/
 .DS_Store
 fuentes/arq/.perfil_render/
 fuentes/arq/*.html
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+*.db
+*.db-shm
+*.db-wal

@@ -1,0 +1,148 @@
+@page "/clientes/{id:guid}/conexiones"
+@model Acelerador.Web.Pages.Clientes.ConexionesModel
+@{
+    ViewData["Title"] = "Conexiones";
+    var v = Model.Vista;
+    var cliente = v.Cliente;
+    var sinDatos = v.Conexiones.All(c => c.Host.Length == 0);
+    var todasExitosas = v.Conexiones.All(c => c.Estado == EstadoPrueba.Exitosa);
+    var clasif = v.Clasificacion;
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(cliente, Pasos.Conexiones))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Conexiones</h1>
+                <p>Registra y prueba la conexión a los sistemas SAP del cliente.</p>
+            </div>
+        </div>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note @(Model.AvisoExitoso ? "o" : "e")" role="status">
+                @(Model.AvisoExitoso ? Iconos.Ok : Iconos.Error)<div>@Model.Aviso</div>
+            </div>
+        }
+
+        @if (sinDatos)
+        {
+            <div class="note">@Iconos.Info<div>Pide al Administrador SAP del cliente el usuario técnico y los datos de conexión de cada sistema.</div></div>
+        }
+
+        <div class="grid3">
+            @foreach (var sistema in Enum.GetValues<SistemaSap>())
+            {
+                <partial name="_TarjetaConexion" model="@Model.Tarjeta(sistema)" />
+            }
+        </div>
+
+        @* HU-05: la validación ERP–BW solo aparece si ERP y BW están en sistemas separados (RN-01). *@
+        @if (v.AplicaValidacionErpBw)
+        {
+            var val = cliente.Validacion;
+            <section class="card" id="erp-bw" aria-labelledby="titulo-erp-bw">
+                <div class="row entre">
+                    <div>
+                        <h2 id="titulo-erp-bw">Conexión ERP–BW</h2>
+                        <span class="muted">Valida que BW pueda leer del ERP antes de las cargas. <span class="rn">RN-01</span></span>
+                    </div>
+                    <div class="row">
+                        @if (val is null)
+                        {
+                            <partial name="_Pill" model="@(("neu", v.PuedeValidarErpBw ? "Sin validar" : "Pendiente: prueba ERP y BW"))" />
+                        }
+                        else if (val.Exitosa)
+                        {
+                            <partial name="_Pill" model="@(("ok", $"Validada {Formato.Fecha(val.Fecha)} por {val.Usuario}"))" />
+                        }
+                        else
+                        {
+                            <partial name="_Pill" model="@(("err", $"Fallida {Formato.Fecha(val.Fecha)}"))" />
+                        }
+                        <form method="post" asp-page-handler="Validar" data-ocupado="Validando…">
+                            <button class="btn btn-s" type="submit" disabled="@(!v.PuedeValidarErpBw)">Validar conexión ERP–BW</button>
+                        </form>
+                    </div>
+                </div>
+                @if (val is { Exitosa: false })
+                {
+                    <div class="note e" role="alert">@Iconos.Error<div><b>BW no puede leer del ERP.</b> El sistema respondió: «@val.Mensaje»</div></div>
+                }
+                else if (val is { Exitosa: true })
+                {
+                    <p class="muted">@val.Mensaje</p>
+                }
+            </section>
+        }
+        else
+        {
+            <div class="note" id="erp-bw">@Iconos.Info<div>ERP y BW están integrados en el mismo sistema; no requiere validación de conexión ERP–BW. <span class="rn">RN-01</span></div></div>
+        }
+
+        @* HU-06 y HU-57: arquitectura y versión detectadas. *@
+        @if (Model.ErrorDeteccion is not null)
+        {
+            <div class="note e" role="alert" id="arquitectura">
+                @Iconos.Error
+                <div><b>No se pudo identificar la arquitectura.</b><br>El sistema respondió: «@Model.ErrorDeteccion»</div>
+                <form method="post" asp-page-handler="Detectar" data-ocupado="Detectando…"><button class="btn btn-s" type="submit">Reintentar</button></form>
+            </div>
+        }
+        else if (clasif is not null && cliente.Deteccion is not null)
+        {
+            var d = cliente.Deteccion;
+            <section class="card destacada" id="arquitectura" aria-labelledby="titulo-arq">
+                <h2 id="titulo-arq">Arquitectura detectada</h2>
+                <div class="row">
+                    <span class="a-badge">Arquitectura @(d.Arquitectura == Arquitectura.B ? "B" : "A")</span>
+                    <partial name="_Pill" model="@((clasif.Soportada ? "ok" : "err", clasif.Titulo))" />
+                </div>
+                <dl class="row muted">
+                    <dt>Versión de BW:</dt><dd>@Textos.Version(d.Bw)</dd>
+                    <dt>Versión de BPC:</dt><dd>@Textos.Version(d.Bpc)</dd>
+                </dl>
+                @if (clasif.Soportada)
+                {
+                    <span class="muted">@clasif.Explicacion Cada versión se soporta como una variante de los generadores. <span class="rn">RF-04 · RNF-Comp-04 · RNF-Comp-05</span></span>
+                }
+                else
+                {
+                    <div class="note e" role="alert">
+                        @Iconos.Error
+                        <div><b>@clasif.Titulo</b><br>@clasif.Explicacion <span class="rn">@(d.Arquitectura == Arquitectura.B ? "RN-19" : "RNF-Comp-04")</span></div>
+                    </div>
+                }
+                <form method="post" asp-page-handler="Detectar" data-ocupado="Detectando…">
+                    <button class="btn btn-s" type="submit">Volver a detectar</button>
+                </form>
+            </section>
+        }
+        else if (todasExitosas)
+        {
+            <section class="card destacada" id="arquitectura" aria-labelledby="titulo-arq">
+                <h2 id="titulo-arq">Arquitectura</h2>
+                <span class="muted">Las tres conexiones responden. Identifica la arquitectura y la versión del cliente.</span>
+                <form method="post" asp-page-handler="Detectar" data-ocupado="Detectando…"><button class="btn btn-s" type="submit">Detectar arquitectura</button></form>
+            </section>
+        }
+
+        @if (Model.PendientesAlContinuar is { Count: > 0 } pend)
+        {
+            <div class="note e" role="alert">
+                @Iconos.Error<div><b>Aún no puedes continuar al diagnóstico.</b><ul>@foreach (var p in pend) { <li>@p</li> }</ul></div>
+            </div>
+        }
+
+        <form method="post" asp-page-handler="Continuar" class="row fin">
+            @if (!v.PuedeContinuar)
+            {
+                <div class="muted" id="motivos-continuar">
+                    Para continuar:
+                    <ul>@foreach (var p in v.Pendientes) { <li>@p</li> }</ul>
+                </div>
+            }
+            <button class="btn btn-p" type="submit" disabled="@(!v.PuedeContinuar)" aria-describedby="@(v.PuedeContinuar ? null : "motivos-continuar")">Continuar al diagnóstico</button>
+        </form>
+    </main>
+</div>

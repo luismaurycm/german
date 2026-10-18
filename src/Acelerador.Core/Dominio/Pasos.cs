@@ -1,0 +1,44 @@
+namespace Acelerador.Core.Dominio;
+
+/// <summary>Un paso de la implementación en la navegación lateral (UX-02 a UX-10).</summary>
+public sealed record Paso(string Codigo, string Nombre, bool Construido, string Historias);
+
+/// <summary>Pasos de la implementación, en el orden del prototipo F4.</summary>
+public static class Pasos
+{
+    public const string Clientes = "UX-01";
+    public const string Conexiones = "UX-02";
+    public const string Diagnostico = "UX-03";
+    public const string Modulos = "UX-04";
+    public const string Sociedades = "UX-05";
+
+    public static readonly IReadOnlyList<Paso> Todos =
+    [
+        new(Conexiones, "Conexiones", true, "HU-03 a HU-06, HU-57"),
+        new(Diagnostico, "Diagnóstico", false, "HU-07, HU-17"),
+        new(Modulos, "Módulos", true, "HU-08, HU-12"),
+        new(Sociedades, "Sociedades", false, "HU-09, HU-10"),
+        new("UX-06", "Mapeo de cuentas", false, "HU-11"),
+        new("UX-07", "Sociedades no SAP", false, "HU-25"),
+        new("UX-08", "Plan de generación", false, "HU-12, HU-13, HU-16"),
+        new("UX-09", "Ejecución", false, "HU-14, HU-54"),
+        new("UX-10", "Reportes", false, "HU-32, HU-38, HU-45"),
+    ];
+
+    public static int Indice(string codigo)
+    {
+        for (var i = 0; i < Todos.Count; i++)
+        {
+            if (Todos[i].Codigo == codigo)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public static Paso? Buscar(string codigo) => Todos.FirstOrDefault(p => p.Codigo == codigo);
+
+    public static string Nombre(string codigo) => Buscar(codigo)?.Nombre ?? codigo;
+}
