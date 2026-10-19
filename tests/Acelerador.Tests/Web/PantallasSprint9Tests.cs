@@ -35,7 +35,8 @@ public class PantallasSprint9Tests
         Assert.Contains($"<a href=\"{cliente}/reportes/C01\"><b>C01</b></a>", html, StringComparison.Ordinal);
         Assert.Contains($"<a href=\"{cliente}/participaciones\"><b>C02</b></a>", html, StringComparison.Ordinal);
         Assert.Contains($"<a href=\"{cliente}/cierre\"><b>C04</b></a>", html, StringComparison.Ordinal);
-        Assert.Contains("Pendiente (próxima entrega)", html, StringComparison.Ordinal);
+        Assert.Contains(" Pendiente</span>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("próxima entrega", html, StringComparison.Ordinal);
         Assert.Contains("data-ocupado=\"Generando…\"", html, StringComparison.Ordinal);
 
         await nav.PostAsync($"{cliente}/reportes?handler=Generar", [new("ids", "R01"), new("ids", "R07")]);

@@ -15,17 +15,34 @@
                 <h1>@titulo</h1>
                 <p>Vista de la plantilla EPM (UX-11). El Usuario financiero la abre en Excel con EPM; aquí se lee el mismo modelo de consolidación de BPC.</p>
             </div>
-            <div class="row"><span class="pill neu">Modelo CONSOLIDACION</span></div>
+            <div class="row">
+                @if (Model.Estado is { Definicion.EsPresupuesto: true } cab)
+                {
+                    <span class="pill neu">Modelo PLANEACION · Versión @(cab.Versiones.FirstOrDefault(x => x.Codigo == cab.Parametros.Version)?.Nombre) @cab.Parametros.Anio</span>
+                }
+                else if (Model.Estado?.Definicion.EsBw == true)
+                {
+                    <span class="pill warn">Fuente BW</span>
+                }
+                else
+                {
+                    <span class="pill neu">Modelo CONSOLIDACION</span>
+                }
+            </div>
         </div>
 
         <nav class="tabs hojas" aria-label="Hojas">
-            @foreach (var r in CatalogoReportes.DelCliente(c.Cliente).Where(r => r.EsEstadoFinanciero && r.Disponible))
+            @foreach (var r in CatalogoReportes.DelCliente(c.Cliente).Where(r => r.EnUx11 && r.Id[0] == (Model.Estado?.Definicion.Id[0] ?? 'R')))
             {
                 <a class="tab" href="@Formato.Reporte(id, r.Id)?periodo=@c.Periodo" aria-current="@(r.Id == Model.Hoja ? "page" : null)" data-carga="Actualizando @r.Id…">@r.Id</a>
             }
             @foreach (var (hoja, nombre) in ReporteModel.Hojas)
             {
                 <a class="tab" href="@Formato.Reporte(id, hoja)?periodo=@c.Periodo" aria-current="@(hoja == Model.Hoja ? "page" : null)" data-carga="Actualizando @hoja…">@nombre</a>
+            }
+            @if (Model.Estado?.Definicion.EsPresupuesto == true)
+            {
+                <a class="tab" href="@Formato.Presupuesto(id)">P05 Captura</a>
             }
             <a class="tab" href="@Formato.Participaciones(id)">C02 Participaciones</a>
             <a class="tab" href="@Formato.Cierre(id)?periodo=@c.Periodo">C04 Estado del cierre</a>
@@ -36,16 +53,61 @@
                 <label for="grupo">Grupo</label>
                 <input id="grupo" type="text" value="@c.Grupo" readonly>
             </div>
-            <div class="fld">
-                <label for="periodo">Periodo</label>
-                <select id="periodo" name="periodo">
-                    @foreach (var p in c.Periodos)
-                    {
-                        <option value="@p" selected="@(p == c.Periodo)">@p</option>
-                    }
-                </select>
-            </div>
-            @if (Model.Estado is { } est)
+            @if (Model.Estado?.Definicion.EsPresupuesto != true)
+            {
+                <div class="fld">
+                    <label for="periodo">Periodo</label>
+                    <select id="periodo" name="periodo">
+                        @foreach (var p in c.Periodos)
+                        {
+                            <option value="@p" selected="@(p == c.Periodo)">@p</option>
+                        }
+                    </select>
+                </div>
+            }
+            @if (Model.Estado is { Definicion.EsPresupuesto: true } pre)
+            {
+                <div class="fld">
+                    <label for="sociedad">Sociedad</label>
+                    <select id="sociedad" name="sociedad">
+                        @foreach (var s in pre.Sociedades)
+                        {
+                            <option value="@s.Codigo" selected="@(s.Codigo == pre.Parametros.Sociedad)">@s.Codigo @s.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="fld">
+                    <label for="version">Versión</label>
+                    <select id="version" name="version">
+                        @foreach (var x in pre.Versiones)
+                        {
+                            <option value="@x.Codigo" selected="@(x.Codigo == pre.Parametros.Version)">@x.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="fld">
+                    <label for="anio">Año</label>
+                    <select id="anio" name="anio">
+                        @foreach (var a in pre.Anios)
+                        {
+                            <option value="@a" selected="@(a == pre.Parametros.Anio)">@a</option>
+                        }
+                    </select>
+                </div>
+            }
+            else if (Model.Estado is { Definicion.EsBw: true } bwv && bwv.Definicion.Id != "D02")
+            {
+                <div class="fld">
+                    <label for="sociedad">Sociedad</label>
+                    <select id="sociedad" name="sociedad">
+                        @foreach (var s in bwv.Sociedades.Where(s => s.EnSap))
+                        {
+                            <option value="@s.Codigo" selected="@(s.Codigo == bwv.Parametros.Sociedad)">@s.Codigo @s.Nombre</option>
+                        }
+                    </select>
+                </div>
+            }
+            else if (Model.Estado is { Definicion.EsEstadoFinanciero: true } est)
             {
                 <div class="fld">
                     <label for="sociedad">Sociedad</label>
@@ -134,7 +196,7 @@
                                     {
                                         var etiqueta = i < f.Etiquetas.Count ? f.Etiquetas[i] : "";
                                         <td data-l="@rep.Encabezados[i]" class="@(i == 0 ? "mono nw" : null)">
-                                            @if (i == 0 && f.Rubro is not null && f.Tipo == TipoFila.Rubro)
+                                            @if (i == 0 && f.Rubro is not null && f.Tipo == TipoFila.Rubro && rep.Definicion.EsEstadoFinanciero)
                                             {
                                                 <a href="@Enlace(f.Rubro)" aria-label="Ver las cuentas de @f.Rubro">@etiqueta</a>
                                             }
@@ -146,7 +208,7 @@
                                     }
                                     @for (var i = 0; i < rep.Columnas.Count; i++)
                                     {
-                                        <td data-l="@rep.Columnas[i].Titulo" class="num mono">@(f.Tipo == TipoFila.Seccion ? "" : Valor(f.Valores[i]))</td>
+                                        <td data-l="@rep.Columnas[i].Titulo" class="num mono">@(f.Tipo == TipoFila.Seccion ? "" : rep.Columnas[i].Porcentaje ? (f.Valores[0] == 0m ? "—" : $"{Valor(f.Valores[i])} %") : Valor(f.Valores[i]))</td>
                                     }
                                 </tr>
                             }
@@ -190,7 +252,39 @@
                     </section>
                 }
             }
-            <p class="rn sin-margen">Cada valor es la suma de las cuentas mapeadas al rubro. RN-10 · Incluir filiales agrega una columna por filial integrada, las eliminaciones y el total consolidado. RN-09 · Moneda local o dólares. RN-06</p>
+            @if (est.AvisoComplemento is not null)
+            {
+                <div class="note w" role="status">@Iconos.Aviso<div>@est.AvisoComplemento</div></div>
+            }
+            @if (est.Complemento is { } com)
+            {
+                <section class="card col" aria-labelledby="titulo-bw">
+                    <h2 id="titulo-bw">Movimientos de BW de @rep.Parametros.Sociedad</h2>
+                    @if (com.Vacio)
+                    {
+                        <p class="muted sin-margen">Sin movimientos en BW para la sociedad y el periodo elegidos.</p>
+                    }
+                    else
+                    {
+                        <div class="tblw sin-borde">
+                            <table class="tbl cards">
+                                <caption class="sr">Movimientos de BW que completan la nota</caption>
+                                <thead><tr><th scope="col">@com.Encabezados[0]</th>@foreach (var col in com.Columnas) { <th scope="col" class="num">@col.Titulo</th> }</tr></thead>
+                                <tbody>
+                                    @foreach (var f in com.Filas)
+                                    {
+                                        <tr class="@(f.Tipo == TipoFila.Total ? "tot" : null)"><td data-l="@com.Encabezados[0]">@f.Etiquetas[0]</td>@for (var i = 0; i < com.Columnas.Count; i++) { <td data-l="@com.Columnas[i].Titulo" class="num mono">@Valor(f.Valores[i])</td> }</tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="muted sin-margen">@string.Join(" ", com.Avisos) RF-30</p>
+                    }
+                </section>
+            }
+            <p class="rn sin-margen">@(rep.Definicion.EsPresupuesto ? "Lee el modelo de planeación de BPC. RN-08 · Presupuesto de la versión elegida frente a la ejecución acumulada. RF-27 · RF-39"
+                : rep.Definicion.EsBw ? "Lee BW, sin un modelo adicional en BPC. RN-12 · Valores en la moneda local de la sociedad. RF-29"
+                : "Cada valor es la suma de las cuentas mapeadas al rubro. RN-10 · Incluir filiales agrega una columna por filial integrada, las eliminaciones y el total consolidado. RN-09 · Moneda local o dólares. RN-06")</p>
         }
         else if (Model.C01 is { } v1)
         {

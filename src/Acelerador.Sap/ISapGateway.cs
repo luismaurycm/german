@@ -39,4 +39,7 @@ public interface ISapGateway
 
     /// <summary>Lee datos y validaciones del modelo BPC (vistas previas de reportes y controles C01 a C04).</summary>
     Task<ResultadoConsultaBpc> ConsultarBpcAsync(DestinoSap bpc, ConsultaBpc consulta, CancellationToken ct = default);
+
+    /// <summary>Lee un InfoProvider de BW (reportes de activos fijos y deterioros, que no tienen modelo en BPC, RN-12).</summary>
+    Task<ResultadoConsultaBw> ConsultarBwAsync(DestinoSap bw, ConsultaBw consulta, CancellationToken ct = default);
 }

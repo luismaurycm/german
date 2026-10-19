@@ -25,4 +25,7 @@ public class GatewayDelegado(ISapGateway interno) : ISapGateway
 
     public virtual Task<ResultadoConsultaBpc> ConsultarBpcAsync(DestinoSap bpc, ConsultaBpc consulta, CancellationToken ct = default) =>
         interno.ConsultarBpcAsync(bpc, consulta, ct);
+
+    public virtual Task<ResultadoConsultaBw> ConsultarBwAsync(DestinoSap bw, ConsultaBw consulta, CancellationToken ct = default) =>
+        interno.ConsultarBwAsync(bw, consulta, ct);
 }

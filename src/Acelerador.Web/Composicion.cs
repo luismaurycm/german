@@ -87,6 +87,7 @@ public static class Composicion
         services.AddScoped<ServicioCierre>();
         services.AddScoped<ServicioAsientos>();
         services.AddScoped<ServicioReportes>();
+        services.AddScoped<ServicioPresupuesto>();
         return services;
     }
 

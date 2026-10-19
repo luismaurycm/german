@@ -28,6 +28,8 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
             "PARTICIPACION" => AplicarParticipacion(d, almacen),
             "ASIENTO" => Contabilizar(d, almacen),
             "BLOQUEO" => CambiarEstado(d, almacen),
+            "PRESUPUESTO_CARGA" => CargarPresupuesto(d, almacen),
+            "PRESUPUESTO_GUARDAR" => GuardarPresupuesto(d, almacen),
             _ => null,
         };
     }
@@ -98,7 +100,7 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
 
         var inversiones = d.GetProperty("cuentasInversion").EnumerateArray().Select(x => x.GetString()!).ToHashSet();
         var registros = MotorConsolidacion.EliminarInversion(base_, vigentes, d.GetProperty("matriz").GetString()!, inversiones, clases, grupo);
-        almacen.Reemplazar(r => r.Periodo == periodo && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenEliminacionInversion, registros);
+        almacen.Reemplazar(r => r.Modelo == MotorConsolidacion.Modelo && r.Periodo == periodo && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenEliminacionInversion, registros);
         var subsidiarias = vigentes.Where(p => p.Metodo == MetodoConsolidacion.IntegracionGlobal).Select(p => $"{p.Sociedad} ({p.Propiedad:0.##} %)");
         var im = registros.Where(r => r.Cuenta == ReglasRubros.CuentaInteresMinoritario.Id).GroupBy(r => r.Moneda).Select(g => $"{g.Key} {ReglaCuadre.Formato(g.Sum(r => r.Importe))}");
         return new ResultadoOperacionSap(true,
@@ -110,7 +112,7 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
     {
         var (grupo, periodo, vigentes, clases, base_) = Contexto(d, almacen);
         var registros = MotorConsolidacion.AplicarParticipacion(base_, vigentes, d.GetProperty("matriz").GetString()!, d.GetProperty("cuentaInversion").GetString()!, clases, grupo);
-        almacen.Reemplazar(r => r.Periodo == periodo && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenParticipacion, registros);
+        almacen.Reemplazar(r => r.Modelo == MotorConsolidacion.Modelo && r.Periodo == periodo && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenParticipacion, registros);
         var coligadas = vigentes.Where(p => p.Metodo == MetodoConsolidacion.Participacion).Select(p => $"{p.Sociedad} ({p.Propiedad:0.##} %)").ToList();
         return new ResultadoOperacionSap(true,
             coligadas.Count == 0 ? "No hay coligadas con método participación en el periodo." : $"Participación en el resultado reconocida de {string.Join(", ", coligadas)}.",
@@ -168,7 +170,7 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
         var grupo = d.GetProperty("grupo").EnumerateArray().Select(x => x.GetString()!).ToHashSet();
         var registros = MotorConsolidacion.Importar(sociedad, d.GetProperty("plan").GetString()!, periodo, Datos(d, almacen), grupo);
         var periodoBpc = MotorConsolidacion.PeriodoBpc(periodo);
-        almacen.Reemplazar(r => r.Entidad == sociedad && r.Periodo == periodoBpc && r.Moneda == MotorConsolidacion.MonedaLocal && r.Origen == MotorConsolidacion.OrigenCarga, registros);
+        almacen.Reemplazar(r => r.Modelo == MotorConsolidacion.Modelo && r.Entidad == sociedad && r.Periodo == periodoBpc && r.Moneda == MotorConsolidacion.MonedaLocal && r.Origen == MotorConsolidacion.OrigenCarga, registros);
         almacen.GuardarValidacion(validacion with { Importada = true });
         return new ResultadoOperacionSap(true, $"{sociedad}: {registros.Count} registros importados en {periodo}.", ResultadoEscritura.Creado, Cantidad: registros.Count);
     }
@@ -188,7 +190,7 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
         var bloqueadas = monedas.Keys.Where(s => almacen.Bloqueada(s, periodo)).ToHashSet();
         foreach (var (sociedad, moneda) in monedas.Where(m => !bloqueadas.Contains(m.Key)))
         {
-            var locales = almacen.Registros.Where(r => r.Entidad == sociedad && r.Periodo == periodoBpc && r.Moneda == MotorConsolidacion.MonedaLocal).ToList();
+            var locales = almacen.Registros.Where(r => r.Modelo == MotorConsolidacion.Modelo && r.Entidad == sociedad && r.Periodo == periodoBpc && r.Moneda == MotorConsolidacion.MonedaLocal).ToList();
             foreach (var destino in presentacion)
             {
                 var (convertidos, falta) = MotorConsolidacion.Convertir(locales, moneda, destino, clases, Tasa);
@@ -207,7 +209,7 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
             }
         }
 
-        almacen.Reemplazar(r => r.Periodo == periodoBpc && presentacion.Contains(r.Moneda) && monedas.ContainsKey(r.Entidad) && !bloqueadas.Contains(r.Entidad) && r.Grupo.Length == 0, nuevos);
+        almacen.Reemplazar(r => r.Modelo == MotorConsolidacion.Modelo && r.Periodo == periodoBpc && presentacion.Contains(r.Moneda) && monedas.ContainsKey(r.Entidad) && !bloqueadas.Contains(r.Entidad) && r.Grupo.Length == 0, nuevos);
         return new ResultadoOperacionSap(true,
             $"{nuevos.Count} registros convertidos a {string.Join(" y ", presentacion)}; diferencia en conversión en {ReglasRubros.CuentaDiferenciaConversion.Id}: {(cta.Count == 0 ? "sin diferencia" : string.Join(" · ", cta))}.",
             ResultadoEscritura.Creado, Cantidad: nuevos.Count,
@@ -227,7 +229,7 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
         var base_ = almacen.Registros.Where(r => r.Modelo == MotorConsolidacion.Modelo && r.Periodo == periodoBpc && presentacion.Contains(r.Moneda) && r.Grupo.Length == 0).ToList();
         var excluir = d.TryGetProperty("excluir", out var x) ? x.EnumerateArray().Select(e => e.GetString()!).ToHashSet() : null;
         var eliminaciones = MotorConsolidacion.EliminarIntercompania(base_, metodos, grupo, excluir);
-        almacen.Reemplazar(r => r.Periodo == periodoBpc && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenEliminacionIc, eliminaciones);
+        almacen.Reemplazar(r => r.Modelo == MotorConsolidacion.Modelo && r.Periodo == periodoBpc && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenEliminacionIc, eliminaciones);
         var parejas = eliminaciones.Where(r => r.Cuenta != ReglasRubros.CuentaDiferenciaIntercompania.Id).Select(r => r.Entidad + "–" + r.Intco[2..]).Distinct().Count();
         return new ResultadoOperacionSap(true, $"Eliminaciones intercompañía de {grupo}: {eliminaciones.Count} registros en {parejas} partidas entre sociedades del grupo.",
             ResultadoEscritura.Creado, Cantidad: eliminaciones.Count);
@@ -283,4 +285,51 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
     public const string EstadosTrabajo = "ESTADOS_TRABAJO";
 
     public static string Estado(bool bloqueada) => bloqueada ? "Bloqueada" : "Abierta";
+
+    /// <summary>
+    /// HU-49 CA4: el paquete que lleva al modelo de planeación el presupuesto (versión anual) y la ejecución (ACTUAL) que el
+    /// ERP dejó en BW (0FI_GL_14), por cuenta, centro y mes. Reemplaza la carga anterior del ERP; lo capturado en P05 se conserva.
+    /// </summary>
+    private static ResultadoOperacionSap CargarPresupuesto(JsonElement d, IAlmacenSimulado almacen)
+    {
+        var anio = d.GetProperty("anio").GetInt32();
+        var version = d.GetProperty("versionAnual").GetString()!;
+        var nuevos = new List<RegistroBpc>();
+        var sociedades = d.GetProperty("sociedades").EnumerateArray().Select(x => (Codigo: x.GetProperty("codigo").GetString()!, Plan: x.GetProperty("plan").GetString()!)).ToList();
+        foreach (var (codigo, plan) in sociedades)
+        {
+            nuevos.AddRange(almacen.PlanErp(codigo, anio).Select(x => new RegistroBpc(Reportes.MotorPresupuesto.Modelo, codigo, Generacion.GeneradorModeloBpc.IdCuenta(plan, x.Cuenta),
+                IntcoNinguno, x.Periodo.Replace('-', '.'), MotorConsolidacion.MonedaLocal, "", OrigenErp, x.Importe,
+                Categoria: x.Categoria == SimulatedSapGateway.CategoriaReal ? Reportes.MotorPresupuesto.Real : version, Centro: x.Centro)));
+        }
+
+        var codigos = sociedades.Select(x => x.Codigo).ToHashSet();
+        var prefijo = $"{anio}.";
+        almacen.Reemplazar(r => r.Modelo == Reportes.MotorPresupuesto.Modelo && r.Origen == OrigenErp && codigos.Contains(r.Entidad) && r.Periodo.StartsWith(prefijo, StringComparison.Ordinal), nuevos);
+        return new ResultadoOperacionSap(true, $"{nuevos.Count} registros de presupuesto y ejecución {anio} cargados en {Reportes.MotorPresupuesto.Modelo}.", ResultadoEscritura.Creado, Cantidad: nuevos.Count);
+    }
+
+    /// <summary>
+    /// «Guardar datos» de P05 (HU-50 CA3, HU-51 CA2): reemplaza las celdas de esas filas en la versión y el año elegidos; las
+    /// demás versiones no cambian.
+    /// </summary>
+    private static ResultadoOperacionSap GuardarPresupuesto(JsonElement d, IAlmacenSimulado almacen)
+    {
+        var sociedad = d.GetProperty("sociedad").GetString()!;
+        var version = d.GetProperty("version").GetString()!;
+        var anio = d.GetProperty("anio").GetInt32();
+        var celdas = d.GetProperty("celdas").EnumerateArray().Select(c => (Cuenta: c.GetProperty("cuenta").GetString()!, Centro: c.GetProperty("centro").GetString()!,
+            Mes: c.GetProperty("mes").GetInt32(), Importe: c.GetProperty("importe").GetDecimal())).ToList();
+        var claves = celdas.Select(c => (c.Cuenta, c.Centro, Periodo: $"{anio}.{c.Mes:00}")).ToHashSet();
+        almacen.Reemplazar(
+            r => r.Modelo == Reportes.MotorPresupuesto.Modelo && r.Entidad == sociedad && r.Categoria == version && claves.Contains((r.Cuenta, r.Centro, r.Periodo)),
+            celdas.Where(c => c.Importe != 0m).Select(c => new RegistroBpc(Reportes.MotorPresupuesto.Modelo, sociedad, c.Cuenta, IntcoNinguno, $"{anio}.{c.Mes:00}",
+                MotorConsolidacion.MonedaLocal, "", OrigenCaptura, c.Importe, Categoria: version, Centro: c.Centro)));
+        return new ResultadoOperacionSap(true, $"{celdas.Count} celdas de {version} {anio} guardadas para {sociedad}.", ResultadoEscritura.Modificado, Cantidad: celdas.Count);
+    }
+
+    public const string OrigenErp = "ERP";
+    public const string OrigenCaptura = "P05";
+
+    private const string IntcoNinguno = MotorConsolidacion.IntcoNinguno;
 }

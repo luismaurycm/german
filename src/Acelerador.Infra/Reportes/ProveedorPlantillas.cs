@@ -183,15 +183,22 @@ public static class PlantillaReporte
 
         h.Poner("A1", "[Logo del cliente]", EstiloCelda.Nota)
             .Poner("B1", $"{id} {nombre}", EstiloCelda.Titulo)
-            .Poner("A2", $"ID: {id} · Fuente: Modelo BPC {conexion}", EstiloCelda.Nota)
-            .Poner("A4", "Sociedad", EstiloCelda.Encabezado).Poner("B4", sociedades.FirstOrDefault() ?? "", EstiloCelda.Parametro)
-            .Poner("A5", "Incluir filiales", EstiloCelda.Encabezado).Poner("B5", "Sí", EstiloCelda.Parametro)
-            .Poner("A6", "Moneda", EstiloCelda.Encabezado).Poner("B6", monedas.FirstOrDefault() ?? "", EstiloCelda.Parametro)
-            .Poner("A7", "Periodo", EstiloCelda.Encabezado).Poner("B7", periodo, EstiloCelda.Parametro);
-        h.Listas.Add(new ListaValidacion("B4", sociedades));
-        h.Listas.Add(new ListaValidacion("B5", ["Sí", "No"]));
-        h.Listas.Add(new ListaValidacion("B6", monedas));
+            .Poner("A2", $"ID: {id} · Fuente: {(conexion == "ZACC_BW" ? "BW (RN-12)" : $"Modelo BPC {conexion}")}", EstiloCelda.Nota);
+        var parametros = p.TryGetProperty("parametros", out var lista)
+            ? lista.EnumerateArray().Select(x => (Etiqueta: x.GetProperty("etiqueta").GetString()!, Valor: x.GetProperty("valor").GetString() ?? "",
+                Opciones: x.GetProperty("opciones").EnumerateArray().Select(o => o.GetString()!).ToList())).ToList()
+            : [("Sociedad", sociedades.FirstOrDefault() ?? "", sociedades), ("Incluir filiales", "Sí", ["Sí", "No"]), ("Moneda", monedas.FirstOrDefault() ?? "", monedas), ("Periodo", periodo, [])];
+        for (var i = 0; i < parametros.Count; i++)
+        {
+            var (etiqueta, valorParametro, opciones) = parametros[i];
+            h.Poner($"A{4 + i}", etiqueta, EstiloCelda.Encabezado).Poner($"B{4 + i}", valorParametro, EstiloCelda.Parametro);
+            if (opciones.Count > 0)
+            {
+                h.Listas.Add(new ListaValidacion($"B{4 + i}", opciones));
+            }
+        }
 
+        var referencias = string.Join(",", Enumerable.Range(0, parametros.Count).Select(i => $"$B${4 + i}"));
         var columnas = Math.Min(encabezados.Count, 5);
         for (var c = 0; c < columnas; c++)
         {
@@ -199,7 +206,12 @@ public static class PlantillaReporte
         }
 
         var valor = (char)('A' + columnas);
-        h.Poner($"{valor}9", "Valor", EstiloCelda.Encabezado);
+        var titulos = p.TryGetProperty("columnas", out var cols) ? cols.EnumerateArray().Select(x => x.GetString()!).ToList() : ["Valor"];
+        for (var c = 0; c < titulos.Count; c++)
+        {
+            h.Poner($"{(char)(valor + c)}9", titulos[c], EstiloCelda.Encabezado);
+        }
+
         var fila = 10;
         foreach (var f in p.GetProperty("filas").EnumerateArray())
         {
@@ -214,7 +226,7 @@ public static class PlantillaReporte
             var miembro = f.TryGetProperty("rubro", out var r) && r.ValueKind == JsonValueKind.String ? r.GetString() : tipo == "Detalle" ? etiquetas.FirstOrDefault() : null;
             if (!string.IsNullOrEmpty(miembro) && tipo is "Rubro" or "Detalle" or "Total")
             {
-                h.Poner($"{valor}{fila}", null, estilo, $"EPMRetrieveData(\"{conexion}\",\"{miembro}\",$B$4,$B$5,$B$6,$B$7)");
+                h.Poner($"{valor}{fila}", null, estilo, $"EPMRetrieveData(\"{conexion}\",\"{miembro}\",{referencias})");
             }
 
             fila++;
@@ -226,7 +238,13 @@ public static class PlantillaReporte
             fila++;
         }
 
-        h.Poner($"A{fila + 1}", "Cada valor es la suma de las cuentas mapeadas al rubro (RN-10). Moneda local o dólares (RN-06). Incluir filiales agrega una columna por filial y el total (RN-09).", EstiloCelda.Nota);
+        var nota = id[0] switch
+        {
+            'P' => "Lee el modelo de planeación de BPC (RN-08). La versión elegida va en el encabezado (RF-39). Ingresos y gastos en positivo.",
+            'A' or 'D' => "Lee BW en la moneda local de la sociedad (RN-12); no usa un modelo de BPC.",
+            _ => "Cada valor es la suma de las cuentas mapeadas al rubro (RN-10). Moneda local o dólares (RN-06). Incluir filiales agrega una columna por filial y el total (RN-09).",
+        };
+        h.Poner($"A{fila + 1}", nota, EstiloCelda.Nota);
         return LibroExcel.Escribir([h], new Dictionary<string, string> { ["EPM_CONEXION"] = $"{id}!$B$4" });
     }
 }

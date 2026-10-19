@@ -7,9 +7,10 @@ using Acelerador.Sap;
 namespace Acelerador.Core.Reportes;
 
 /// <summary>Parámetros de UX-11 (HU-42): sociedad, si incluye filiales (RN-09), moneda local o dólares (RN-06) y periodo.</summary>
-public sealed record ParametrosReporte(string Sociedad, bool IncluirFiliales, string Moneda, string Periodo);
+public sealed record ParametrosReporte(string Sociedad, bool IncluirFiliales, string Moneda, string Periodo, string? Version = null, int? Anio = null);
 
-public sealed record ColumnaReporte(string Id, string Titulo);
+/// <summary>Una columna de valores; <see cref="Porcentaje"/> se muestra con «%» (p. ej. % de ejecución de P01).</summary>
+public sealed record ColumnaReporte(string Id, string Titulo, bool Porcentaje = false);
 
 public enum TipoFila
 {
@@ -67,12 +68,17 @@ public static class ReglasFlujo
         ["F-00-101"] = ActividadFlujo.Efectivo,
         ["F-00-102"] = ActividadFlujo.Operacion,
         ["F-00-103"] = ActividadFlujo.Inversion,
+        ["F-00-105"] = ActividadFlujo.Inversion,
+        ["F-00-109"] = ActividadFlujo.Inversion,
         ["F-00-106"] = ActividadFlujo.Operacion,
         ["F-00-107"] = ActividadFlujo.Inversion,
         ["F-00-108"] = ActividadFlujo.Inversion,
         ["F-00-201"] = ActividadFlujo.Operacion,
         ["F-00-202"] = ActividadFlujo.Financiacion,
         ["F-00-203"] = ActividadFlujo.Operacion,
+        ["F-00-204"] = ActividadFlujo.Operacion,
+        ["F-00-205"] = ActividadFlujo.Operacion,
+        ["F-00-206"] = ActividadFlujo.Financiacion,
         ["F-00-301"] = ActividadFlujo.Financiacion,
         ["F-00-302"] = ActividadFlujo.Resultado,
         ["F-00-303"] = ActividadFlujo.Conversion,
@@ -110,8 +116,89 @@ public static class MotorReportes
             "R05" => R05(d, ctx),
             "R06" => R06(d, ctx),
             "R07" => R07(d, ctx),
+            "R20" => R20(d, p, datos),
+            _ when Notas.TryGetValue(d.Id, out var rubros) => Nota(d, ctx, rubros),
             _ => throw new ArgumentOutOfRangeException(nameof(d), d.Id, "Reporte sin cálculo en esta versión."),
         };
+    }
+
+    /// <summary>Notas R08 a R19: el rubro (o rubros) de R01 o R02 que cada una detalla por cuenta (HU-46, HU-47).</summary>
+    public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> Notas = new Dictionary<string, IReadOnlyList<string>>
+    {
+        ["R08"] = ["F-00-102"],
+        ["R09"] = ["F-00-105"],
+        ["R10"] = ["F-00-103"],
+        ["R11"] = ["F-00-109"],
+        ["R12"] = ["F-00-201"],
+        ["R13"] = ["F-00-202"],
+        ["R14"] = ["F-00-203"],
+        ["R15"] = ["F-00-204"],
+        ["R16"] = ["F-00-504", "F-00-205"],
+        ["R17"] = ["F-00-206"],
+        ["R18"] = ["F-00-403"],
+        ["R19"] = ["F-00-401"],
+    };
+
+    /// <summary>Notas que incluyen movimientos de BW (RF-30): cuentas por cobrar con el deterioro; PP&amp;E e intangibles con activos fijos.</summary>
+    public static readonly IReadOnlyDictionary<string, (Modulo Modulo, bool Intangibles)> NotasConBw = new Dictionary<string, (Modulo, bool)>
+    {
+        ["R08"] = (Modulo.Deterioros, false),
+        ["R10"] = (Modulo.ActivosFijos, false),
+        ["R11"] = (Modulo.ActivosFijos, true),
+    };
+
+    /// <summary>Una nota: por cada rubro, sus cuentas con el valor en cada columna y el total, que cuadra con el rubro de R01 o R02.</summary>
+    private static ReporteCalculado Nota(DefinicionReporte d, Contexto ctx, IReadOnlyList<string> rubros)
+    {
+        var filas = new List<FilaReporte>();
+        foreach (var rubro in rubros)
+        {
+            var signo = Signo(rubro);
+            if (rubros.Count > 1)
+            {
+                filas.Add(new FilaReporte(TipoFila.Seccion, ["", CatalogoRubros.Buscar(rubro)?.Nombre ?? rubro], Ceros(ctx)));
+            }
+
+            filas.AddRange(ctx.CuentasDe(rubro).Select(cuenta =>
+                new FilaReporte(TipoFila.Detalle, [cuenta, ctx.Descripcion(cuenta)], ctx.Columnas.Select(c => signo * ctx.Saldo(c.Id, cuenta)).ToList())));
+            filas.Add(new FilaReporte(TipoFila.Total, [rubro, CatalogoRubros.Buscar(rubro)?.Nombre ?? rubro], ctx.Columnas.Select(c => signo * ctx.SaldoRubro(c.Id, rubro)).ToList(), rubro));
+        }
+
+        return Resultado(d, ctx, ["Cuenta", "Descripción"], ctx.Columnas, filas, ctx.Avisos().ToList());
+    }
+
+    /// <summary>R20: las cifras principales del grupo en moneda local y en dólares (HU-47 CA2).</summary>
+    private static ReporteCalculado R20(DefinicionReporte d, ParametrosReporte p, DatosReporte datos)
+    {
+        var monedas = datos.Registros.Select(r => r.Moneda).Where(m => m != MotorConsolidacion.MonedaLocal).Distinct().ToList();
+        var locales = datos.Sociedades.Count == 0 ? [] : ReglasCierre.MonedasPresentacion(datos.Sociedades);
+        var orden = locales.Where(monedas.Contains).ToList();
+        if (orden.Count == 0)
+        {
+            orden = [.. locales];
+        }
+
+        var columnas = orden.Select(m => new ColumnaReporte(m, m == ReglasMonedas.Dolar ? "Dólares (USD)" : $"Moneda local ({m})")).ToList();
+        var (r01, r02) = (orden.Select(m => Calcular(CatalogoReportes.Buscar("R01")!, p with { Moneda = m }, datos)).ToList(),
+            orden.Select(m => Calcular(CatalogoReportes.Buscar("R02")!, p with { Moneda = m }, datos)).ToList());
+        decimal V(ReporteCalculado r, string etiqueta) => r.Fila(etiqueta)?.Valores[^1] ?? 0m;
+        FilaReporte Fila(string codigo, string concepto, Func<int, decimal> valor) => new(TipoFila.Rubro, [codigo, concepto], Enumerable.Range(0, orden.Count).Select(valor).ToList());
+        List<FilaReporte> filas =
+        [
+            new(TipoFila.Seccion, ["", "Situación financiera"], orden.Select(_ => 0m).ToList()),
+            Fila("", "Total activo", i => V(r01[i], "Total activo")),
+            Fila("", "Total pasivo", i => V(r01[i], "Total pasivo")),
+            Fila("", "Total patrimonio", i => V(r01[i], "Total patrimonio")),
+            Fila(ReglasRubros.CuentaInteresMinoritario.Rubro, "Del cual: interés minoritario", i => V(r01[i], ReglasRubros.CuentaInteresMinoritario.Rubro)),
+            Fila("F-00-101", "Efectivo y equivalentes de efectivo", i => V(r01[i], "F-00-101")),
+            new(TipoFila.Seccion, ["", "Resultados"], orden.Select(_ => 0m).ToList()),
+            Fila("", "Total ingresos", i => V(r02[i], "Total ingresos")),
+            Fila("", "Total gastos", i => V(r02[i], "Total gastos")),
+            new(TipoFila.Total, ["", "Utilidad neta del ejercicio"], Enumerable.Range(0, orden.Count).Select(i => V(r02[i], "Utilidad neta del ejercicio")).ToList()),
+            Fila("", "Atribuible a la controladora", i => V(r02[i], "Propietarios de la controladora")),
+        ];
+        var sinDatos = r01.All(r => r.SinDatos);
+        return new ReporteCalculado(d, p, ["Rubro", "Cifra"], columnas, filas, sinDatos ? [] : r01.SelectMany(r => r.Avisos).Distinct().ToList(), [], sinDatos);
     }
 
     /// <summary>HU-43 CA3: las cuentas que forman un rubro, con su valor en cada columna.</summary>

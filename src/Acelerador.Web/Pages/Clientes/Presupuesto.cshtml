@@ -1,0 +1,133 @@
+@page "/clientes/{id:guid}/presupuesto"
+@model Acelerador.Web.Pages.Clientes.PresupuestoModel
+@{
+    ViewData["Title"] = "P05 Captura de presupuesto";
+    var v = Model.Vista;
+    var c = v.Contexto;
+    var id = c.Cliente.Id;
+    string[] meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    // El resultado presupuestado: ingresos menos gastos (las celdas están en positivo).
+    int Peso(FilaPresupuesto f) => ReglasRubros.Clase(f.Rubro) == ClaseCuenta.Ingreso ? 1 : -1;
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(c.Cliente, "P05"))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>P05 Captura de presupuesto</h1>
+                <p>Vista del formulario EPM (UX-12): valores por cuenta, centro y mes; Guardar datos escribe en el modelo de planeación de BPC.</p>
+            </div>
+            <div class="row"><span class="pill neu">Modelo PLANEACION · @v.Version.Nombre @v.Anio</span></div>
+        </div>
+
+        <nav class="tabs hojas" aria-label="Hojas">
+            <a class="tab" href="@Formato.Presupuesto(id)?sociedad=@v.Sociedad&version=@v.Version.Codigo&anio=@v.Anio" aria-current="page">P05 Captura</a>
+            <a class="tab" href="@Formato.Reporte(id, "P01")?sociedad=@v.Sociedad&version=@v.Version.Codigo&anio=@v.Anio">P01 Presupuesto vs ejecución</a>
+        </nav>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (v.Error is not null || Model.Error is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>No se pudo conectar a BPC; revisa la conexión de EPM.</b><br>El sistema respondió: «@(Model.Error ?? v.Error)»</div></div>
+        }
+
+        @if (Model.Errores.Count > 0)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>@Textos.Cantidad(Model.Errores.Count, "celda no se guardó", "celdas no se guardaron").</b> @ServicioPresupuesto.SoloNumeros: corrige las celdas marcadas en rojo.</div></div>
+        }
+
+        <form method="get" class="row filtros" data-carga="Consultando el modelo de planeación…" data-auto>
+            <div class="fld">
+                <label for="sociedad">Sociedad</label>
+                <select id="sociedad" name="sociedad">
+                    @foreach (var s in c.Sociedades)
+                    {
+                        <option value="@s.Codigo" selected="@(s.Codigo == v.Sociedad)">@s.Codigo @s.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="fld">
+                <label for="version">Versión</label>
+                <select id="version" name="version">
+                    @foreach (var x in v.Versiones)
+                    {
+                        <option value="@x.Codigo" selected="@(x.Codigo == v.Version.Codigo)">@x.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="fld">
+                <label for="anio">Año</label>
+                <select id="anio" name="anio">
+                    @foreach (var a in v.Anios)
+                    {
+                        <option value="@a" selected="@(a == v.Anio)">@a</option>
+                    }
+                </select>
+            </div>
+            <button class="btn btn-s" type="submit">Actualizar</button>
+        </form>
+
+        @if (v.SinPresupuesto && v.Error is null)
+        {
+            <div class="note w" role="status">@Iconos.Aviso<div>@ServicioPresupuesto.MensajeVacio</div></div>
+        }
+
+        @if (v.Filas.Count > 0)
+        {
+            <form method="post" class="col" data-ocupado="Guardando…" data-presupuesto>
+                <input type="hidden" name="sociedad" value="@v.Sociedad">
+                <input type="hidden" name="version" value="@v.Version.Codigo">
+                <input type="hidden" name="anio" value="@v.Anio">
+                <div class="tblw">
+                    <table class="tbl edit p05">
+                        <caption class="sr">Presupuesto @v.Version.Nombre @v.Anio de @v.Sociedad por cuenta, centro y mes</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Cuenta</th><th scope="col">Centro</th>
+                                @foreach (var m in meses)
+                                {
+                                    <th scope="col" class="num">@m</th>
+                                }
+                                <th scope="col" class="num">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < v.Filas.Count; i++)
+                            {
+                                var f = v.Filas[i];
+                                var n = i + 1;
+                                <tr data-peso="@Peso(f)">
+                                    <th scope="row" class="mono nw"><input type="hidden" name="filas[@i].Cuenta" value="@f.Cuenta"><input type="hidden" name="filas[@i].Centro" value="@f.Centro">@f.Cuenta<span class="sr"> @f.Descripcion</span></th>
+                                    <td class="mono nw">@(f.Centro == ServicioPresupuesto.SinCentro ? "—" : f.Centro)</td>
+                                    @for (var m = 1; m <= 12; m++)
+                                    {
+                                        <td class="num"><input class="ent num corto celda-epm" name="filas[@i].Meses[@(m - 1)]" value="@Model.Celda(n, m)" inputmode="decimal" aria-label="@f.Cuenta @f.Centro @meses[m - 1]" aria-invalid="@(Model.ConError(n, m) ? "true" : "false")" data-mes="@m"></td>
+                                    }
+                                    <td class="num mono" data-total-fila>@ReglaCuadre.Formato(f.Total)</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th scope="row" colspan="2">Resultado (ingresos − gastos)</th>
+                                @for (var m = 1; m <= 12; m++)
+                                {
+                                    <td class="num mono" data-total-mes="@m">@ReglaCuadre.Formato(v.Filas.Sum(f => Peso(f) * f.Meses[m - 1]))</td>
+                                }
+                                <td class="num mono" data-total-general>@ReglaCuadre.Formato(v.Filas.Sum(f => Peso(f) * f.Total))</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <p class="rn sin-margen">Celdas amarillas editables; solo números, ingresos y gastos en positivo. RF-28 · Guardar datos escribe en el modelo de planeación de BPC. RN-08 · Los valores de una versión no cambian las demás. RF-39</p>
+                <div class="row fin">
+                    <button class="btn btn-p" type="submit">Guardar datos</button>
+                </div>
+            </form>
+        }
+    </main>
+</div>

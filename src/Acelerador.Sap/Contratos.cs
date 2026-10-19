@@ -161,6 +161,7 @@ public sealed record ResultadoOperacionSap(
 /// <summary>
 /// Un registro del modelo BPC: sociedad, cuenta, intercompañía, periodo, moneda de presentación (LC, USD o la moneda
 /// local del grupo), flujo, origen (carga, eliminaciones, conversión…) e importe. Grupo vacío = dato de la sociedad.
+/// En el modelo de planeación, <see cref="Categoria"/> es la versión (o ACTUAL) y <see cref="Centro"/> el CeCo o CeBe.
 /// </summary>
 public sealed record RegistroBpc(
     string Modelo,
@@ -172,7 +173,9 @@ public sealed record RegistroBpc(
     string Flujo,
     string Origen,
     decimal Importe,
-    string Grupo = "");
+    string Grupo = "",
+    string Categoria = "",
+    string Centro = "");
 
 /// <summary>Resultado de la validación de cuadre de una sociedad y periodo antes de importar (RN-16, HU-36, C03).</summary>
 public sealed record ValidacionCuadre(
@@ -189,6 +192,17 @@ public sealed record ConsultaBpc(string Modelo, string? Periodo = null, string? 
 
 /// <summary>Un cambio auditado en BPC (RNF-Aud-02): quién, cuándo, qué dato, valor anterior y nuevo.</summary>
 public sealed record AuditoriaBpc(DateTimeOffset Fecha, string Usuario, string Modelo, string Sociedad, string Periodo, string Dato, string Anterior, string Nuevo);
+
+/// <summary>Consulta a un InfoProvider de BW (reportes de activos fijos y deterioros, RN-12). Null en un filtro = todos.</summary>
+public sealed record ConsultaBw(string InfoProvider, string Periodo, string? Sociedad = null);
+
+/// <summary>
+/// Un dato de BW de activos fijos o deterioros: sociedad, clase (de activo) o cuenta, activo (en el listado), concepto del
+/// movimiento (SALDO_INICIAL, ADICION, RETIRO, DEPRECIACION, DETERIORO, RECUPERACION, CASTIGO) e importe en moneda local.
+/// </summary>
+public sealed record RegistroBw(string Sociedad, string Clase, string? Activo, string Concepto, string Periodo, string Moneda, decimal Importe, string Descripcion = "");
+
+public sealed record ResultadoConsultaBw(bool Exitosa, string Mensaje, IReadOnlyList<RegistroBw> Registros);
 
 /// <summary>Una línea de un asiento de ajuste de consolidación (RF-35, UX-14).</summary>
 public sealed record LineaAsiento(string Sociedad, string Cuenta, string Intco, decimal Debito, decimal Credito, string Observacion);
