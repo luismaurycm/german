@@ -8,7 +8,7 @@ namespace Acelerador.Infra.Datos;
 /// </summary>
 public sealed class BaseLocal
 {
-    public const int VersionEsquema = 4;
+    public const int VersionEsquema = 5;
 
     private readonly string _cadena;
 
@@ -163,6 +163,17 @@ public sealed class BaseLocal
                 fecha       TEXT NOT NULL,
                 usuario     TEXT NOT NULL,
                 PRIMARY KEY (cliente_id, sociedad, periodo)
+            );
+
+            -- Versión 5 (Sprint 9): estado de generación de cada reporte del catálogo de UX-10 (HU-48). Sin importes.
+            CREATE TABLE IF NOT EXISTS reportes_generados (
+                cliente_id  TEXT NOT NULL REFERENCES clientes(id),
+                reporte     TEXT NOT NULL,
+                exitoso     INTEGER NOT NULL,
+                mensaje     TEXT,
+                fecha       TEXT NOT NULL,
+                usuario     TEXT NOT NULL,
+                PRIMARY KEY (cliente_id, reporte)
             );
             """;
         await cmd.ExecuteNonQueryAsync(ct);

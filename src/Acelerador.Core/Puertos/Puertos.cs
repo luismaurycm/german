@@ -1,4 +1,5 @@
 using Acelerador.Core.Dominio;
+using Acelerador.Core.Reportes;
 using Acelerador.Sap;
 
 namespace Acelerador.Core.Puertos;
@@ -115,6 +116,14 @@ public interface ICargaNoSapRepository
 
     /// <summary>Reemplaza las cargas de esa sociedad en esos periodos (una carga nueva del periodo reemplaza la anterior).</summary>
     Task GuardarAsync(IReadOnlyList<CargaNoSap> cargas, CancellationToken ct = default);
+}
+
+/// <summary>Estado de generación de los reportes del catálogo (HU-48): solo si se generó, la causa del error y quién y cuándo.</summary>
+public interface IReporteRepository
+{
+    Task<IReadOnlyList<ReporteGenerado>> ListarAsync(Guid clienteId, CancellationToken ct = default);
+
+    Task GuardarAsync(IReadOnlyList<ReporteGenerado> reportes, CancellationToken ct = default);
 }
 
 /// <summary>

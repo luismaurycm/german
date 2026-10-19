@@ -70,7 +70,9 @@ public sealed class Entorno : IAsyncDisposable
         ServicioAsientos = new ServicioAsientos(ContextoCierre, Acceso, Sap, Registro, Usuario, Reloj);
         ServicioNoSap = new ServicioNoSap(Clientes, Sociedades, Mapeos, Cargas, Pendientes, Acceso, Sap, Registro, Usuario, Reloj);
         ServicioEjecucion = new ServicioEjecucion(Clientes, Ejecuciones, ServicioPlan, Acceso, Sap, Registro, Cola, Usuario, Reloj, plantillas: new Acelerador.Infra.Reportes.ProveedorPlantillas());
-        ServicioCierre = new ServicioCierre(ContextoCierre, ServicioControles, Ejecuciones, Acceso, Sap, Registro, Usuario, Reloj);
+        Reportes = new SqliteReporteRepository(Base);
+        ServicioCierre = new ServicioCierre(ContextoCierre, ServicioControles, Ejecuciones, Reportes, Acceso, Sap, Registro, Usuario, Reloj);
+        ServicioReportes = new ServicioReportes(ContextoCierre, Reportes, Acceso, Sap, new Acelerador.Infra.Reportes.ProveedorPlantillas(), Registro, Usuario, Reloj);
     }
 
     public SqliteEjecucionPlanRepository Ejecuciones { get; }
@@ -90,6 +92,10 @@ public sealed class Entorno : IAsyncDisposable
     public ServicioCierre ServicioCierre { get; }
 
     public ServicioAsientos ServicioAsientos { get; }
+
+    public SqliteReporteRepository Reportes { get; }
+
+    public ServicioReportes ServicioReportes { get; }
 
     public ColaManual Cola { get; } = new();
 

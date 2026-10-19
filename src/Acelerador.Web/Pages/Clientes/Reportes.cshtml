@@ -1,0 +1,114 @@
+@page "/clientes/{id:guid}/reportes"
+@model Acelerador.Web.Pages.Clientes.ReportesModel
+@using Acelerador.Core.Reportes
+@{
+    ViewData["Title"] = "Reportes";
+    var v = Model.Vista;
+    var id = v.Cliente.Id;
+    string NombreModulo(Modulo m) => m switch
+    {
+        Modulo.Consolidacion => "Consolidación",
+        Modulo.Presupuesto => "Presupuesto",
+        Modulo.ActivosFijos => "Activos fijos",
+        _ => "Deterioros",
+    };
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(v.Cliente, Pasos.Reportes))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Reportes</h1>
+                <p>Genera y descarga los Excel con EPM que se entregan al cliente.</p>
+            </div>
+            @if (v.Habilitado)
+            {
+                <form method="post" asp-page-handler="Descargar" class="row">
+                    <button class="btn btn-p" type="submit">Descargar reportes (.zip)</button>
+                </form>
+            }
+        </div>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (Model.Fallo is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div>@Model.Fallo</div></div>
+        }
+
+        @if (!v.Habilitado)
+        {
+            <section class="card empty" role="status">
+                @Iconos.Vacio
+                <h2>Los reportes aún no están habilitados.</h2>
+                <p>Ejecuta la generación para habilitar los reportes.</p>
+                <a class="btn btn-p" href="@Formato.Ruta(id, Pasos.Ejecucion)">Ir a Ejecución</a>
+            </section>
+        }
+        else
+        {
+            <nav class="tabs" aria-label="Filtrar por módulo">
+                <a class="tab" href="@Formato.Ruta(id, Pasos.Reportes)" aria-current="@(v.Filtro is null ? "page" : null)">Todos</a>
+                @foreach (var m in v.Modulos)
+                {
+                    <a class="tab" href="@Formato.Ruta(id, Pasos.Reportes)?modulo=@m" aria-current="@(v.Filtro == m ? "page" : null)">@NombreModulo(m)</a>
+                }
+            </nav>
+
+            <form method="post" asp-page-handler="Generar" class="col" data-ocupado="Generando…">
+                @if (v.Filtro is not null)
+                {
+                    <input type="hidden" name="modulo" value="@v.Filtro">
+                }
+                <div class="tblw">
+                    <table class="tbl cards catalogo">
+                        <caption class="sr">Catálogo de reportes y plantillas de los módulos elegidos</caption>
+                        <thead>
+                            <tr><th scope="col"><span class="sr">Elegir</span></th><th scope="col">ID</th><th scope="col">Reporte</th><th scope="col">Módulo</th><th scope="col">Fuente</th><th scope="col">Ola</th><th scope="col">Estado</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in v.Reportes)
+                            {
+                                var r = f.Definicion;
+                                var vista = Formato.VistaPrevia(id, r);
+                                <tr>
+                                    <td data-l="Elegir"><input class="chk" type="checkbox" name="ids" value="@r.Id" aria-label="Elegir @r.Id" disabled="@(!r.Disponible)"></td>
+                                    <td data-l="ID" class="mono">@if (vista is null) { <b>@r.Id</b> } else { <a href="@vista"><b>@r.Id</b></a> }</td>
+                                    <td data-l="Reporte">@r.Nombre</td>
+                                    <td data-l="Módulo">@NombreModulo(r.Modulo)</td>
+                                    <td data-l="Fuente">@if (r.Fuente == FuenteReporte.Bw) { <span class="pill warn">BW</span> } else { <span class="pill neu">BPC</span> }</td>
+                                    <td data-l="Ola">@(r.Ola ?? "—")</td>
+                                    <td data-l="Estado">
+                                        @if (f.Generado is { Exitoso: true })
+                                        {
+                                            <span class="pill ok">@Iconos.Ok Generado</span>
+                                        }
+                                        else if (f.Generado is { Exitoso: false })
+                                        {
+                                            <span class="pill err">@Iconos.Error Error: @f.Generado.Mensaje</span>
+                                        }
+                                        else if (!r.Disponible)
+                                        {
+                                            <span class="pill neu">@Iconos.Pendiente Pendiente (próxima entrega)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="pill neu">@Iconos.Pendiente Pendiente</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row fin">
+                    <button class="btn btn-s" type="submit">Generar seleccionados</button>
+                </div>
+            </form>
+            <p class="rn sin-margen">Consolidación y presupuesto leen de BPC. RN-08 · Activos fijos y deterioros leen de BW. RN-12 · Clic en un ID abre su vista previa (UX-11, UX-13 o UX-15). RF-20 · RF-29</p>
+        }
+    </main>
+</div>
