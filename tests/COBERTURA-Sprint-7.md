@@ -1,7 +1,7 @@
 # Cobertura de criterios de aceptación · Sprint 7
 
 HU-32, HU-33, HU-34 y HU-35, contra el simulador con el motor de referencia de consolidación. Resultado al cierre:
-**437 aprobadas y 1 omitida** (DPAPI, solo Windows; el CI la exige).
+**438 aprobadas y 1 omitida** (DPAPI, solo Windows; el CI la exige).
 
 | HU | CA | Prueba (clase · método) | Tipo |
 |---|---|---|---|
@@ -41,3 +41,9 @@ CP-180 queda para HU-42. CP-202 (retención de 12 meses de la auditoría de BPC)
   hasta el consultado (RN-14), así que no hace falta copiar los meses sin cambios.
 - **Auditoría:** la guarda BPC (auditoría estándar del modelo); UX-13 la consulta. La base local no guarda importes ni
   porcentajes (RNF-Seg-04); el registro de ejecuciones anota solo qué sociedades se guardaron.
+
+## Corrección
+
+- UX-09 dejaba de consultar el estado cuando el último paso terminaba, un momento antes de que el cliente avanzara a
+  Reportes; en Windows la prueba de UX-13 llegaba antes del avance. Ahora la ejecución se considera en curso hasta que el
+  cliente avanza (`VistaEjecucion.EnCurso`, prueba `EjecucionTests.EnCursoHastaQueAvanzaElCliente`, HU-14).

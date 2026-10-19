@@ -9,7 +9,14 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace Acelerador.Core.Servicios;
 
 /// <summary>Todo lo que muestra UX-09: la última ejecución y las entradas recientes del registro.</summary>
-public sealed record VistaEjecucion(Cliente Cliente, EjecucionPlan? Ejecucion, IReadOnlyList<Ejecucion> Registro);
+public sealed record VistaEjecucion(Cliente Cliente, EjecucionPlan? Ejecucion, IReadOnlyList<Ejecucion> Registro)
+{
+    /// <summary>
+    /// La ejecución sigue en curso hasta que el cliente avanza: al terminar el último paso la ejecución queda completa un
+    /// momento antes de que el cliente pase a Reportes, y UX-09 debe seguir consultando hasta entonces.
+    /// </summary>
+    public bool EnCurso => Ejecucion?.Estado == EstadoEjecucion.EnCurso || (Ejecucion is not null && Cliente.Estado == EstadoCliente.EnCurso);
+}
 
 public sealed record ResultadoInicio(Guid? EjecucionId, string? Error);
 
