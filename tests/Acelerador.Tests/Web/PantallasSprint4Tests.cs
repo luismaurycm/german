@@ -15,7 +15,7 @@ public class PantallasSprint4Tests
     private static readonly Dictionary<string, string?> Nada = [];
 
     /// <summary>Hasta UX-07: sociedades del prototipo (con 9000 no SAP) y cuentas mapeadas para el archivo.</summary>
-    private static async Task<string> LlegarANoSapAsync(Navegador nav)
+    internal static async Task<string> LlegarANoSapAsync(Navegador nav)
     {
         var cliente = await LlegarAMapeoAsync(nav);
         await nav.PostAsync($"{cliente}/mapeo", [new("sociedad", "1000"), new("rubro", "F-00-101"), new("cuentas", "11050501"), new("cuentas", "11100501"), new("accion", "asignar")]);

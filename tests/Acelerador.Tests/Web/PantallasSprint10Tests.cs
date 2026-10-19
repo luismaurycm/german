@@ -57,7 +57,7 @@ public class PantallasSprint10Tests
         }
 
         Assert.Contains("class=\"ent num corto celda-epm\" name=\"filas[0].Meses[0]\"", html, StringComparison.Ordinal);
-        Assert.Contains("data-total-general", html, StringComparison.Ordinal);
+        Assert.Contains("data-total-general aria-live=\"polite\"", html, StringComparison.Ordinal);
         Assert.Contains("Resultado (ingresos − gastos)", html, StringComparison.Ordinal);
         Assert.Contains("Modelo PLANEACION · Presupuesto anual 2026", html, StringComparison.Ordinal);
         Assert.Contains("data-ocupado=\"Guardando…\"", html, StringComparison.Ordinal);

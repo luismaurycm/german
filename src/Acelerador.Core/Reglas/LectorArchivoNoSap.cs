@@ -33,6 +33,8 @@ public static partial class LectorArchivoNoSap
     /// <param name="sociedad">Sociedad no SAP a la que se sube el archivo.</param>
     /// <param name="sociedadesNoSap">Sociedades no SAP registradas en UX-05 (RN-07).</param>
     /// <param name="cuentasMapeadas">Cuentas del plan de la sociedad que tienen rubro (las demás son «cuenta sin mapear»).</param>
+    public const string MensajeNoEsCsv = "El archivo debe ser un CSV de texto (.csv) en UTF-8; no se procesa.";
+
     public static ArchivoNoSap Leer(byte[] contenido, string nombre, string sociedad, IReadOnlyCollection<string> sociedadesNoSap, IReadOnlySet<string> cuentasMapeadas)
     {
         var errores = new List<ErrorArchivo>();
@@ -51,6 +53,14 @@ public static partial class LectorArchivoNoSap
         if (!sociedadesNoSap.Contains(sociedad))
         {
             Error(0, "sociedad", MensajeNoEsDelGrupo(sociedad));
+            return Resultado([]);
+        }
+
+        // ASVS V12.2.1: solo texto CSV; un archivo binario (p. ej. un .xlsx o un ejecutable renombrado) no se procesa.
+        var extension = Path.GetExtension(nombre).ToLowerInvariant();
+        if (extension is not (".csv" or ".txt") || contenido.Contains((byte)0))
+        {
+            Error(0, "archivo", MensajeNoEsCsv);
             return Resultado([]);
         }
 
