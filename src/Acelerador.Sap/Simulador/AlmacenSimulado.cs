@@ -28,6 +28,20 @@ public interface IAlmacenSimulado
     IReadOnlyList<AuditoriaBpc> Auditoria { get; }
 
     void Auditar(IEnumerable<AuditoriaBpc> cambios);
+
+    /// <summary>Asientos de ajuste contabilizados (RF-35).</summary>
+    IReadOnlyList<AsientoBpc> Asientos { get; }
+
+    /// <summary>Contabiliza el asiento con el número siguiente (AJ-0001, AJ-0002…) y lo devuelve.</summary>
+    AsientoBpc Contabilizar(Func<string, AsientoBpc> asiento);
+
+    /// <summary>Estados de trabajo por sociedad y periodo (RN-17).</summary>
+    IReadOnlyList<BloqueoBpc> Bloqueos { get; }
+
+    void GuardarBloqueo(BloqueoBpc bloqueo);
+
+    /// <summary>Si la sociedad está bloqueada en el periodo (formato BPC «2026.09» o «2026-09»).</summary>
+    bool Bloqueada(string sociedad, string periodo);
 }
 
 /// <summary>
@@ -47,6 +61,56 @@ internal sealed class AlmacenSimulado(Func<OpcionesSimulador> opciones, Func<IRe
     private List<RegistroBpc> _registros = [];
     private readonly Dictionary<(string, string), ValidacionCuadre> _validaciones = [];
     private readonly List<AuditoriaBpc> _auditoria = [];
+    private readonly List<AsientoBpc> _asientos = [];
+    private readonly Dictionary<(string, string), BloqueoBpc> _bloqueos = [];
+
+    public IReadOnlyList<AsientoBpc> Asientos
+    {
+        get
+        {
+            lock (_candado)
+            {
+                return [.. _asientos];
+            }
+        }
+    }
+
+    public AsientoBpc Contabilizar(Func<string, AsientoBpc> asiento)
+    {
+        lock (_candado)
+        {
+            var nuevo = asiento($"AJ-{_asientos.Count + 1:0000}");
+            _asientos.Add(nuevo);
+            return nuevo;
+        }
+    }
+
+    public IReadOnlyList<BloqueoBpc> Bloqueos
+    {
+        get
+        {
+            lock (_candado)
+            {
+                return [.. _bloqueos.Values];
+            }
+        }
+    }
+
+    public void GuardarBloqueo(BloqueoBpc bloqueo)
+    {
+        lock (_candado)
+        {
+            _bloqueos[(bloqueo.Sociedad, bloqueo.Periodo.Replace('-', '.'))] = bloqueo;
+        }
+    }
+
+    public bool Bloqueada(string sociedad, string periodo)
+    {
+        lock (_candado)
+        {
+            return _bloqueos.TryGetValue((sociedad, periodo.Replace('-', '.')), out var b) && b.Bloqueada;
+        }
+    }
 
     public IReadOnlyList<AuditoriaBpc> Auditoria
     {

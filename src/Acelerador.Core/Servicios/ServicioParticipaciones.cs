@@ -125,22 +125,7 @@ public sealed class ServicioParticipaciones(
 
     private async Task<(IReadOnlyList<RegistroBpc> Registros, IReadOnlyList<AuditoriaBpc> Auditoria, string? Error)> LeerAsync(Guid clienteId, CancellationToken ct)
     {
-        var destino = await acceso.DestinoAsync(clienteId, SistemaSap.Bpc, ct);
-        if (destino.Destino is null)
-        {
-            return ([], [], destino.Error);
-        }
-
-        try
-        {
-            var r = await sap.ConsultarBpcAsync(destino.Destino, new ConsultaBpc(ModeloPropiedad.Modelo), ct);
-            return r.Exitosa
-                ? (r.Registros, r.Auditoria ?? [], null)
-                : ([], [], SanitizadorMensajes.Limpiar(r.Mensaje, destino.Credencial));
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            return ([], [], SanitizadorMensajes.Limpiar($"Error inesperado al llamar a SAP: {ex.Message}", destino.Credencial));
-        }
+        var (datos, error) = await LecturaBpc.LeerAsync(acceso, sap, clienteId, new ConsultaBpc(ModeloPropiedad.Modelo), ct);
+        return (datos?.Registros ?? [], datos?.Auditoria ?? [], error);
     }
 }

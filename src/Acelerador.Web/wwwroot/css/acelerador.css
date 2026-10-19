@@ -149,6 +149,12 @@ dl.row { margin: 0; gap: 4px 8px; } dl.row dt { font-weight: 500; } dl.row dd { 
 .tab { font: inherit; font-size: 14px; background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px; cursor: pointer; color: var(--a-muted); min-height: 44px; }
 .tab[aria-selected="true"] { color: var(--a-blue); border-bottom-color: var(--a-blue); font-weight: 700; }
 .tab .cuenta { font-weight: 400; }
+a.tab { display: inline-flex; align-items: center; text-decoration: none; }
+a.tab[aria-current="page"] { color: var(--a-blue); border-bottom-color: var(--a-blue); font-weight: 700; }
+.tbl tfoot th, .tbl tfoot td { font-weight: 700; border-top: 2px solid var(--a-line); }
+a.pill { text-decoration: none; }
+a.pill:hover { text-decoration: underline; }
+.c04 th[scope="row"] { text-align: left; font-weight: 400; }
 .inventario { display: grid; gap: 14px; }
 .pnl { display: grid; gap: 10px; }
 .pnl-h { margin: 6px 0 0; font-size: 17px; color: var(--a-head); }

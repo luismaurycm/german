@@ -65,8 +65,12 @@ public sealed class Entorno : IAsyncDisposable
         Pendientes = new CargasPendientes(Reloj);
         ServicioPlan = new ServicioPlan(Clientes, Inventarios, Sociedades, Mapeos, Ejecuciones, Cargas, GeneradorPlan.Predeterminado, Reloj);
         ServicioParticipaciones = new ServicioParticipaciones(Clientes, Sociedades, Acceso, Sap, Registro, Usuario, Reloj);
+        ContextoCierre = new ContextoCierreLector(Clientes, Sociedades, Mapeos, Reloj);
+        ServicioControles = new ServicioControles(ContextoCierre, Acceso, Sap);
+        ServicioAsientos = new ServicioAsientos(ContextoCierre, Acceso, Sap, Registro, Usuario, Reloj);
         ServicioNoSap = new ServicioNoSap(Clientes, Sociedades, Mapeos, Cargas, Pendientes, Acceso, Sap, Registro, Usuario, Reloj);
         ServicioEjecucion = new ServicioEjecucion(Clientes, Ejecuciones, ServicioPlan, Acceso, Sap, Registro, Cola, Usuario, Reloj, plantillas: new Acelerador.Infra.Reportes.ProveedorPlantillas());
+        ServicioCierre = new ServicioCierre(ContextoCierre, ServicioControles, Ejecuciones, Acceso, Sap, Registro, Usuario, Reloj);
     }
 
     public SqliteEjecucionPlanRepository Ejecuciones { get; }
@@ -78,6 +82,14 @@ public sealed class Entorno : IAsyncDisposable
     public ServicioNoSap ServicioNoSap { get; }
 
     public ServicioParticipaciones ServicioParticipaciones { get; }
+
+    public ContextoCierreLector ContextoCierre { get; }
+
+    public ServicioControles ServicioControles { get; }
+
+    public ServicioCierre ServicioCierre { get; }
+
+    public ServicioAsientos ServicioAsientos { get; }
 
     public ColaManual Cola { get; } = new();
 

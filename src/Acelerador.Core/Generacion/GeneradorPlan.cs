@@ -21,6 +21,7 @@ public sealed class GeneradorPlan(IReadOnlyList<IGeneradorObjetos> generadores, 
         new GeneradorPropiedad(),
         new GeneradorScripts(),
         new GeneradorConsolidacion(),
+        new GeneradorCierre(),
     ];
 
     public static GeneradorPlan Predeterminado { get; } = new(VersionUno, CatalogoVariantes.VersionUno);

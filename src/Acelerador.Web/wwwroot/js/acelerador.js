@@ -228,4 +228,40 @@
       xhr.send(new FormData(form));
     });
   });
+
+  // HU-39 (UX-14): totales del asiento y «Guardar asiento» habilitado solo si débitos = créditos (RN-15), sin recargar.
+  document.querySelectorAll('form[data-asiento]').forEach(function (form) {
+    var guardar = form.querySelector('[data-guardar]');
+    var totalD = form.querySelector('[data-total-debito]');
+    var totalC = form.querySelector('[data-total-credito]');
+    var indicador = form.querySelector('[data-indicador]');
+    if (!guardar || !totalD || !totalC || !indicador) return;
+    function leer(texto) {
+      var t = (texto || '').replace(/[\s$]/g, '');
+      if (!t) return 0;
+      if (t.indexOf(',') >= 0 || /^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '').replace(',', '.');
+      var v = Number(t);
+      return isNaN(v) || v < 0 ? NaN : v;
+    }
+    function formato(v) { return v.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function sumar(selector) {
+      var total = 0, escritas = 0;
+      form.querySelectorAll(selector).forEach(function (c) { var v = leer(c.value); if (c.value.trim()) escritas++; if (!isNaN(v)) total += v; });
+      return { total: Math.round(total * 100) / 100, escritas: escritas };
+    }
+    function recalcular() {
+      var d = sumar('[data-debito]'), c = sumar('[data-credito]');
+      totalD.textContent = formato(d.total);
+      totalC.textContent = formato(c.total);
+      var hay = d.escritas + c.escritas > 0, dif = Math.round((d.total - c.total) * 100) / 100;
+      var marca = document.createElement('span');
+      marca.className = hay ? (dif === 0 ? 'pill ok' : 'pill err') : 'muted';
+      marca.textContent = !hay ? 'Aún no hay líneas: usa Agregar línea.' : dif === 0 ? 'Cuadrado' : 'Descuadrado: ' + formato(Math.abs(dif));
+      indicador.replaceChildren(marca);
+      guardar.disabled = !(hay && dif === 0);
+    }
+    form.addEventListener('input', function (e) {
+      if (e.target.matches('[data-debito], [data-credito]')) recalcular();
+    });
+  });
 })();

@@ -97,7 +97,10 @@ public sealed class OpcionesSimulador
     /// <summary>Lógicas de BPC (scripts, paquetes) que terminan con error, por nombre técnico (HU-29 CA3).</summary>
     public List<string> FallaLogica { get; set; } = [];
 
-    /// <summary>Saldos adicionales del ERP para descuadrar una sociedad, como «2000:11050501:5000000» (HU-36).</summary>
+    /// <summary>
+    /// Saldos adicionales del ERP, como «2000:11050501:5000000» para descuadrar una sociedad (HU-36), o con un cuarto dato,
+    /// la sociedad socia de una partida intercompañía: «2000:22050501:-5000000:1000» (HU-38).
+    /// </summary>
     public List<string> AjustesSaldo { get; set; } = [];
 
     /// <summary>Nombres técnicos de objetos cuya creación falla.</summary>

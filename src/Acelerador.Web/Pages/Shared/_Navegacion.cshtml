@@ -37,8 +37,20 @@
     @if (ReglaAvance.PuedeAbrir(Model.Cliente, Pasos.Reportes))
     {
         <h2 class="nav-sub">Plantillas del cierre</h2>
+        <a class="step" href="@Formato.Reporte(Model.Cliente.Id, "C01")" aria-current="@(Model.PasoVisto == "C01" ? "page" : null)" data-carga="Actualizando C01…">
+            <span class="t">C01 Conciliación intercompañía</span>
+        </a>
         <a class="step" href="@Formato.Participaciones(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "c02" ? "page" : null)" data-carga="Consultando el modelo de propiedad…">
             <span class="t">C02 Participaciones y métodos</span>
+        </a>
+        <a class="step" href="@Formato.Reporte(Model.Cliente.Id, "C03")" aria-current="@(Model.PasoVisto == "C03" ? "page" : null)" data-carga="Actualizando C03…">
+            <span class="t">C03 Validación de cuadre</span>
+        </a>
+        <a class="step" href="@Formato.Cierre(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "C04" ? "page" : null)" data-carga="Consultando el estado del cierre…">
+            <span class="t">C04 Estado del cierre</span>
+        </a>
+        <a class="step" href="@Formato.Asientos(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "asientos" ? "page" : null)" data-carga="Consultando los asientos del periodo…">
+            <span class="t">Asientos de ajuste</span>
         </a>
     }
 </nav>

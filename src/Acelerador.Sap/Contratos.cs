@@ -147,6 +147,7 @@ public sealed record OperacionSap(string Funcion, string TipoObjeto, string Nomb
 /// Resultado de una escritura. <see cref="ErrorDeComunicacion"/> distingue la falla de red o el tiempo agotado (se reintenta
 /// una vez) de un error de negocio de SAP (no se reintenta), como pide la arquitectura (sección 8.3). En las cargas de
 /// datos, <see cref="Cantidad"/> es cuántos registros cargó y <see cref="Aviso"/> lo que no cargó sin que el paso falle.
+/// <see cref="Clave"/> es el identificador que asigna SAP, como el número de un asiento.
 /// </summary>
 public sealed record ResultadoOperacionSap(
     bool Exitosa,
@@ -154,7 +155,8 @@ public sealed record ResultadoOperacionSap(
     ResultadoEscritura? Resultado = null,
     bool ErrorDeComunicacion = false,
     int? Cantidad = null,
-    string? Aviso = null);
+    string? Aviso = null,
+    string? Clave = null);
 
 /// <summary>
 /// Un registro del modelo BPC: sociedad, cuenta, intercompañía, periodo, moneda de presentación (LC, USD o la moneda
@@ -188,9 +190,32 @@ public sealed record ConsultaBpc(string Modelo, string? Periodo = null, string? 
 /// <summary>Un cambio auditado en BPC (RNF-Aud-02): quién, cuándo, qué dato, valor anterior y nuevo.</summary>
 public sealed record AuditoriaBpc(DateTimeOffset Fecha, string Usuario, string Modelo, string Sociedad, string Periodo, string Dato, string Anterior, string Nuevo);
 
+/// <summary>Una línea de un asiento de ajuste de consolidación (RF-35, UX-14).</summary>
+public sealed record LineaAsiento(string Sociedad, string Cuenta, string Intco, decimal Debito, decimal Credito, string Observacion);
+
+/// <summary>Un asiento de ajuste contabilizado en BPC, con número, usuario y fecha (RNF-Aud-02).</summary>
+public sealed record AsientoBpc(
+    string Numero,
+    string Grupo,
+    string Periodo,
+    string Moneda,
+    string Descripcion,
+    string Usuario,
+    DateTimeOffset Fecha,
+    IReadOnlyList<LineaAsiento> Lineas,
+    string Estado = "Contabilizado")
+{
+    public decimal Valor => Lineas.Sum(l => l.Debito);
+}
+
+/// <summary>Estado de trabajo de una sociedad en un periodo (RN-17): bloqueada o abierta, quién y cuándo lo cambió.</summary>
+public sealed record BloqueoBpc(string Sociedad, string Periodo, bool Bloqueada, string Usuario, DateTimeOffset Fecha);
+
 public sealed record ResultadoConsultaBpc(
     bool Exitosa,
     string Mensaje,
     IReadOnlyList<RegistroBpc> Registros,
     IReadOnlyList<ValidacionCuadre> Validaciones,
-    IReadOnlyList<AuditoriaBpc>? Auditoria = null);
+    IReadOnlyList<AuditoriaBpc>? Auditoria = null,
+    IReadOnlyList<AsientoBpc>? Asientos = null,
+    IReadOnlyList<BloqueoBpc>? Bloqueos = null);

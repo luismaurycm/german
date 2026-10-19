@@ -121,7 +121,7 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         foreach (var ajuste in opciones.AjustesSaldo.Where(a => a.StartsWith(sociedad + ":", StringComparison.Ordinal)))
         {
             var partes = ajuste.Split(':');
-            lista.Add(new SaldoErp(partes[1], "", decimal.Parse(partes[2], System.Globalization.CultureInfo.InvariantCulture)));
+            lista.Add(new SaldoErp(partes[1], partes.Length > 3 ? partes[3] : "", decimal.Parse(partes[2], System.Globalization.CultureInfo.InvariantCulture)));
         }
 
         return lista;
@@ -154,7 +154,7 @@ public sealed partial class SimulatedSapGateway : ISapGateway
             return CargarMaestro(o, operacion);
         }
 
-        if (operacion.TipoObjeto is "VALIDACION" or "IMPORTACION" or "LOGICA" or "PARTICIPACIONES")
+        if (operacion.TipoObjeto is "VALIDACION" or "IMPORTACION" or "LOGICA" or "PARTICIPACIONES" or "ASIENTO" or "BLOQUEO")
         {
             if (o.FallaLogica.Contains(operacion.NombreTecnico, StringComparer.OrdinalIgnoreCase))
             {
@@ -291,7 +291,10 @@ public sealed partial class SimulatedSapGateway : ISapGateway
             .ToList();
         var validaciones = _almacen.Validaciones.Where(v => consulta.Periodo is null || v.Periodo.Replace('-', '.') == consulta.Periodo.Replace('-', '.')).ToList();
         var auditoria = _almacen.Auditoria.Where(a => a.Modelo == consulta.Modelo).ToList();
-        return new ResultadoConsultaBpc(true, $"{registros.Count} registros.", registros, validaciones, auditoria);
+        bool DelPeriodo(string periodo) => consulta.Periodo is null || periodo.Replace('-', '.') == consulta.Periodo.Replace('-', '.');
+        var asientos = _almacen.Asientos.Where(a => DelPeriodo(a.Periodo)).ToList();
+        var bloqueos = _almacen.Bloqueos.Where(b => DelPeriodo(b.Periodo)).ToList();
+        return new ResultadoConsultaBpc(true, $"{registros.Count} registros.", registros, validaciones, auditoria, asientos, bloqueos);
     }
 
     public async Task<ResultadoInventario> LeerInventarioAsync(DestinoSap destino, TipoInventario tipo, CancellationToken ct = default)

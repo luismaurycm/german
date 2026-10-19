@@ -1,0 +1,160 @@
+@page "/clientes/{id:guid}/reportes/{codigo}"
+@model Acelerador.Web.Pages.Clientes.ReporteModel
+@{
+    var c = Model.Contexto;
+    var titulo = Model.Hoja == "C01" ? "C01 Conciliación intercompañía" : "C03 Validación de cuadre";
+    ViewData["Title"] = titulo;
+    var id = c.Cliente.Id;
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(c.Cliente, Model.Hoja))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>@titulo</h1>
+                <p>Vista de la plantilla EPM (UX-11). El Usuario financiero la abre en Excel con EPM; aquí se lee el mismo modelo de consolidación de BPC.</p>
+            </div>
+            <div class="row"><span class="pill neu">Modelo CONSOLIDACION</span></div>
+        </div>
+
+        <nav class="tabs hojas" aria-label="Hojas">
+            @foreach (var (hoja, nombre) in ReporteModel.Hojas)
+            {
+                <a class="tab" href="@Formato.Reporte(id, hoja)?periodo=@c.Periodo" aria-current="@(hoja == Model.Hoja ? "page" : null)" data-carga="Actualizando @hoja…">@nombre</a>
+            }
+            <a class="tab" href="@Formato.Participaciones(id)">C02 Participaciones</a>
+            <a class="tab" href="@Formato.Cierre(id)?periodo=@c.Periodo">C04 Estado del cierre</a>
+        </nav>
+
+        <form method="get" class="row filtros" data-carga="Actualizando…" data-auto>
+            <div class="fld">
+                <label for="grupo">Grupo</label>
+                <input id="grupo" type="text" value="@c.Grupo" readonly>
+            </div>
+            <div class="fld">
+                <label for="periodo">Periodo</label>
+                <select id="periodo" name="periodo">
+                    @foreach (var p in c.Periodos)
+                    {
+                        <option value="@p" selected="@(p == c.Periodo)">@p</option>
+                    }
+                </select>
+            </div>
+            @if (Model.C01 is { } c01)
+            {
+                <div class="fld">
+                    <label for="moneda">Moneda</label>
+                    <select id="moneda" name="moneda">
+                        @foreach (var m in c.Monedas)
+                        {
+                            <option value="@m" selected="@(m == c01.Moneda)">@m</option>
+                        }
+                    </select>
+                </div>
+            }
+            <button class="btn btn-s" type="submit">Actualizar</button>
+        </form>
+
+        @if (Model.Error is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>No se pudo conectar a BPC; revisa la conexión de EPM.</b><br>El sistema respondió: «@Model.Error»</div></div>
+        }
+        else if (Model.C01 is { } v1)
+        {
+            @if (v1.Vacio)
+            {
+                <div class="empty compacto" role="status">@Iconos.Vacio<p>@ServicioControles.SinIntercompania</p></div>
+            }
+            else
+            {
+                var superan = v1.Parejas.Count(p => ReglasConciliacion.SuperaUmbral(p, v1.Umbral));
+                @if (superan > 0)
+                {
+                    <div class="note w" role="status">@Iconos.Aviso<div>@Textos.Cantidad(superan, "pareja supera", "parejas superan") el umbral: revísalas antes de ejecutar la eliminación.</div></div>
+                }
+                <div class="tblw">
+                    <table class="tbl cards">
+                        <caption class="sr">Conciliación intercompañía por pareja de sociedades en @c.Periodo, en @v1.Moneda</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Sociedad</th><th scope="col">Contraparte</th><th scope="col">Naturaleza</th><th scope="col">Cuentas</th>
+                                <th scope="col" class="num">Registra la sociedad</th><th scope="col" class="num">Registra la contraparte</th><th scope="col" class="num">Diferencia</th><th scope="col">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in v1.Parejas)
+                            {
+                                var supera = ReglasConciliacion.SuperaUmbral(p, v1.Umbral);
+                                <tr class="@(supera ? "fila-err" : null)">
+                                    <td data-l="Sociedad" class="mono">@p.Sociedad</td>
+                                    <td data-l="Contraparte" class="mono">@p.Contraparte</td>
+                                    <td data-l="Naturaleza">@p.Naturaleza</td>
+                                    <td data-l="Cuentas" class="mono">@string.Join(", ", p.CuentasSociedad) / @string.Join(", ", p.CuentasContraparte)</td>
+                                    <td data-l="Registra la sociedad" class="num mono">@ReglaCuadre.Formato(p.RegistraSociedad)</td>
+                                    <td data-l="Registra la contraparte" class="num mono">@ReglaCuadre.Formato(p.RegistraContraparte)</td>
+                                    <td data-l="Diferencia" class="num mono">@ReglaCuadre.Formato(p.Diferencia)</td>
+                                    <td data-l="Estado">
+                                        @if (supera)
+                                        {
+                                            <span class="pill err">@Iconos.Error Supera el umbral</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="pill ok">@Iconos.Ok Conciliada</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            <p class="rn sin-margen">Umbral provisional @ReglaCuadre.Formato(v1.Umbral) @v1.Moneda (DAF, pregunta 14). Solo sociedades del grupo. RN-07 · Lee los datos importados: se puede consultar antes de la consolidación del periodo. RF-34</p>
+        }
+        else if (Model.C03 is { } v3)
+        {
+            @if (v3.Vacio)
+            {
+                <div class="empty compacto" role="status">@Iconos.Vacio<p>@ServicioControles.SinImportaciones</p></div>
+            }
+            else
+            {
+                <div class="tblw">
+                    <table class="tbl cards">
+                        <caption class="sr">Validación de cuadre por sociedad en @c.Periodo, en moneda local</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Sociedad</th><th scope="col">Nombre</th><th scope="col" class="num">Activo − (pasivo + patrimonio)</th>
+                                <th scope="col" class="num">Utilidad EERR − resultado balance</th><th scope="col">Cuentas mapeadas</th><th scope="col">Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in v3.Filas)
+                            {
+                                var val = f.Validacion;
+                                <tr class="@(val.Importada ? null : "fila-err")">
+                                    <td data-l="Sociedad" class="mono">@f.Sociedad.Codigo</td>
+                                    <td data-l="Nombre">@f.Sociedad.Nombre</td>
+                                    <td data-l="Activo − (pasivo + patrimonio)" class="num mono">@ReglaCuadre.Formato(val.DiferenciaBalance)</td>
+                                    <td data-l="Utilidad − resultado" class="num mono">@ReglaCuadre.Formato(val.DiferenciaResultado)</td>
+                                    <td data-l="Cuentas mapeadas">@(val.CuentasSinMapear.Count == 0 ? "Sí" : $"No ({Textos.Cantidad(val.CuentasSinMapear.Count, "cuenta", "cuentas")} sin mapear)")</td>
+                                    <td data-l="Resultado">
+                                        @if (val.Importada)
+                                        {
+                                            <span class="pill ok">@Iconos.Ok Importada</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="pill err">@Iconos.Error No importada</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            <p class="rn sin-margen">Una sociedad solo se importa si cuadra y tiene todas sus cuentas con saldo mapeadas. RN-16 · Tolerancia provisional @ReglaCuadre.Formato(ReglaCuadre.ToleranciaProvisional) (DAF, pregunta 14). RF-36</p>
+        }
+    </main>
+</div>

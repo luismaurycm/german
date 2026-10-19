@@ -108,6 +108,18 @@ public sealed class ServicioNoSap(
             return new ResultadoOperacion(false, "Corrige los errores del archivo antes de confirmar la carga.");
         }
 
+        if (cliente.Estado == EstadoCliente.Completo)
+        {
+            // RN-17: con BPC ya configurado, una sociedad bloqueada en el periodo no admite cargas.
+            foreach (var periodo in archivo.Periodos)
+            {
+                if ((await LecturaBpc.BloqueadasAsync(acceso, sap, clienteId, periodo, ct)).Contains(sociedad))
+                {
+                    return new ResultadoOperacion(false, ReglasCierreMensual.MensajeBloqueada(sociedad, periodo, "no admite cargas"));
+                }
+            }
+        }
+
         var destino = await acceso.DestinoAsync(clienteId, SistemaSap.Bw, ct);
         var objeto = $"{TablaStaging} {sociedad} {string.Join(", ", archivo.Periodos)}";
         ResultadoOperacionSap resultado;

@@ -97,7 +97,8 @@ public sealed class EjecucionPlan
                 return null;
             }
 
-            return importacion.Objetos.Count(o => o.Operacion.TipoObjeto == "IMPORTACION") - importacion.Avisos.Count;
+            // Una sociedad bloqueada (RN-17) conserva sus datos importados: sigue en la consolidación.
+            return importacion.Objetos.Count(o => o.Operacion.TipoObjeto == "IMPORTACION") - importacion.Avisos.Count(a => !a.Contains("RN-17", StringComparison.Ordinal));
         }
     }
 
