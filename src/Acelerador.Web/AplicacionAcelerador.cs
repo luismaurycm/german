@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net;
+using Acelerador.Core.Reglas;
 using Acelerador.Core.Servicios;
 using Acelerador.Infra.Datos;
 using Acelerador.Web.Seguridad;
@@ -13,6 +14,9 @@ namespace Acelerador.Web;
 /// <summary>Arma la aplicación web local (ADR-02): Kestrel solo en 127.0.0.1, token de sesión y Razor Pages.</summary>
 public static class AplicacionAcelerador
 {
+    /// <summary>Tamaño máximo de una petición que no es la carga de archivos (4 MB).</summary>
+    public const long LimiteFormulario = 4 * 1024 * 1024;
+
     public static WebApplication Construir(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +27,15 @@ public static class AplicacionAcelerador
         {
             k.Listen(IPAddress.Loopback, puerto);
             k.AddServerHeader = false;
+
+            // ASVS V12.1.1 / V13.1.3: límite de tamaño de toda petición; la carga no SAP declara su propio límite (20 MB).
+            k.Limits.MaxRequestBodySize = LimiteFormulario;
+        });
+        builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
+        {
+            // El mapeo de UX-06 envía una casilla por cuenta (hasta 5.000 cuentas, pregunta 2 de diseño).
+            o.ValueCountLimit = 20_000;
+            o.MultipartBodyLengthLimit = LectorArchivoNoSap.TamanoMaximo + (1024 * 1024);
         });
 
         builder.Services.AddAcelerador(builder.Configuration);
@@ -39,6 +52,7 @@ public static class AplicacionAcelerador
         app.UseExceptionHandler("/error");
         app.UseStatusCodePagesWithReExecute("/error", "?codigo={0}");
         app.UseEncabezadosSeguridad();
+        app.UseLimitePeticiones(LimiteFormulario, LectorArchivoNoSap.TamanoMaximo + (1024 * 1024));
         app.UseStaticFiles();
         app.UseMiddleware<MiddlewareSesion>();
         app.UseRouting();

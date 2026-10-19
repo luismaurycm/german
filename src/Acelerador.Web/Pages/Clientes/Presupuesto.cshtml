@@ -118,7 +118,7 @@
                                 {
                                     <td class="num mono" data-total-mes="@m">@ReglaCuadre.Formato(v.Filas.Sum(f => Peso(f) * f.Meses[m - 1]))</td>
                                 }
-                                <td class="num mono" data-total-general>@ReglaCuadre.Formato(v.Filas.Sum(f => Peso(f) * f.Total))</td>
+                                <td class="num mono" data-total-general aria-live="polite">@ReglaCuadre.Formato(v.Filas.Sum(f => Peso(f) * f.Total))</td>
                             </tr>
                         </tfoot>
                     </table>
