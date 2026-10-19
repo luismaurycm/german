@@ -145,6 +145,13 @@ public sealed record OperacionSap(string Funcion, string TipoObjeto, string Nomb
 
 /// <summary>
 /// Resultado de una escritura. <see cref="ErrorDeComunicacion"/> distingue la falla de red o el tiempo agotado (se reintenta
-/// una vez) de un error de negocio de SAP (no se reintenta), como pide la arquitectura (sección 8.3).
+/// una vez) de un error de negocio de SAP (no se reintenta), como pide la arquitectura (sección 8.3). En las cargas de
+/// datos, <see cref="Cantidad"/> es cuántos registros cargó y <see cref="Aviso"/> lo que no cargó sin que el paso falle.
 /// </summary>
-public sealed record ResultadoOperacionSap(bool Exitosa, string Mensaje, ResultadoEscritura? Resultado = null, bool ErrorDeComunicacion = false);
+public sealed record ResultadoOperacionSap(
+    bool Exitosa,
+    string Mensaje,
+    ResultadoEscritura? Resultado = null,
+    bool ErrorDeComunicacion = false,
+    int? Cantidad = null,
+    string? Aviso = null);

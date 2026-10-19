@@ -169,9 +169,11 @@ public class ModulosBwTests
 
         await e.ServicioModulos.GuardarAsync(c.Id, [Modulo.Consolidacion, Modulo.ActivosFijos, Modulo.Deterioros], continuar: false);
         var con = (await e.ServicioPlan.ObtenerAsync(c.Id))!.Plan;
-        Assert.Equal(
-            [PasosGeneracion.ObjetosBw, PasosGeneracion.ActivosFijos, PasosGeneracion.Deterioros],
-            con.Pasos.Select(p => p.Id));
+        var ids = con.Pasos.Select(p => p.Id).ToList();
+        Assert.Contains(PasosGeneracion.ActivosFijos, ids);
+        Assert.Contains(PasosGeneracion.Deterioros, ids);
+        Assert.True(ids.IndexOf(PasosGeneracion.ObjetosBw) < ids.IndexOf(PasosGeneracion.ActivosFijos));
+        Assert.True(ids.IndexOf(PasosGeneracion.ActivosFijos) < ids.IndexOf(PasosGeneracion.Deterioros));
     }
 
     [Fact(DisplayName = "HU-19 CA2 y CA3: activos fijos activa su extractor y crea InfoProvider, cargas y cadenas en BW, sin BPC (RN-12)")]
@@ -183,7 +185,7 @@ public class ModulosBwTests
 
         var ej = await e.GenerarAsync(c.Id);
 
-        var paso = Assert.Single(ej.Pasos);
+        var paso = ej.Pasos.Single(p => p.Id == PasosGeneracion.ActivosFijos);
         Assert.Equal("Activos fijos en BW", paso.Nombre);
         Assert.Equal(EstadoPaso.Completo, paso.Estado);
         Assert.Contains(paso.Objetos, o => o is { Sistema: SistemaSap.Erp, NombreTecnico: "0FI_AA_11", Estado: EstadoObjeto.Nuevo });
@@ -203,7 +205,7 @@ public class ModulosBwTests
 
         var ej = await e.GenerarAsync(c.Id);
 
-        var paso = Assert.Single(ej.Pasos);
+        var paso = ej.Pasos.Single(p => p.Id == PasosGeneracion.Deterioros);
         Assert.Equal("Deterioros en BW", paso.Nombre);
         Assert.Contains(paso.Objetos, o => o is { Sistema: SistemaSap.Erp, NombreTecnico: "0FI_AR_4" });
         Assert.Contains(paso.Objetos, o => o.NombreTecnico == "ZACC_DE_C01");

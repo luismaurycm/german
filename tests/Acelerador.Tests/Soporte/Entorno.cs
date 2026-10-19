@@ -63,7 +63,7 @@ public sealed class Entorno : IAsyncDisposable
         Ejecuciones = new SqliteEjecucionPlanRepository(Base);
         Cargas = new SqliteCargaNoSapRepository(Base);
         Pendientes = new CargasPendientes(Reloj);
-        ServicioPlan = new ServicioPlan(Clientes, Inventarios, Sociedades, Mapeos, Ejecuciones, Cargas, GeneradorPlan.Predeterminado);
+        ServicioPlan = new ServicioPlan(Clientes, Inventarios, Sociedades, Mapeos, Ejecuciones, Cargas, GeneradorPlan.Predeterminado, Reloj);
         ServicioNoSap = new ServicioNoSap(Clientes, Sociedades, Mapeos, Cargas, Pendientes, Acceso, Sap, Registro, Usuario, Reloj);
         ServicioEjecucion = new ServicioEjecucion(Clientes, Ejecuciones, ServicioPlan, Acceso, Sap, Registro, Cola, Usuario, Reloj);
     }

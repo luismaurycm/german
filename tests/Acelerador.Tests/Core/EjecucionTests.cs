@@ -29,7 +29,9 @@ public class EjecucionTests
         var ej = (await e.Ejecuciones.ObtenerAsync(inicio.EjecucionId.Value))!;
 
         Assert.Equal(EstadoEjecucion.Completa, ej.Estado);
-        var paso = Assert.Single(ej.Pasos);
+        Assert.All(ej.Pasos, p => Assert.True(p.Terminado));
+        var paso = ej.Pasos[0];
+        Assert.Equal(PasosGeneracion.ObjetosBw, paso.Id);
         Assert.Equal(EstadoPaso.Completo, paso.Estado);
         Assert.NotNull(paso.Duracion);
         Assert.Equal(paso.Objetos.Count, paso.Creados);
@@ -73,8 +75,8 @@ public class EjecucionTests
         var ej = await e.GenerarAsync(c.Id);
 
         Assert.Equal(EstadoPaso.Existente, ej.Pasos[0].Estado);
-        Assert.Equal(0, ej.Creados);
-        Assert.DoesNotContain(e.Sap.Llamadas, l => l.EsEscritura);
+        Assert.Equal(0, ej.Pasos[0].Creados);
+        Assert.DoesNotContain(e.Sap.Llamadas, l => l.EsEscritura && ej.Pasos[0].Objetos.Any(o => l.Operacion.EndsWith(" " + o.NombreTecnico, StringComparison.Ordinal)));
         var reg = Assert.Single(await e.Registro.ListarAsync(c.Id), x => x.Paso == ej.Pasos[0].Nombre);
         Assert.Contains("RN-03", reg.Mensaje, StringComparison.Ordinal);
     }
@@ -118,10 +120,11 @@ public class EjecucionTests
         var final = (await e.Ejecuciones.ObtenerAsync(ej.Id))!;
 
         Assert.Equal(EstadoEjecucion.Completa, final.Estado);
-        Assert.Equal(final.Pasos[0].Objetos.Count(o => o.Estado == EstadoObjeto.Nuevo), e.Sap.Objetos.Count);
+        var delPaso = e.Sap.Objetos.Count(o => final.Pasos[0].Objetos.Any(x => x.Operacion.NombreTecnico == o.Operacion.NombreTecnico && x.Sistema == o.Sistema && x.Operacion.TipoObjeto == o.Operacion.TipoObjeto));
+        Assert.Equal(final.Pasos[0].Objetos.Count(o => o.Estado == EstadoObjeto.Nuevo), delPaso);
         Assert.True(e.Sap.Objetos.Count > objetosAntes);
         Assert.Equal(creadosAntes, final.Pasos[0].Existentes);
-        Assert.Equal(e.Sap.Objetos.Count - objetosAntes, final.Pasos[0].Creados);
+        Assert.Equal(delPaso - objetosAntes, final.Pasos[0].Creados);
     }
 
     [Fact(DisplayName = "HU-14 CA3: con dos pasos, el reintento empieza en el que falló")]

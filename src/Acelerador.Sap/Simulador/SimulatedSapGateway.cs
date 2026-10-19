@@ -13,7 +13,7 @@ public sealed record ObjetoSimulado(SistemaSap Sistema, string Host, OperacionSa
 /// los fallos de conexión y los mensajes que devuelve SAP. Se usa en las pruebas unitarias y en
 /// desarrollo mientras la prueba técnica HU-01 no confirme el conector real.
 /// </summary>
-public sealed class SimulatedSapGateway : ISapGateway
+public sealed partial class SimulatedSapGateway : ISapGateway
 {
     public static string MensajeNoAlcanzable(string host) => $"Partner '{host}:sapgw00' not reached";
     public const string MensajeClaveIncorrecta = "Name or password is incorrect (repeat logon)";
@@ -81,6 +81,21 @@ public sealed class SimulatedSapGateway : ISapGateway
             return new ResultadoOperacionSap(false, MensajeSinEscritura(operacion, destino.Sistema));
         }
 
+        if (operacion.TipoObjeto == "CARGA")
+        {
+            return CargarMaestro(o, operacion);
+        }
+
+        if (destino.Sistema == SistemaSap.Bpc && operacion.TipoObjeto == "MIEMBROS")
+        {
+            var invalidos = Miembros(operacion).Where(m => !MiembroBpcValido().IsMatch(m)).ToList();
+            if (invalidos.Count > 0)
+            {
+                return new ResultadoOperacionSap(false,
+                    $"UJA_MEMBER: BPC rechazó el miembro «{invalidos[0]}» de {operacion.NombreTecnico}: solo admite letras, números, guion, punto y guion bajo (hasta 32).");
+            }
+        }
+
         if (operacion.TipoObjeto == "DATOS")
         {
             // Una carga de datos no es un objeto: se reemplaza completa (todo o nada) y nunca responde EXISTE.
@@ -97,6 +112,12 @@ public sealed class SimulatedSapGateway : ISapGateway
         if (preexistente || !_objetos.TryAdd(clave, new ObjetoSimulado(destino.Sistema, destino.Parametros.Host, operacion)))
         {
             return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico}: EXISTE, no se modifica.", ResultadoEscritura.Existente);
+        }
+
+        if (operacion.TipoObjeto == "MIEMBROS")
+        {
+            var n = Miembros(operacion).Count();
+            return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico}: {n} miembros creados.", ResultadoEscritura.Creado, Cantidad: n);
         }
 
         return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico} creado.", ResultadoEscritura.Creado);
@@ -245,6 +266,89 @@ public sealed class SimulatedSapGateway : ISapGateway
             .ToList();
         return new ResultadoCuentas(true, $"{cuentas.Count} cuentas del plan {soc.PlanCuentas}.", soc.PlanCuentas, soc.Moneda, PeriodoSaldos, cuentas);
     }
+
+    /// <summary>Centros de costo y de beneficio de cada sociedad del ERP de ejemplo.</summary>
+    public static readonly IReadOnlyDictionary<string, (int CentrosCosto, int CentrosBeneficio)> Centros =
+        new Dictionary<string, (int, int)> { ["1000"] = (12, 5), ["2000"] = (8, 3), ["3000"] = (4, 2) };
+
+    /// <summary>
+    /// Cargas de datos maestros de BW (HU-21 a HU-24): el paquete Z lee del ERP y carga en BW. Devuelve la cantidad
+    /// cargada; los faltantes configurados son errores y las cuentas huérfanas de la jerarquía, avisos.
+    /// </summary>
+    private ResultadoOperacionSap CargarMaestro(OpcionesSimulador o, OperacionSap op)
+    {
+        using var doc = System.Text.Json.JsonDocument.Parse(op.Definicion);
+        var d = doc.RootElement;
+        string Texto(string p) => d.TryGetProperty(p, out var v) ? v.GetString() ?? "" : "";
+        var sociedades = d.TryGetProperty("sociedades", out var s) ? s.EnumerateArray().Select(x => x.GetString()!).ToList() : [];
+        switch (Texto("tipo"))
+        {
+            case "PLAN_CUENTAS":
+            case "JERARQUIA":
+            {
+                var plan = Texto("plan");
+                if (o.PlanesSinDatos.Contains(plan) || !Cuentas.Any(c => c.Plan == plan))
+                {
+                    return new ResultadoOperacionSap(false, $"{string.Join(", ", sociedades)}: el plan de cuentas {plan} no existe en el ERP (SKA1).");
+                }
+
+                var cuentas = Cuentas.Where(c => c.Plan == plan).Concat(o.CuentasAdicionales.Where(c => c.Plan == plan)).ToList();
+                if (Texto("tipo") == "PLAN_CUENTAS")
+                {
+                    return new ResultadoOperacionSap(true, $"{plan}: {cuentas.Count} cuentas cargadas.", ResultadoEscritura.Creado, Cantidad: cuentas.Count);
+                }
+
+                var huerfanas = o.CuentasHuerfanasJerarquia.Where(x => x.StartsWith(plan + ":", StringComparison.Ordinal)).Select(x => x[(plan.Length + 1)..]).ToList();
+                var nodos = 1 + cuentas.Select(c => c.Nodo).Distinct().Count() + cuentas.Count;
+                return new ResultadoOperacionSap(true, $"{plan}: {nodos} nodos cargados.", ResultadoEscritura.Creado, Cantidad: nodos,
+                    Aviso: huerfanas.Count == 0 ? null : $"{plan}: la jerarquía tiene {string.Join(", ", huerfanas)}, que no {(huerfanas.Count == 1 ? "existe" : "existen")} en el plan de cuentas; no se {(huerfanas.Count == 1 ? "carga" : "cargan")}.");
+            }
+
+            case "CENTROS":
+            {
+                var soc = sociedades.FirstOrDefault() ?? "";
+                if (o.FallaCentrosSociedades.Contains(soc))
+                {
+                    return new ResultadoOperacionSap(false, $"{soc}: el área de controlling asignada a la sociedad no existe (OKKP).");
+                }
+
+                var (ceco, cebe) = Centros.GetValueOrDefault(soc, (0, 0));
+                return new ResultadoOperacionSap(true, $"{soc}: {ceco} centros de costo y {cebe} centros de beneficio cargados.", ResultadoEscritura.Creado, Cantidad: ceco + cebe);
+            }
+
+            case "TASAS":
+            {
+                var moneda = Texto("moneda");
+                var periodos = d.GetProperty("periodos").EnumerateArray().Select(x => x.GetString()!).ToList();
+                var falta = periodos.FirstOrDefault(p => o.TasasFaltantes.Contains($"{moneda}:{p}"));
+                if (falta is not null)
+                {
+                    return new ResultadoOperacionSap(false, $"No hay tasa de cierre {moneda}/USD para {falta} en el ERP (TCURR).");
+                }
+
+                var tipos = d.GetProperty("tipos").EnumerateObject().Count();
+                return new ResultadoOperacionSap(true, $"{moneda}/USD: {periodos.Count * tipos} tasas cargadas ({periodos.Count} periodos × {tipos} tipos).",
+                    ResultadoEscritura.Creado, Cantidad: periodos.Count * tipos);
+            }
+
+            case "MONEDAS":
+                return new ResultadoOperacionSap(true, $"{sociedades.Count} monedas locales cargadas desde T001.", ResultadoEscritura.Creado, Cantidad: sociedades.Count);
+
+            default:
+                return new ResultadoOperacionSap(true, $"{op.NombreTecnico} cargado.", ResultadoEscritura.Creado);
+        }
+    }
+
+    private static IEnumerable<string> Miembros(OperacionSap op)
+    {
+        using var doc = System.Text.Json.JsonDocument.Parse(op.Definicion);
+        return doc.RootElement.TryGetProperty("miembros", out var m)
+            ? m.EnumerateArray().Select(x => x.GetProperty("id").GetString()!).ToList()
+            : [];
+    }
+
+    [System.Text.RegularExpressions.GeneratedRegex("^[A-Za-z0-9_.-]{1,32}$")]
+    private static partial System.Text.RegularExpressions.Regex MiembroBpcValido();
 
     /// <summary>Sociedades del ERP de ejemplo (prototipo F4). La 9000 no está: es la sociedad no SAP.</summary>
     public static readonly IReadOnlyList<SociedadErp> SociedadesErp =

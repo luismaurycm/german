@@ -8,6 +8,7 @@ Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). S
 | 2 | HU-07, HU-09, HU-10, HU-11, HU-12, HU-54 | UX-03 Diagnóstico e inventario, versiones de presupuesto en UX-04, UX-05 Sociedades, UX-06 Mapeo de cuentas, registro de UX-09 |
 | 3 | HU-13, HU-14, HU-15, HU-17 | UX-08 Plan de generación, UX-09 Ejecución (pasos, reintento), bodega BW 7.5 y campos Z |
 | 4 | HU-16, HU-18, HU-19, HU-20, HU-25 | Variante BW/4HANA (aDSO, ODP), cadenas full y delta, activos fijos y deterioros en BW, UX-07 Sociedades no SAP |
+| 5 | HU-21, HU-22, HU-23, HU-24, HU-26 | Datos maestros (planes, CeCo y CeBe, monedas y tasas, jerarquía) y modelo de consolidación en BPC |
 
 Coberturas por sprint: `tests/COBERTURA-Sprint-N.md`.
 
@@ -114,6 +115,10 @@ del paquete Z que los crea (`OperacionSap`, definición JSON). `GeneradorPlan` l
 plano (`ColaEjecuciones`), registra cada objeto, se detiene en el primer error y reanuda desde ese paso. Cada llamada RFC
 tiene 120 s de espera y un solo reintento en errores de comunicación. Agregar una variante o un área es agregar un
 generador a `GeneradorPlan.VersionUno` (ADR-07, RNF-Comp-04).
+
+Convenciones del simulador para los datos maestros: `Simulador:PlanesSinDatos`, `Simulador:FallaCentrosSociedades`,
+`Simulador:TasasFaltantes` («COP:2026-06») y `Simulador:CuentasHuerfanasJerarquia` («PCCO:8888»). BPC rechaza miembros con
+caracteres fuera de letras, números, guion, punto y guion bajo (hasta 32).
 
 Convenciones del simulador para la ejecución: `Simulador:FallaEscritura` (sistemas sin permiso de escritura),
 `Simulador:FallaObjetos` (objetos que fallan), `Simulador:LatenciaEscrituraMs` y el usuario técnico `rfc_lectura`, que

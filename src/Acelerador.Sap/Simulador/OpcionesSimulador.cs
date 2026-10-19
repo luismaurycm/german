@@ -82,6 +82,18 @@ public sealed class OpcionesSimulador
     /// <summary>Demora adicional de cada escritura, para probar el tiempo de espera de 120 s por llamada RFC.</summary>
     public int LatenciaEscrituraMs { get; set; }
 
+    /// <summary>Planes de cuentas que no existen en el ERP al cargar datos maestros (HU-21 CA3).</summary>
+    public List<string> PlanesSinDatos { get; set; } = [];
+
+    /// <summary>Sociedades cuya carga de centros de costo y de beneficio falla (HU-22 CA3).</summary>
+    public List<string> FallaCentrosSociedades { get; set; } = [];
+
+    /// <summary>Tasas que faltan en el ERP, como «COP:2026-06» (HU-23 CA3).</summary>
+    public List<string> TasasFaltantes { get; set; } = [];
+
+    /// <summary>Cuentas de la jerarquía que no están en el plan, como «PCCO:8888» (HU-24 CA2).</summary>
+    public List<string> CuentasHuerfanasJerarquia { get; set; } = [];
+
     /// <summary>Nombres técnicos de objetos cuya creación falla.</summary>
     public List<string> FallaObjetos { get; set; } = [];
 }
