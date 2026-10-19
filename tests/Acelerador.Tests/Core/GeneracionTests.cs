@@ -64,10 +64,10 @@ public class PlanGeneracionTests
 
         var plan = (await e.ServicioPlan.ObtenerAsync(c.Id))!.Plan;
 
-        var paso = Assert.Single(plan.Pasos);
+        var paso = plan.Pasos.Single(p => p.Id == PasosGeneracion.ObjetosBw);
         Assert.True(paso.SoloExistentes);
-        Assert.Equal(0, plan.TotalNuevos);
-        Assert.All(plan.DeCapa(Capa.Bw), o => Assert.Equal(EstadoObjeto.Existente, o.Estado));
+        Assert.Equal(0, paso.Nuevos);
+        Assert.All(paso.Objetos, o => Assert.Equal(EstadoObjeto.Existente, o.Estado));
     }
 
     [Fact(DisplayName = "HU-15 CA1: sin bodega se activa 0FI_GL_14 y se crean el DSO, los InfoCubos, transformaciones y DTP")]
@@ -168,7 +168,7 @@ public class PlanGeneracionTests
     {
         var cliente = new Cliente { Id = Guid.NewGuid(), Nombre = "X", Creado = DateTimeOffset.UtcNow, CreadoPor = "u", Estado = EstadoCliente.NoSoportado, MotivoEstado = "Arquitectura B no soportada en la versión 1 (RN-19)." };
 
-        var plan = GeneradorPlan.Predeterminado.Armar(cliente, null, [], 0);
+        var plan = GeneradorPlan.Predeterminado.Armar(cliente, null, [], []);
 
         Assert.Equal(Pasos.Conexiones, Assert.Single(plan.Faltantes).Pantalla);
     }
@@ -180,11 +180,13 @@ public class PlanGeneracionTests
         await using var e = await Entorno.CrearAsync();
         var c = await e.ClienteEnPlanAsync();
         var generador = new GeneradorPlan([.. GeneradorPlan.VersionUno, new GeneradorDePrueba()], CatalogoVariantes.VersionUno);
-        var servicio = new Acelerador.Core.Servicios.ServicioPlan(e.Clientes, e.Inventarios, e.Sociedades, e.Mapeos, e.Ejecuciones, e.Cargas, generador);
+        var servicio = new Acelerador.Core.Servicios.ServicioPlan(e.Clientes, e.Inventarios, e.Sociedades, e.Mapeos, e.Ejecuciones, e.Cargas, generador, e.Reloj);
 
         var plan = (await servicio.ObtenerAsync(c.Id))!.Plan;
 
-        Assert.Equal([PasosGeneracion.ObjetosBw, PasosGeneracion.Conversion], plan.Pasos.Select(p => p.Id));
+        Assert.Equal(PasosGeneracion.ObjetosBw, plan.Pasos[0].Id);
+        Assert.Equal(PasosGeneracion.Conversion, plan.Pasos[^1].Id);
+        Assert.Equal("ZPRUEBA", Assert.Single(plan.Pasos[^1].Objetos).NombreTecnico);
     }
 
     private sealed class GeneradorDePrueba : IGeneradorObjetos

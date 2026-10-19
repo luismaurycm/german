@@ -16,13 +16,21 @@ public sealed class GeneradorPlan(IReadOnlyList<IGeneradorObjetos> generadores, 
         new GeneradorActivosFijos(),
         new GeneradorDeterioros(),
         new GeneradorNoSap(),
+        new GeneradorDatosMaestros(),
+        new GeneradorModeloBpc(),
     ];
 
     public static GeneradorPlan Predeterminado { get; } = new(VersionUno, CatalogoVariantes.VersionUno);
 
-    public PlanGeneracion Armar(Cliente cliente, Inventario? inventario, IReadOnlyList<Sociedad> sociedades, int cuentasMapeadas, IReadOnlyCollection<string>? noSapCargadas = null)
+    public PlanGeneracion Armar(
+        Cliente cliente,
+        Inventario? inventario,
+        IReadOnlyList<Sociedad> sociedades,
+        IReadOnlyList<AsignacionCuenta> asignaciones,
+        IReadOnlyCollection<string>? noSapCargadas = null,
+        DateTimeOffset? fecha = null)
     {
-        var faltantes = Faltantes(cliente, inventario, sociedades, cuentasMapeadas, noSapCargadas);
+        var faltantes = Faltantes(cliente, inventario, sociedades, asignaciones.Count, noSapCargadas);
         var variante = catalogo.Buscar(cliente.Deteccion?.VarianteId);
         var monedas = new MonedasPlan(
             sociedades.Select(s => (s.Codigo, s.MonedaLocal)).ToList(),
@@ -32,7 +40,7 @@ public sealed class GeneradorPlan(IReadOnlyList<IGeneradorObjetos> generadores, 
             return new PlanGeneracion(variante, [], monedas, faltantes);
         }
 
-        var contexto = new ContextoPlan(cliente, variante, inventario, sociedades);
+        var contexto = new ContextoPlan(cliente, variante, inventario, sociedades, asignaciones, fecha ?? DateTimeOffset.UtcNow);
         var objetos = generadores.Where(g => g.Aplica(contexto)).SelectMany(g => g.Generar(contexto)).ToList();
         var pasos = objetos
             .GroupBy(o => o.PasoId)

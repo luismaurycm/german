@@ -15,7 +15,8 @@ public sealed class ServicioPlan(
     IMapeoRepository mapeo,
     IEjecucionPlanRepository ejecuciones,
     ICargaNoSapRepository cargas,
-    GeneradorPlan generador)
+    GeneradorPlan generador,
+    TimeProvider? reloj = null)
 {
     public async Task<VistaPlan?> ObtenerAsync(Guid clienteId, CancellationToken ct = default)
     {
@@ -32,13 +33,13 @@ public sealed class ServicioPlan(
     {
         var inventario = await inventarios.ObtenerAsync(cliente.Id, ct);
         var lista = await sociedades.ListarAsync(cliente.Id, ct);
-        var mapeadas = 0;
+        var asignaciones = new List<AsignacionCuenta>();
         foreach (var plan in lista.Where(s => s.EnSap).Select(s => s.PlanCuentas).Distinct())
         {
-            mapeadas += (await mapeo.ListarAsync(cliente.Id, plan, ct)).Count;
+            asignaciones.AddRange(await mapeo.ListarAsync(cliente.Id, plan, ct));
         }
 
         var cargadas = (await cargas.ListarAsync(cliente.Id, ct)).Select(c => c.Sociedad).ToHashSet();
-        return generador.Armar(cliente, inventario, lista, mapeadas, cargadas);
+        return generador.Armar(cliente, inventario, lista, asignaciones, cargadas, (reloj ?? TimeProvider.System).GetUtcNow());
     }
 }

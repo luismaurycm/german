@@ -169,6 +169,8 @@ public sealed class ServicioEjecucion(
         paso.Estado = EstadoPaso.EnCurso;
         paso.Inicio = reloj.GetUtcNow();
         paso.Creados = 0;
+        paso.Detalles = [];
+        paso.Avisos = [];
         paso.Existentes = paso.Objetos.Count(o => o.Estado == EstadoObjeto.Existente);
         await ejecuciones.GuardarAsync(ejecucion, ct);
 
@@ -228,6 +230,17 @@ public sealed class ServicioEjecucion(
             else
             {
                 paso.Creados++;
+            }
+
+            if (resultado.Cantidad is not null)
+            {
+                paso.Detalles.Add(mensaje);
+            }
+
+            if (resultado.Aviso is { } aviso)
+            {
+                paso.Avisos.Add(SanitizadorMensajes.Limpiar(aviso, destino.Credencial));
+                mensaje = $"{mensaje} Aviso: {paso.Avisos[^1]}";
             }
 
             // HU-15 CA3: cada objeto queda en el registro con su nombre técnico.

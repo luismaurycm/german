@@ -79,6 +79,14 @@
                                     {
                                         <span class="muted bloque">@Textos.Cantidad(p.Creados, "objeto creado", "objetos creados")@(p.Existentes > 0 ? " · " + Textos.Cantidad(p.Existentes, "existente", "existentes") : "")</span>
                                     }
+                                    @if (p.Detalles.Count > 0)
+                                    {
+                                        <ul class="detalles">@foreach (var d in p.Detalles) { <li>@d</li> }</ul>
+                                    }
+                                    @if (p.Avisos.Count > 0)
+                                    {
+                                        <div class="note w">@Iconos.Aviso<div>@foreach (var a in p.Avisos) { <span class="bloque">@a</span> }</div></div>
+                                    }
                                     @if (p.Estado == EstadoPaso.Error)
                                     {
                                         <div class="note e" role="alert">

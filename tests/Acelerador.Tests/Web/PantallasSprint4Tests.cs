@@ -207,8 +207,8 @@ public class PantallasSprint4Tests
             await nav.GetAsync($"{cliente}/ejecucion");
         }
 
-        Assert.Contains("2. Activos fijos en BW", nav.Texto, StringComparison.Ordinal);
-        Assert.Contains("3. Deterioros en BW", nav.Texto, StringComparison.Ordinal);
+        Assert.Matches(@"\d+\. Activos fijos en BW", nav.Texto);
+        Assert.Matches(@"\d+\. Deterioros en BW", nav.Texto);
         Assert.Contains("Generación completa.", nav.Texto, StringComparison.Ordinal);
     }
 

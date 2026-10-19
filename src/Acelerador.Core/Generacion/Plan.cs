@@ -140,7 +140,9 @@ public sealed record ContextoPlan(
     Cliente Cliente,
     VarianteGeneracion Variante,
     Inventario Inventario,
-    IReadOnlyList<Sociedad> Sociedades);
+    IReadOnlyList<Sociedad> Sociedades,
+    IReadOnlyList<AsignacionCuenta> Asignaciones,
+    DateTimeOffset Fecha);
 
 /// <summary>Un generador de objetos de un área (ADR-07: una implementación por variante cuando la variante importa).</summary>
 public interface IGeneradorObjetos

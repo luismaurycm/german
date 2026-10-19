@@ -89,8 +89,9 @@ public class PantallasSprint3Tests
         Simulador(app).BodegaExistente = true;
         await LlegarAPlanAsync(nav);
 
-        Assert.Contains("0 objetos a crear", nav.Texto, StringComparison.Ordinal);
-        Assert.DoesNotMatch(">\\s*Nuevo\\s*<", nav.Html);
+        var bodega = Regex.Match(nav.Html, "<h3>Bodega financiera</h3>(.*?)</table>", RegexOptions.Singleline).Groups[1].Value;
+        Assert.Contains("Existente, no se modifica", bodega, StringComparison.Ordinal);
+        Assert.DoesNotMatch(">\\s*Nuevo\\s*<", bodega);
     }
 
     [Fact(DisplayName = "HU-13 CA3: se muestra el total de objetos a crear y Generar pide confirmación con ese número")]
@@ -225,7 +226,7 @@ public class PantallasSprint3Tests
         Assert.Matches("<span class=\"mono muted\">\\d+:\\d\\d</span>", nav.Html);
         Assert.Contains("Generación completa.", nav.Texto, StringComparison.Ordinal);
         Assert.Contains($"href=\"{cliente}/paso/UX-10\">Ver reportes</a>", nav.Html, StringComparison.Ordinal);
-        Assert.Matches("<td data-l=\"Objetos\" class=\"mono\">(DTP|Transformaci|InfoCubo|DSO|DataSource)", nav.Html);
+        Assert.Matches("<td data-l=\"Objetos\" class=\"mono\">[^<]+</td>", nav.Html);
         Assert.Contains("Descargar registro", nav.Texto, StringComparison.Ordinal);
         Assert.Contains("Completo", nav.Texto, StringComparison.Ordinal);
 
@@ -276,7 +277,7 @@ public class PantallasSprint3Tests
         await nav.PostAsync($"{cliente}/plan?handler=Generar", Nada);
 
         Assert.Contains($"data-refrescar=\"{cliente}/ejecucion?handler=Estado\"", nav.Html, StringComparison.Ordinal);
-        Assert.Contains("Ejecutando… paso 1 de 1.", WebUtility.HtmlDecode(nav.Html), StringComparison.Ordinal);
+        Assert.Matches("Ejecutando… paso 1 de \\d+\\.", WebUtility.HtmlDecode(nav.Html));
         var estado = await nav.Http.GetStringAsync($"{cliente}/ejecucion?handler=Estado");
         Assert.Contains("\"estado\":\"EnCurso\"", estado, StringComparison.Ordinal);
         var js = await nav.Http.GetStringAsync("/js/acelerador.js");
@@ -298,7 +299,7 @@ public class PantallasSprint3Tests
 
         Assert.Contains("0 objetos creados", nav.Texto, StringComparison.Ordinal);
         Assert.Contains("Existente", nav.Texto, StringComparison.Ordinal);
-        Assert.Empty(app.Simulador.Objetos);
+        Assert.DoesNotContain(app.Simulador.Objetos, o => o.Operacion.NombreTecnico.StartsWith("ZACC_C", StringComparison.Ordinal) || o.Operacion.NombreTecnico == "ZACC_O01");
     }
 
     [Fact(DisplayName = "WCAG 2.1 AA básico en UX-08 y UX-09: secciones con teclado, controles con nombre y tablas con título")]

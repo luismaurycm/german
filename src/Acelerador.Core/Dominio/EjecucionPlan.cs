@@ -41,6 +41,12 @@ public sealed class PasoEjecucion
 
     public string? Mensaje { get; set; }
 
+    /// <summary>Cantidades cargadas por objeto (p. ej. «PCCO: 25 cuentas cargadas.»), para UX-09 (HU-21 a HU-24, HU-26).</summary>
+    public List<string> Detalles { get; set; } = [];
+
+    /// <summary>Lo que no se cargó sin que el paso falle (p. ej. cuentas de la jerarquía fuera del plan, HU-24 CA2).</summary>
+    public List<string> Avisos { get; set; } = [];
+
     /// <summary>Código de la pantalla que corrige la causa del error (HU-14 CA2).</summary>
     public string? PantallaCorrige { get; set; }
 
