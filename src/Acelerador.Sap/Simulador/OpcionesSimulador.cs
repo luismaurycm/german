@@ -94,6 +94,12 @@ public sealed class OpcionesSimulador
     /// <summary>Cuentas de la jerarquía que no están en el plan, como «PCCO:8888» (HU-24 CA2).</summary>
     public List<string> CuentasHuerfanasJerarquia { get; set; } = [];
 
+    /// <summary>Lógicas de BPC (scripts, paquetes) que terminan con error, por nombre técnico (HU-29 CA3).</summary>
+    public List<string> FallaLogica { get; set; } = [];
+
+    /// <summary>Saldos adicionales del ERP para descuadrar una sociedad, como «2000:11050501:5000000» (HU-36).</summary>
+    public List<string> AjustesSaldo { get; set; } = [];
+
     /// <summary>Nombres técnicos de objetos cuya creación falla.</summary>
     public List<string> FallaObjetos { get; set; } = [];
 }

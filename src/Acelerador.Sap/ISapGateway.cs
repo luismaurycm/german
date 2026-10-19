@@ -36,4 +36,7 @@ public interface ISapGateway
 
     /// <summary>Crea, activa o modifica un objeto en el cliente por el paquete Z (HU-14 en adelante). Idempotente (RN-03).</summary>
     Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap destino, OperacionSap operacion, CancellationToken ct = default);
+
+    /// <summary>Lee datos y validaciones del modelo BPC (vistas previas de reportes y controles C01 a C04).</summary>
+    Task<ResultadoConsultaBpc> ConsultarBpcAsync(DestinoSap bpc, ConsultaBpc consulta, CancellationToken ct = default);
 }

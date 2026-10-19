@@ -33,6 +33,8 @@ public sealed partial class SimulatedSapGateway : ISapGateway
     };
 
     private readonly Func<OpcionesSimulador> _opciones;
+    private readonly ILogicaSimulada? _logica;
+    private readonly AlmacenSimulado _almacen;
     private readonly ConcurrentQueue<LlamadaSimulada> _llamadas = new();
     private readonly ConcurrentDictionary<string, ObjetoSimulado> _objetos = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, OperacionSap> _datos = new(StringComparer.OrdinalIgnoreCase);
@@ -48,15 +50,74 @@ public sealed partial class SimulatedSapGateway : ISapGateway
     public static string MensajeSinEscritura(OperacionSap op, SistemaSap sistema) =>
         $"{op.Funcion}: el usuario técnico no tiene permiso de escritura en {NombreSistema(sistema)} (Z_ACC_PASO = CREAR).";
 
-    public SimulatedSapGateway(OpcionesSimulador opciones)
-        : this(() => opciones)
+    public SimulatedSapGateway(OpcionesSimulador opciones, ILogicaSimulada? logica = null)
+        : this(() => opciones, logica)
     {
     }
 
-    /// <summary>Permite leer la configuración en cada llamada (cambios en caliente de appsettings).</summary>
-    public SimulatedSapGateway(Func<OpcionesSimulador> opciones)
+    /// <summary>
+    /// Permite leer la configuración en cada llamada (cambios en caliente de appsettings). <paramref name="logica"/> es la
+    /// lógica de BPC (cuadre, importación, conversión, eliminaciones) que se ejecuta con los scripts generados.
+    /// </summary>
+    public SimulatedSapGateway(Func<OpcionesSimulador> opciones, ILogicaSimulada? logica = null)
     {
         _opciones = opciones;
+        _logica = logica;
+        _almacen = new AlmacenSimulado(opciones, () => _datos);
+    }
+
+    /// <summary>Estado del cliente simulado: datos y validaciones de BPC.</summary>
+    public IAlmacenSimulado Almacen => _almacen;
+
+    /// <summary>Tasas de ejemplo frente al dólar (pesos por dólar) para todos los periodos.</summary>
+    public static readonly IReadOnlyDictionary<(string Moneda, string Tipo), decimal> Tasas = new Dictionary<(string, string), decimal>
+    {
+        [("COP", "cierre")] = 4_000m,
+        [("COP", "promedio")] = 3_950m,
+        [("COP", "historica")] = 3_800m,
+    };
+
+    /// <summary>Partidas intercompañía de ejemplo, incluidas en los saldos (sociedad, cuenta, socio, importe en moneda local).</summary>
+    public static readonly IReadOnlyList<(string Sociedad, string Cuenta, string Socio, decimal Importe)> Intercompania =
+    [
+        ("1000", "13050501", "2000", 1_000_000_000m),
+        ("2000", "22050501", "1000", -1_000_000_000m),
+        ("1000", "41200501", "2000", -400_000_000m),
+        ("2000", "51050501", "1000", 400_000_000m),
+        ("1000", "13050501", "3000", 200_000_000m),
+        ("3000", "2000", "1000", -50_000m),
+    ];
+
+    /// <summary>Saldos de una sociedad del ERP al cierre del periodo, con las partidas intercompañía separadas por socio.</summary>
+    public static IReadOnlyList<SaldoErp> SaldosErp(string sociedad, OpcionesSimulador opciones)
+    {
+        var soc = SociedadesErp.FirstOrDefault(s => s.Codigo == sociedad);
+        if (soc is null)
+        {
+            return [];
+        }
+
+        var factor = soc.Codigo == "2000" ? 0.35m : 1m;
+        var lista = new List<SaldoErp>();
+        foreach (var c in Cuentas.Where(c => c.Plan == soc.PlanCuentas).Concat(opciones.CuentasAdicionales.Where(c => c.Plan == soc.PlanCuentas)))
+        {
+            var total = decimal.Round(c.Saldo * (opciones.CuentasAdicionales.Contains(c) ? 1m : factor), 2);
+            var ic = Intercompania.Where(i => i.Sociedad == sociedad && i.Cuenta == c.Numero).ToList();
+            foreach (var i in ic)
+            {
+                lista.Add(new SaldoErp(c.Numero, i.Socio, i.Importe));
+            }
+
+            lista.Add(new SaldoErp(c.Numero, "", total - ic.Sum(i => i.Importe)));
+        }
+
+        foreach (var ajuste in opciones.AjustesSaldo.Where(a => a.StartsWith(sociedad + ":", StringComparison.Ordinal)))
+        {
+            var partes = ajuste.Split(':');
+            lista.Add(new SaldoErp(partes[1], "", decimal.Parse(partes[2], System.Globalization.CultureInfo.InvariantCulture)));
+        }
+
+        return lista;
     }
 
     public IReadOnlyCollection<LlamadaSimulada> Llamadas => _llamadas.ToArray();
@@ -84,6 +145,26 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         if (operacion.TipoObjeto == "CARGA")
         {
             return CargarMaestro(o, operacion);
+        }
+
+        if (operacion.TipoObjeto is "VALIDACION" or "IMPORTACION" or "LOGICA")
+        {
+            if (o.FallaLogica.Contains(operacion.NombreTecnico, StringComparer.OrdinalIgnoreCase))
+            {
+                return new ResultadoOperacionSap(false, $"UJK: la lógica {operacion.NombreTecnico} terminó con error: la regla no está activa en el modelo.");
+            }
+
+            return _logica?.Ejecutar(operacion, _almacen, o) ?? new ResultadoOperacionSap(true, $"{operacion.NombreTecnico} ejecutado.", ResultadoEscritura.Creado);
+        }
+
+        if (operacion.TipoObjeto == "SCRIPT")
+        {
+            // Un script se reemplaza siempre (el paso respalda con UJBR antes, HU-28 CA4).
+            var claveScript = $"{destino.Sistema}|{destino.Parametros.Host}|SCRIPT|{operacion.NombreTecnico}";
+            var existia = _objetos.ContainsKey(claveScript);
+            _objetos[claveScript] = new ObjetoSimulado(destino.Sistema, destino.Parametros.Host, operacion);
+            return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico} {(existia ? "reemplazado" : "desplegado")} en UJFS.",
+                existia ? ResultadoEscritura.Modificado : ResultadoEscritura.Creado);
         }
 
         if (destino.Sistema == SistemaSap.Bpc && operacion.TipoObjeto == "MIEMBROS")
@@ -182,6 +263,27 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         }
 
         return new ResultadoDeteccion(true, "Componentes leídos de los tres sistemas.", Paisaje(o.Perfil));
+    }
+
+    public async Task<ResultadoConsultaBpc> ConsultarBpcAsync(DestinoSap bpc, ConsultaBpc consulta, CancellationToken ct = default)
+    {
+        var o = _opciones();
+        Registrar("Z_ACC_BPC_LEER", SistemaSap.Bpc);
+        await Esperar(o, ct);
+        if (o.SistemasConFallo.Contains(SistemaSap.Bpc) || Contiene(bpc.Parametros.Host, "falla"))
+        {
+            return new ResultadoConsultaBpc(false, MensajeNoAlcanzable(bpc.Parametros.Host), [], []);
+        }
+
+        var registros = _almacen.Registros.Where(r =>
+                r.Modelo == consulta.Modelo
+                && (consulta.Periodo is null || r.Periodo == consulta.Periodo)
+                && (consulta.Moneda is null || r.Moneda == consulta.Moneda)
+                && (consulta.Origen is null || r.Origen == consulta.Origen)
+                && (consulta.Entidad is null || r.Entidad == consulta.Entidad))
+            .ToList();
+        var validaciones = _almacen.Validaciones.Where(v => consulta.Periodo is null || v.Periodo.Replace('-', '.') == consulta.Periodo.Replace('-', '.')).ToList();
+        return new ResultadoConsultaBpc(true, $"{registros.Count} registros.", registros, validaciones);
     }
 
     public async Task<ResultadoInventario> LeerInventarioAsync(DestinoSap destino, TipoInventario tipo, CancellationToken ct = default)
@@ -358,7 +460,10 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         new("3000", "Filial Panamá", "USD", "PCPA"),
     ];
 
-    /// <summary>Plan de cuentas de ejemplo. Saldos de la sociedad 1000 (o 3000 en PCPA); los créditos van negativos, como en SAP.</summary>
+    /// <summary>
+    /// Plan de cuentas de ejemplo. Saldos de la sociedad 1000 (o 3000 en PCPA); los créditos van negativos, como en SAP.
+    /// Cuadran como pide RN-16: las cuentas de balance suman cero y la utilidad del ejercicio es la suma de resultados.
+    /// </summary>
     public static readonly IReadOnlyList<CuentaSimulada> Cuentas =
     [
         C("PCCO", "11050501", "Caja general", "Disponible", 152_300_000m),
@@ -369,7 +474,7 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         C("PCCO", "13300501", "Anticipos a proveedores", "Deudores", 2_310_000_000m),
         C("PCCO", "13550501", "Anticipo de impuestos", "Deudores", 1_870_000_000m),
         C("PCCO", "15040501", "Terrenos", "Propiedad, planta y equipo", 22_000_000_000m),
-        C("PCCO", "15160501", "Construcciones y edificaciones", "Propiedad, planta y equipo", 58_400_000_000m),
+        C("PCCO", "15160501", "Construcciones y edificaciones", "Propiedad, planta y equipo", 72_447_250_000m),
         C("PCCO", "15240501", "Equipo de oficina", "Propiedad, planta y equipo", 3_950_000_000m),
         C("PCCO", "15920501", "Depreciación acumulada", "Propiedad, planta y equipo", -11_230_000_000m),
         C("PCCO", "21050501", "Obligaciones con bancos nacionales", "Obligaciones financieras", -42_100_000_000m),
@@ -378,8 +483,8 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         C("PCCO", "23350501", "Costos y gastos por pagar", "Cuentas por pagar", -7_000_000_000m),
         C("PCCO", "25050501", "Salarios por pagar", "Obligaciones laborales", -1_940_000_000m),
         C("PCCO", "31050501", "Capital suscrito y pagado", "Patrimonio", -40_000_000_000m),
-        C("PCCO", "36050501", "Utilidad del ejercicio", "Patrimonio", -6_120_000_000m),
-        C("PCCO", "41200501", "Ventas de productos", "Ingresos operacionales", -96_540_000_000m),
+        C("PCCO", "36050501", "Utilidad del ejercicio", "Patrimonio", -13_350_000_000m),
+        C("PCCO", "41200501", "Ventas de productos", "Ingresos operacionales", -36_540_000_000m),
         C("PCCO", "41750501", "Devoluciones en ventas", "Ingresos operacionales", 1_430_000_000m),
         C("PCCO", "51050501", "Sueldos", "Gastos de administración", 9_100_000_000m),
         C("PCCO", "51350501", "Servicios públicos", "Gastos de administración", 1_200_000_000m),
@@ -389,10 +494,11 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         C("PCPA", "1010", "Caja", "Disponible", 85_000m),
         C("PCPA", "1020", "Bancos", "Disponible", 2_340_000m),
         C("PCPA", "1200", "Cuentas por cobrar comerciales", "Deudores", 4_120_500m),
-        C("PCPA", "1500", "Propiedad, planta y equipo", "Propiedad, planta y equipo", 6_800_000m),
+        C("PCPA", "1500", "Propiedad, planta y equipo", "Propiedad, planta y equipo", 14_334_500m),
         C("PCPA", "2000", "Cuentas por pagar comerciales", "Proveedores", -3_150_000m),
         C("PCPA", "2100", "Préstamos bancarios", "Obligaciones financieras", -4_500_000m),
         C("PCPA", "3000", "Capital social", "Patrimonio", -5_000_000m),
+        C("PCPA", "3100", "Utilidad del ejercicio", "Patrimonio", -8_230_000m),
         C("PCPA", "4000", "Ingresos por ventas", "Ingresos operacionales", -9_870_000m),
         C("PCPA", "5000", "Gastos de administración", "Gastos de administración", 1_640_000m),
     ];

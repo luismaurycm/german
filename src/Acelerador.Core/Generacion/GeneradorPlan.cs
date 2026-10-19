@@ -18,6 +18,8 @@ public sealed class GeneradorPlan(IReadOnlyList<IGeneradorObjetos> generadores, 
         new GeneradorNoSap(),
         new GeneradorDatosMaestros(),
         new GeneradorModeloBpc(),
+        new GeneradorScripts(),
+        new GeneradorConsolidacion(),
     ];
 
     public static GeneradorPlan Predeterminado { get; } = new(VersionUno, CatalogoVariantes.VersionUno);

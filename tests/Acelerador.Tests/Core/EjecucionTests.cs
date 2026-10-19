@@ -242,21 +242,9 @@ public class EjecucionTests
         Assert.All(await e.Registro.ListarAsync(c.Id), x => Assert.DoesNotContain(Entorno.Clave, x.Mensaje, StringComparison.Ordinal));
     }
 
-    private sealed class EcoDeClave(SimulatedSapGateway sim) : ISapGateway
+    private sealed class EcoDeClave(SimulatedSapGateway sim) : GatewayDelegado(sim)
     {
-        public Task<ResultadoPrueba> ProbarConexionAsync(DestinoSap d, CancellationToken ct = default) => sim.ProbarConexionAsync(d, ct);
-
-        public Task<ResultadoValidacionErpBw> ValidarConexionErpBwAsync(DestinoSap a, DestinoSap b, CancellationToken ct = default) => sim.ValidarConexionErpBwAsync(a, b, ct);
-
-        public Task<ResultadoDeteccion> DetectarPaisajeAsync(DestinoSap a, DestinoSap b, DestinoSap c, CancellationToken ct = default) => sim.DetectarPaisajeAsync(a, b, c, ct);
-
-        public Task<ResultadoInventario> LeerInventarioAsync(DestinoSap d, TipoInventario t, CancellationToken ct = default) => sim.LeerInventarioAsync(d, t, ct);
-
-        public Task<ResultadoSociedades> LeerSociedadesAsync(DestinoSap d, CancellationToken ct = default) => sim.LeerSociedadesAsync(d, ct);
-
-        public Task<ResultadoCuentas> LeerCuentasAsync(DestinoSap d, string s, CancellationToken ct = default) => sim.LeerCuentasAsync(d, s, ct);
-
-        public Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap d, OperacionSap o, CancellationToken ct = default) =>
+        public override Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap d, OperacionSap o, CancellationToken ct = default) =>
             Task.FromResult(new ResultadoOperacionSap(false, $"logon {d.Parametros.UsuarioTecnico}/{d.Credencial.Revelar()} rechazado"));
     }
 }

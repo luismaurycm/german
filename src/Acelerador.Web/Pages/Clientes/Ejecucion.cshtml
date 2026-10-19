@@ -42,6 +42,13 @@
         }
         else
         {
+            @if (e.Estado == EstadoEjecucion.Completa && e.SociedadesConsolidadas is int consolidadas)
+            {
+                <div class="note o" id="resumen-consolidacion">
+                    @Iconos.Ok
+                    <div><b>Consolidación disponible en moneda local y en dólares.</b> Participan @Textos.Cantidad(consolidadas, "sociedad", "sociedades") del grupo. <span class="rn">RN-06 · RN-07</span></div>
+                </div>
+            }
             @if (e.Estado == EstadoEjecucion.Completa)
             {
                 <div class="note o" id="resumen-ejecucion">

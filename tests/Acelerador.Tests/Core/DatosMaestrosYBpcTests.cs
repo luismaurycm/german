@@ -158,8 +158,9 @@ public class ModeloBpcTests
 
         Assert.All(paso.Objetos, o => Assert.Equal(SistemaSap.Bpc, o.Sistema));
         Assert.Equal("Respaldo UJBR", paso.Objetos[0].Tipo);
-        Assert.Equal("Modelo", paso.Objetos[^1].Tipo);
-        Assert.Contains("RN-02", paso.Objetos[^1].Nota, StringComparison.Ordinal);
+        var modelo = paso.Objetos.Single(o => o.Tipo == "Modelo");
+        Assert.True(paso.Objetos.ToList().IndexOf(modelo) > paso.Objetos.ToList().FindLastIndex(o => o.Tipo == "Miembros"));
+        Assert.Contains("RN-02", modelo.Nota, StringComparison.Ordinal);
     }
 
     [Fact(DisplayName = "HU-26 CA2: los miembros salen de los datos del cliente: cuentas bajo sus rubros, sociedades e intercompañía")]
@@ -175,7 +176,7 @@ public class ModeloBpcTests
         var caja = cuentas.Single(m => m.GetProperty("id").GetString() == "PCCO_11050501");
         Assert.Equal("F-00-101", caja.GetProperty("padre").GetString());
         Assert.Contains(cuentas, m => m.GetProperty("id").GetString() == "PCPA_1010");
-        Assert.Equal(CatalogoRubros.Todos.Count + 4, cuentas.Count);
+        Assert.Equal(CatalogoRubros.Todos.Count + 4 + ReglasRubros.CuentasTecnicas.Count, cuentas.Count);
 
         var entidades = Miembros("ENTITY");
         Assert.Equal(["1000", "2000", "3000"], entidades.Select(m => m.GetProperty("id").GetString()));
