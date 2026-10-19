@@ -130,6 +130,7 @@ public sealed class ServicioCierre(
     ContextoCierreLector contexto,
     ServicioControles controles,
     IEjecucionPlanRepository ejecuciones,
+    IReporteRepository reportes,
     AccesoSap acceso,
     ISapGateway sap,
     IRegistroEjecuciones registro,
@@ -162,13 +163,14 @@ public sealed class ServicioCierre(
         var pasoConError = ultima is not null && ReglasCierre.PeriodoInicial(ultima.Inicio) == c.Periodo ? ultima.PasoConError?.Id : null;
         var (propiedad, _) = await LecturaBpc.LeerAsync(acceso, sap, clienteId, new ConsultaBpc(ModeloPropiedad.Modelo), ct);
         var vigentes = ModeloPropiedad.Vigentes(propiedad?.Registros ?? [], c.Grupo, c.PeriodoBpc).Participaciones;
+        var reportesGenerados = ServicioReportes.CierreGenerado(await reportes.ListarAsync(clienteId, ct));
 
         var filas = c.Sociedades.Select(s =>
         {
             var validacion = datos.Validaciones.FirstOrDefault(v => v.Sociedad == s.Codigo);
             var convertida = datos.Registros.Any(r => r.Entidad == s.Codigo && r.Grupo.Length == 0 && r.Moneda == monedaGrupo && r.Origen == MotorConsolidacion.OrigenCarga);
             var metodo = vigentes.FirstOrDefault(p => p.Sociedad == s.Codigo)?.Metodo ?? s.Metodo;
-            var hechos = new HechosCierre(metodo, validacion, conDiferencia.Contains(s.Codigo), convertida, consolidado, pasoConError, ReportesGenerados: false);
+            var hechos = new HechosCierre(metodo, validacion, conDiferencia.Contains(s.Codigo), convertida, consolidado, pasoConError, ReportesGenerados: reportesGenerados);
             return new FilaC04(s, ReglasCierreMensual.Fila(hechos), bloqueadas.Contains(s.Codigo));
         }).ToList();
 

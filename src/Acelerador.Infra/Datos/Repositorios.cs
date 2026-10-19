@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Acelerador.Core.Dominio;
 using Acelerador.Core.Puertos;
 using Acelerador.Core.Reglas;
+using Acelerador.Core.Reportes;
 using Acelerador.Sap;
 using Microsoft.Data.Sqlite;
 
@@ -551,6 +552,52 @@ public sealed class SqliteCargaNoSapRepository(BaseLocal db) : ICargaNoSapReposi
                 ("$total", c.Total.ToString(CultureInfo.InvariantCulture)),
                 ("$fecha", Sql.Fecha(c.Fecha)),
                 ("$usuario", c.Usuario));
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+
+        await tx.CommitAsync(ct);
+    }
+}
+
+public sealed class SqliteReporteRepository(BaseLocal db) : IReporteRepository
+{
+    public async Task<IReadOnlyList<ReporteGenerado>> ListarAsync(Guid clienteId, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = "SELECT reporte, exitoso, mensaje, fecha, usuario FROM reportes_generados WHERE cliente_id = $id ORDER BY reporte";
+        cmd.Parameters.AddWithValue("$id", clienteId.ToString());
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        var lista = new List<ReporteGenerado>();
+        while (await r.ReadAsync(ct))
+        {
+            lista.Add(new ReporteGenerado(clienteId, r.GetString(0), r.GetInt32(1) == 1, r.IsDBNull(2) ? null : r.GetString(2), Sql.LeerFecha(r, 3), r.GetString(4)));
+        }
+
+        return lista;
+    }
+
+    public async Task GuardarAsync(IReadOnlyList<ReporteGenerado> reportes, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var tx = (Microsoft.Data.Sqlite.SqliteTransaction)await cn.BeginTransactionAsync(ct);
+        foreach (var g in reportes)
+        {
+            await using var cmd = cn.CreateCommand();
+            cmd.Transaction = tx;
+            cmd.CommandText = """
+                INSERT INTO reportes_generados (cliente_id, reporte, exitoso, mensaje, fecha, usuario)
+                VALUES ($cliente, $reporte, $exitoso, $mensaje, $fecha, $usuario)
+                ON CONFLICT (cliente_id, reporte) DO UPDATE SET
+                    exitoso = excluded.exitoso, mensaje = excluded.mensaje, fecha = excluded.fecha, usuario = excluded.usuario
+                """;
+            Sql.Parametros(cmd,
+                ("$cliente", g.ClienteId.ToString()),
+                ("$reporte", g.Reporte),
+                ("$exitoso", g.Exitoso ? 1 : 0),
+                ("$mensaje", g.Mensaje),
+                ("$fecha", Sql.Fecha(g.Fecha)),
+                ("$usuario", g.Usuario));
             await cmd.ExecuteNonQueryAsync(ct);
         }
 

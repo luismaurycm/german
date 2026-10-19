@@ -46,6 +46,7 @@ public static class Formato
         Pasos.NoSap => $"/clientes/{clienteId}/no-sap",
         Pasos.Plan => $"/clientes/{clienteId}/plan",
         Pasos.Ejecucion => $"/clientes/{clienteId}/ejecucion",
+        Pasos.Reportes => $"/clientes/{clienteId}/reportes",
         _ => $"/clientes/{clienteId}/paso/{paso}",
     };
 
@@ -57,6 +58,15 @@ public static class Formato
     public static string Reporte(Guid clienteId, string hoja) => $"/clientes/{clienteId}/reportes/{hoja}";
 
     public static string Cierre(Guid clienteId) => $"/clientes/{clienteId}/cierre";
+
+    /// <summary>Vista previa de un reporte del catálogo (HU-48 CA2): UX-11, UX-13 o UX-15; null si aún no tiene vista previa.</summary>
+    public static string? VistaPrevia(Guid clienteId, Acelerador.Core.Reportes.DefinicionReporte r) => !r.Disponible ? null : r.Vista switch
+    {
+        Acelerador.Core.Reportes.VistaReporte.Ux13 => Participaciones(clienteId),
+        Acelerador.Core.Reportes.VistaReporte.Ux15 => Cierre(clienteId),
+        Acelerador.Core.Reportes.VistaReporte.Ux14 => Asientos(clienteId),
+        _ => Reporte(clienteId, r.Id),
+    };
 
     public static string Asientos(Guid clienteId) => $"/clientes/{clienteId}/asientos";
 

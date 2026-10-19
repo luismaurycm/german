@@ -54,9 +54,18 @@ public sealed class GeneradorPropiedad : IGeneradorObjetos
                 plantilla = "C02",
                 archivo = Plantilla,
                 carpeta = "PLANTILLAS",
-                parametros = new { conexion = Conexion, grupo, periodo = MotorConsolidacion.PeriodoBpc(periodo), sociedades = c.Sociedades.Select(s => new { codigo = s.Codigo, nombre = s.Nombre }) },
+                parametros = ParametrosC02(c.Sociedades, periodo),
             });
     }
+
+    /// <summary>Parámetros de la plantilla C02 (conexión EPM, grupo, periodo y sociedades).</summary>
+    public static object ParametrosC02(IReadOnlyList<Sociedad> sociedades, string periodo) => new
+    {
+        conexion = Conexion,
+        grupo = ReglasCierre.Grupo(sociedades),
+        periodo = MotorConsolidacion.PeriodoBpc(periodo),
+        sociedades = sociedades.Select(s => new { codigo = s.Codigo, nombre = s.Nombre }),
+    };
 
     /// <summary>
     /// HU-10 CA4: la estructura inicial como participaciones del primer periodo. La matriz y las de integración global se

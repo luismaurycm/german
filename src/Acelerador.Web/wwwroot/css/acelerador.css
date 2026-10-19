@@ -155,6 +155,9 @@ a.tab[aria-current="page"] { color: var(--a-blue); border-bottom-color: var(--a-
 a.pill { text-decoration: none; }
 a.pill:hover { text-decoration: underline; }
 .c04 th[scope="row"] { text-align: left; font-weight: 400; }
+.tbl tr.sec td { font-weight: 700; color: var(--a-head); background: #F4F7FB; }
+.tbl tr.sub td { font-weight: 700; border-top: 1px solid var(--a-line); }
+.tbl tr.tot td { font-weight: 700; border-top: 2px solid var(--a-line); }
 .inventario { display: grid; gap: 14px; }
 .pnl { display: grid; gap: 10px; }
 .pnl-h { margin: 6px 0 0; font-size: 17px; color: var(--a-head); }

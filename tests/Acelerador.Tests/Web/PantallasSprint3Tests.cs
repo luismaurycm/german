@@ -225,7 +225,7 @@ public class PantallasSprint3Tests
         Assert.Matches(@"\d+ objetos creados", nav.Texto);
         Assert.Matches("<span class=\"mono muted\">\\d+:\\d\\d</span>", nav.Html);
         Assert.Contains("Generación completa.", nav.Texto, StringComparison.Ordinal);
-        Assert.Contains($"href=\"{cliente}/paso/UX-10\">Ver reportes</a>", nav.Html, StringComparison.Ordinal);
+        Assert.Contains($"href=\"{cliente}/reportes\">Ver reportes</a>", nav.Html, StringComparison.Ordinal);
         Assert.Matches("<td data-l=\"Objetos\" class=\"mono\">[^<]+</td>", nav.Html);
         Assert.Contains("Descargar registro", nav.Texto, StringComparison.Ordinal);
         Assert.Contains("Completo", nav.Texto, StringComparison.Ordinal);

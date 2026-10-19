@@ -13,6 +13,7 @@ public sealed class ProveedorPlantillas : IProveedorPlantillas
         {
             "C02" => PlantillaC02.Generar(doc.RootElement),
             "C01" or "C03" or "C04" or "AJ" => PlantillasCierre.Generar(plantilla, doc.RootElement),
+            "R" => PlantillaReporte.Generar(doc.RootElement),
             _ => throw new ArgumentOutOfRangeException(nameof(plantilla), plantilla, "Plantilla desconocida."),
         };
     }
@@ -152,5 +153,80 @@ public static class PlantillasCierre
         h.Poner($"A{fila + 1}", nota, EstiloCelda.Nota);
         h.Poner($"A{fila + 2}", $"Fuente: Modelo BPC {conexion}.", EstiloCelda.Nota);
         return LibroExcel.Escribir([h], new Dictionary<string, string> { ["EPM_CONEXION"] = $"{id}!$B$3" });
+    }
+}
+
+/// <summary>
+/// Estructura común de los reportes R01 a R20 (UX-11, HU-42): logo, título e ID, parámetros Sociedad, Incluir filiales, Moneda
+/// y Periodo en celdas con lista, y el cuerpo con rubros (código y descripción) cuyo valor trae EPM del modelo de consolidación
+/// como la suma de las cuentas mapeadas (RN-10). Con Incluir filiales = Sí, EPM expande una columna por filial y el total (RN-09).
+/// </summary>
+public static class PlantillaReporte
+{
+    public static byte[] Generar(JsonElement p)
+    {
+        var id = p.GetProperty("id").GetString()!;
+        var nombre = p.GetProperty("nombre").GetString()!;
+        var conexion = p.GetProperty("conexion").GetString()!;
+        var periodo = p.GetProperty("periodo").GetString()!;
+        var monedas = p.GetProperty("monedas").EnumerateArray().Select(m => m.GetString()!).ToList();
+        var sociedades = p.GetProperty("sociedades").EnumerateArray().Select(s => s.GetProperty("codigo").GetString()!).ToList();
+        var encabezados = p.GetProperty("encabezados").EnumerateArray().Select(e => e.GetString()!).ToList();
+
+        var h = new HojaExcel(id);
+        h.Anchos[1] = 16;
+        h.Anchos[2] = 44;
+        for (var c = 3; c <= 6; c++)
+        {
+            h.Anchos[c] = 20;
+        }
+
+        h.Poner("A1", "[Logo del cliente]", EstiloCelda.Nota)
+            .Poner("B1", $"{id} {nombre}", EstiloCelda.Titulo)
+            .Poner("A2", $"ID: {id} · Fuente: Modelo BPC {conexion}", EstiloCelda.Nota)
+            .Poner("A4", "Sociedad", EstiloCelda.Encabezado).Poner("B4", sociedades.FirstOrDefault() ?? "", EstiloCelda.Parametro)
+            .Poner("A5", "Incluir filiales", EstiloCelda.Encabezado).Poner("B5", "Sí", EstiloCelda.Parametro)
+            .Poner("A6", "Moneda", EstiloCelda.Encabezado).Poner("B6", monedas.FirstOrDefault() ?? "", EstiloCelda.Parametro)
+            .Poner("A7", "Periodo", EstiloCelda.Encabezado).Poner("B7", periodo, EstiloCelda.Parametro);
+        h.Listas.Add(new ListaValidacion("B4", sociedades));
+        h.Listas.Add(new ListaValidacion("B5", ["Sí", "No"]));
+        h.Listas.Add(new ListaValidacion("B6", monedas));
+
+        var columnas = Math.Min(encabezados.Count, 5);
+        for (var c = 0; c < columnas; c++)
+        {
+            h.Poner($"{(char)('A' + c)}9", encabezados[c], EstiloCelda.Encabezado);
+        }
+
+        var valor = (char)('A' + columnas);
+        h.Poner($"{valor}9", "Valor", EstiloCelda.Encabezado);
+        var fila = 10;
+        foreach (var f in p.GetProperty("filas").EnumerateArray())
+        {
+            var tipo = f.GetProperty("tipo").GetString();
+            var etiquetas = f.GetProperty("etiquetas").EnumerateArray().Select(e => e.GetString() ?? "").ToList();
+            var estilo = tipo is "Seccion" or "Subtotal" or "Total" ? EstiloCelda.Total : EstiloCelda.Normal;
+            for (var c = 0; c < Math.Min(etiquetas.Count, columnas); c++)
+            {
+                h.Poner($"{(char)('A' + c)}{fila}", etiquetas[c], estilo);
+            }
+
+            var miembro = f.TryGetProperty("rubro", out var r) && r.ValueKind == JsonValueKind.String ? r.GetString() : tipo == "Detalle" ? etiquetas.FirstOrDefault() : null;
+            if (!string.IsNullOrEmpty(miembro) && tipo is "Rubro" or "Detalle" or "Total")
+            {
+                h.Poner($"{valor}{fila}", null, estilo, $"EPMRetrieveData(\"{conexion}\",\"{miembro}\",$B$4,$B$5,$B$6,$B$7)");
+            }
+
+            fila++;
+        }
+
+        if (fila == 10)
+        {
+            h.Poner("A10", "Reporte dinámico: EPM expande las filas al actualizar.", EstiloCelda.Nota);
+            fila++;
+        }
+
+        h.Poner($"A{fila + 1}", "Cada valor es la suma de las cuentas mapeadas al rubro (RN-10). Moneda local o dólares (RN-06). Incluir filiales agrega una columna por filial y el total (RN-09).", EstiloCelda.Nota);
+        return LibroExcel.Escribir([h], new Dictionary<string, string> { ["EPM_CONEXION"] = $"{id}!$B$4" });
     }
 }

@@ -27,7 +27,7 @@ public static class Pasos
         new(NoSap, "Sociedades no SAP", true, "HU-25"),
         new(Plan, "Plan de generación", true, "HU-12, HU-13, HU-16"),
         new(Ejecucion, "Ejecución", true, "HU-14, HU-54"),
-        new(Reportes, "Reportes", false, "HU-32, HU-38, HU-45"),
+        new(Reportes, "Reportes", true, "HU-42 a HU-48"),
     ];
 
     public static int Indice(string codigo)

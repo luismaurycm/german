@@ -12,6 +12,7 @@ Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). S
 | 6 | HU-27, HU-28, HU-29, HU-30, HU-31, HU-36 | Validación de cuadre, importación a BPC, scripts, conversión con diferencia en conversión y eliminación intercompañía |
 | 7 | HU-32, HU-33, HU-34, HU-35 | Modelo de propiedad y plantilla C02, eliminación de inversión e interés minoritario, método de participación, UX-13 Participaciones y métodos |
 | 8 | HU-37, HU-38, HU-39, HU-40, HU-41 | UX-11 C01 Conciliación intercompañía y C03 Validación de cuadre, UX-14 Asientos de ajuste, UX-15 C04 Estado del cierre con bloqueo por sociedad |
+| 9 | HU-42, HU-43, HU-44, HU-45, HU-48 | UX-10 Reportes (catálogo, generación y .zip), UX-11 con la estructura común y R01 a R07 |
 
 Coberturas por sprint: `tests/COBERTURA-Sprint-N.md`.
 
@@ -158,6 +159,14 @@ Las reglas están en `ReglasConciliacion` (umbral provisional 1.000,00), `Reglas
 (RN-17 y la matriz de C04). El simulador guarda asientos y bloqueos en `IAlmacenSimulado`; `Simulador:AjustesSaldo` acepta un
 cuarto dato con la sociedad socia para crear diferencias intercompañía («2000:22050501:5000000:1000»).
 
+## Reportes (UX-10, UX-11)
+
+`Acelerador.Core/Reportes`: `CatalogoReportes` (los 34 del prototipo, con módulo, fuente, ola y vista previa) y
+`MotorReportes`, que calcula R01 a R07 sobre el modelo de consolidación: cada rubro es la suma de las cuentas mapeadas
+(RN-10), con columnas por sociedad, eliminaciones y total consolidado al incluir filiales (RN-09). `ServicioReportes` arma
+el catálogo, genera los Excel con `IProveedorPlantillas` (`PlantillaReporte` para la estructura común) y el .zip. La tabla
+`reportes_generados` guarda solo el estado de cada generación.
+
 ## Sociedades no SAP (UX-07)
 
 El archivo de cada sociedad no SAP (formato provisional, pregunta 5 del DAF: CSV UTF-8 con `sociedad;cuenta;periodo;tercero;ceco;cebe;importe`)
@@ -178,9 +187,10 @@ resultado y «Descargar registro» (CSV con punto y coma, BOM UTF-8 y celdas pro
 
 ## Base local
 
-El esquema va en la versión 2: `BaseLocal.InicializarAsync` crea las tablas `inventarios`, `sociedades` y
-`mapeo_cuentas` y agrega a `clientes` las columnas `versiones` y `sociedades_no_sap`. Una base del Sprint 1 se migra
-sola al arrancar.
+El esquema va en la versión 5: `BaseLocal.InicializarAsync` crea las tablas `inventarios`, `sociedades`,
+`mapeo_cuentas`, `ejecuciones_plan`, `cargas_no_sap` y `reportes_generados`, y agrega a `clientes` las columnas
+`versiones` y `sociedades_no_sap`. Una base anterior se migra sola al arrancar. Ninguna tabla guarda importes del
+cliente, salvo el total de control de cada carga no SAP (RNF-Seg-04); los datos financieros quedan en BW y BPC.
 
 ## Integración continua
 

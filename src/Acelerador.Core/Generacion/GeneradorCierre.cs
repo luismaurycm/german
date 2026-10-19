@@ -30,7 +30,6 @@ public sealed class GeneradorCierre : IGeneradorObjetos
 
     public IEnumerable<ObjetoPlan> Generar(ContextoPlan c)
     {
-        var grupo = ReglasCierre.Grupo(c.Sociedades);
         var periodo = ReglasCierre.PeriodoInicial(c.Fecha);
         yield return Objeto("Estados de trabajo", EstadosTrabajo, "Abierta o Bloqueada por sociedad y periodo en el modelo de consolidación", FuncionesBpc.ConfigurarEstados, "ESTADOS",
             new
@@ -56,23 +55,20 @@ public sealed class GeneradorCierre : IGeneradorObjetos
         foreach (var (id, archivo, descripcion) in Plantillas)
         {
             yield return Objeto("Plantilla EPM", archivo, descripcion, FuncionesBpc.SubirPlantilla, "PLANTILLA",
-                new
-                {
-                    plantilla = id,
-                    archivo,
-                    carpeta = "PLANTILLAS",
-                    parametros = new
-                    {
-                        conexion = Conexion,
-                        grupo,
-                        periodo = MotorConsolidacion.PeriodoBpc(periodo),
-                        monedas = ReglasCierre.MonedasPresentacion(c.Sociedades),
-                        umbral = ReglasConciliacion.UmbralProvisional,
-                        sociedades = c.Sociedades.Select(s => new { codigo = s.Codigo, nombre = s.Nombre }),
-                    },
-                });
+                new { plantilla = id, archivo, carpeta = "PLANTILLAS", parametros = Parametros(c.Sociedades, periodo) });
         }
     }
+
+    /// <summary>Parámetros de las plantillas del cierre (conexión EPM, grupo, periodo, monedas, umbral y sociedades).</summary>
+    public static object Parametros(IReadOnlyList<Sociedad> sociedades, string periodo) => new
+    {
+        conexion = Conexion,
+        grupo = ReglasCierre.Grupo(sociedades),
+        periodo = MotorConsolidacion.PeriodoBpc(periodo),
+        monedas = ReglasCierre.MonedasPresentacion(sociedades),
+        umbral = ReglasConciliacion.UmbralProvisional,
+        sociedades = sociedades.Select(s => new { codigo = s.Codigo, nombre = s.Nombre }),
+    };
 
     private static ObjetoPlan Objeto(string tipo, string nombre, string descripcion, string funcion, string tipoObjeto, object definicion, string? nota = null) =>
         new(PasosGeneracion.ModeloBpc, Capa.Bpc, Grupo, SistemaSap.Bpc, tipo, nombre, descripcion, EstadoObjeto.Nuevo,
