@@ -176,7 +176,12 @@ public class ServicioNoSapTests
         e.Reloj.Ahora += CargasPendientes.Vigencia + TimeSpan.FromSeconds(1);
 
         Assert.False((await e.ServicioNoSap.ConfirmarAsync(c.Id, "9000")).Exitosa);
-        var bytes = await File.ReadAllBytesAsync(e.Base.RutaArchivo);
+        // En Windows la base sigue abierta por el pool de SQLite: se lee el archivo compartido.
+        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+        await using var archivo = new FileStream(e.Base.RutaArchivo, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+        using var memoria = new MemoryStream();
+        await archivo.CopyToAsync(memoria);
+        var bytes = memoria.ToArray();
         Assert.DoesNotContain("123456789", Encoding.Latin1.GetString(bytes), StringComparison.Ordinal);
     }
 
