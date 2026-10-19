@@ -312,7 +312,7 @@ public class ServicioConexionesTests
         var modulos = await e.ServicioModulos.GuardarAsync(c.Id, [Modulo.Consolidacion], continuar: true);
         Assert.False(modulos.Guardado);
         Assert.Empty((await e.Clientes.ObtenerAsync(c.Id))!.Modulos);
-        Assert.False(await e.ServicioClientes.AvanzarDesdeDiagnosticoAsync(c.Id));
+        Assert.False((await e.ServicioDiagnostico.GuardarCamposZAsync(c.Id, [], continuar: true)).Exitosa);
         Assert.DoesNotContain(e.Sap.Llamadas, l => l.EsEscritura);
 
         // CA4: la detección está en el registro.

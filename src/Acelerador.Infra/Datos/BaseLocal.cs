@@ -3,12 +3,12 @@ using Microsoft.Data.Sqlite;
 namespace Acelerador.Infra.Datos;
 
 /// <summary>
-/// Base SQLite local en el perfil del usuario (ADR-04): clientes, conexiones sin credencial y
-/// registro de ejecuciones. Sin servicios de base de datos (RNF-Comp-03).
+/// Base SQLite local en el perfil del usuario (ADR-04): clientes, conexiones sin credencial, inventario,
+/// sociedades, mapeo de cuentas y registro de ejecuciones. Sin servicios de base de datos (RNF-Comp-03).
 /// </summary>
 public sealed class BaseLocal
 {
-    public const int VersionEsquema = 1;
+    public const int VersionEsquema = 2;
 
     private readonly string _cadena;
 
@@ -36,7 +36,7 @@ public sealed class BaseLocal
         return cn;
     }
 
-    /// <summary>Crea el archivo y el esquema si no existen. Idempotente.</summary>
+    /// <summary>Crea el archivo y el esquema si no existen, y migra una base del Sprint 1 (versión 1). Idempotente.</summary>
     public async Task InicializarAsync(CancellationToken ct = default)
     {
         var carpeta = Path.GetDirectoryName(RutaArchivo);
@@ -104,7 +104,66 @@ public sealed class BaseLocal
                 mensaje     TEXT NOT NULL
             );
             CREATE INDEX IF NOT EXISTS ix_ejecuciones_cliente ON ejecuciones (cliente_id, fecha);
+            CREATE INDEX IF NOT EXISTS ix_ejecuciones_fecha ON ejecuciones (fecha);
+
+            -- Último inventario del cliente (HU-07): objetos en JSON, campos Z elegidos y el fallo del último intento.
+            CREATE TABLE IF NOT EXISTS inventarios (
+                cliente_id     TEXT PRIMARY KEY REFERENCES clientes(id),
+                fecha          TEXT,
+                usuario        TEXT,
+                objetos        TEXT NOT NULL,
+                campos_z       TEXT NOT NULL DEFAULT '',
+                fallo_tipo     TEXT,
+                fallo_mensaje  TEXT,
+                fallo_fecha    TEXT
+            );
+
+            -- Sociedades del grupo (HU-09, HU-10). El porcentaje va como texto invariante para no perder decimales.
+            CREATE TABLE IF NOT EXISTS sociedades (
+                cliente_id     TEXT NOT NULL REFERENCES clientes(id),
+                orden          INTEGER NOT NULL,
+                codigo         TEXT NOT NULL,
+                nombre         TEXT NOT NULL,
+                en_sap         INTEGER NOT NULL,
+                moneda         TEXT NOT NULL,
+                matriz         TEXT NOT NULL,
+                plan_cuentas   TEXT NOT NULL,
+                porcentaje     TEXT NOT NULL,
+                metodo         TEXT NOT NULL,
+                PRIMARY KEY (cliente_id, codigo)
+            );
+
+            -- Mapeo de cuentas a rubros por plan de cuentas (HU-11, RN-05).
+            CREATE TABLE IF NOT EXISTS mapeo_cuentas (
+                cliente_id     TEXT NOT NULL REFERENCES clientes(id),
+                plan_cuentas   TEXT NOT NULL,
+                cuenta         TEXT NOT NULL,
+                rubro          TEXT NOT NULL,
+                PRIMARY KEY (cliente_id, plan_cuentas, cuenta)
+            );
             """;
         await cmd.ExecuteNonQueryAsync(ct);
+
+        // Versión 2 (Sprint 2): versiones de presupuesto (HU-12) y marca de sociedades no SAP (HU-09 CA5).
+        await AgregarColumnaAsync(cn, "clientes", "versiones", "TEXT", ct);
+        await AgregarColumnaAsync(cn, "clientes", "sociedades_no_sap", "INTEGER NOT NULL DEFAULT 0", ct);
+
+        await using var version = cn.CreateCommand();
+        version.CommandText = $"UPDATE esquema SET version = {VersionEsquema} WHERE version < {VersionEsquema}";
+        await version.ExecuteNonQueryAsync(ct);
+    }
+
+    private static async Task AgregarColumnaAsync(SqliteConnection cn, string tabla, string columna, string tipo, CancellationToken ct)
+    {
+        await using var existe = cn.CreateCommand();
+        existe.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{tabla}') WHERE name = '{columna}'";
+        if (Convert.ToInt64(await existe.ExecuteScalarAsync(ct), System.Globalization.CultureInfo.InvariantCulture) > 0)
+        {
+            return;
+        }
+
+        await using var alter = cn.CreateCommand();
+        alter.CommandText = $"ALTER TABLE {tabla} ADD COLUMN {columna} {tipo}";
+        await alter.ExecuteNonQueryAsync(ct);
     }
 }

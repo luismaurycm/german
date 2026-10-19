@@ -1,0 +1,172 @@
+@page "/clientes/{id:guid}/diagnostico"
+@model Acelerador.Web.Pages.Clientes.DiagnosticoModel
+@{
+    ViewData["Title"] = "Diagnóstico e inventario";
+    var inv = Model.Inventario;
+    var bw = Model.Cliente.Deteccion?.Bw;
+    var pasos = ReglasInventario.Pasos;
+    var cargaPasos = ReglasInventario.Alcance;
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(Model.Cliente, Pasos.Diagnostico))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Diagnóstico e inventario</h1>
+                <p>Lo que ya existe en el sistema del cliente, antes de generar nada.</p>
+            </div>
+            @if (inv is { Escaneado: true } || inv?.Fallo is not null)
+            {
+                <form method="post" asp-page-handler="Escanear" class="row" data-carga="Escaneando BW y BPC…" data-carga-tipo="barra" data-carga-detalle="Paso a paso: @cargaPasos. Solo lectura: no crea nada.">
+                    <button class="btn btn-s" type="submit">Volver a escanear</button>
+                </form>
+            }
+        </div>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (inv?.Fallo is { } fallo)
+        {
+            var paso = ReglasInventario.Paso(fallo.Tipo);
+            var numero = pasos.ToList().IndexOf(paso) + 1;
+            <div role="alert" class="note e" id="escaneo">
+                @Iconos.Error
+                <div>
+                    <b>El escaneo no terminó.</b><br>
+                    Falló el paso @numero de @pasos.Count: @paso.Nombre (@Textos.Sistema(paso.Sistema)), @Formato.Fecha(fallo.Fecha).
+                    El sistema respondió: «@fallo.Mensaje»
+                    @if (inv.Escaneado)
+                    {
+                        <br><span>Abajo se muestra el inventario del último escaneo completo.</span>
+                    }
+                </div>
+                <form method="post" asp-page-handler="Escanear" data-carga="Escaneando BW y BPC…" data-carga-tipo="barra" data-carga-detalle="Paso a paso: @cargaPasos. Solo lectura: no crea nada.">
+                    <button class="btn btn-s" type="submit">Reintentar</button>
+                </form>
+            </div>
+        }
+
+        @if (inv is not { Escaneado: true })
+        {
+            @if (inv?.Fallo is null)
+            {
+                <div class="card empty">
+                    @Iconos.Vacio
+                    <p class="big">Aún no se ha escaneado el sistema del cliente.</p>
+                    <p class="muted">El escaneo lee @cargaPasos con el usuario técnico. Solo lee: no crea nada.</p>
+                    <form method="post" asp-page-handler="Escanear" data-carga="Escaneando BW y BPC…" data-carga-tipo="barra" data-carga-detalle="Paso a paso: @cargaPasos. Solo lectura: no crea nada.">
+                        <button class="btn btn-p" type="submit">Escanear</button>
+                    </form>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="row" id="bodega">
+                <partial name="_Pill" model="@((inv.BodegaExistente ? "ok" : "neu", $"Bodega existente: {(inv.BodegaExistente ? "Sí" : "No")}"))" />
+                <span class="muted">@ReglasInventario.AvisoBodega(inv.BodegaExistente) <span class="rn">RN-03</span></span>
+            </div>
+            <p class="muted sin-margen">Último escaneo: <span class="mono">@Formato.Fecha(inv.Fecha)</span> por @inv.Usuario.</p>
+
+            <form method="post" asp-page-handler="Campos" class="inventario" data-ocupado="Guardando…">
+                <div class="tabs" role="tablist" aria-label="Inventario" data-pestanas hidden>
+                    @foreach (var p in pasos)
+                    {
+                        var elegida = p.Tipo == Model.Pestana;
+                        <button class="tab" role="tab" type="button" id="tab-@p.Tipo" aria-controls="pnl-@p.Tipo" aria-selected="@(elegida ? "true" : "false")" tabindex="@(elegida ? "0" : "-1")">
+                            @ReglasInventario.Pestana(p.Tipo, bw) <span class="cuenta">(@inv.Lista(p.Tipo).Count)</span>
+                        </button>
+                    }
+                </div>
+
+                @foreach (var p in pasos)
+                {
+                    var objetos = inv.Lista(p.Tipo);
+                    var titulo = ReglasInventario.Pestana(p.Tipo, bw);
+                    <section class="pnl" role="tabpanel" id="pnl-@p.Tipo" aria-labelledby="h-@p.Tipo" data-elegida="@(p.Tipo == Model.Pestana ? "true" : "false")">
+                        <h2 class="pnl-h" id="h-@p.Tipo">@titulo</h2>
+                        @if (objetos.Count == 0)
+                        {
+                            var (vt, vd) = ReglasInventario.Vacio(p.Tipo);
+                            <div class="card empty">
+                                @Iconos.Vacio
+                                <p class="big">@vt</p>
+                                <p class="muted">@vd</p>
+                            </div>
+                        }
+                        else if (p.Tipo == TipoInventario.CamposZ)
+                        {
+                            <div class="tblw">
+                                <table class="tbl cards">
+                                    <caption class="sr">Campos Z del cliente; marca los que se incorporan a la bodega</caption>
+                                    <thead><tr><th scope="col">Incorporar</th><th scope="col">Campo</th><th scope="col">Descripción</th><th scope="col">Tabla</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var o in objetos)
+                                        {
+                                            <tr>
+                                                <td data-l="Incorporar"><input class="chk" type="checkbox" name="campos" value="@o.NombreTecnico" id="cz-@o.NombreTecnico" checked="@inv.CamposZIncorporados.Contains(o.NombreTecnico)" aria-label="Incorporar @o.NombreTecnico"></td>
+                                                <td data-l="Campo" class="mono">@o.NombreTecnico</td>
+                                                <td data-l="Descripción">@o.Descripcion</td>
+                                                <td data-l="Tabla" class="mono">@o.Detalle</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row entre">
+                                <span class="muted">Los campos marcados aparecen en el plan de generación. <span class="rn">RF-09</span></span>
+                                <button class="btn btn-s" type="submit" name="accion" value="guardar">Guardar selección</button>
+                            </div>
+                        }
+                        else
+                        {
+                            var detalle = p.Tipo switch { TipoInventario.InfoProviders => "Tipo", TipoInventario.ModelosBpc => "Ambiente", _ => null };
+                            <div class="tblw">
+                                <table class="tbl cards">
+                                    <caption class="sr">@titulo con nombre técnico, descripción y estado</caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Nombre técnico</th><th scope="col">Descripción</th>
+                                            @if (detalle is not null) { <th scope="col">@detalle</th> }
+                                            <th scope="col">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var o in objetos)
+                                        {
+                                            <tr>
+                                                <td data-l="Nombre técnico" class="mono">@o.NombreTecnico</td>
+                                                <td data-l="Descripción">
+                                                    @o.Descripcion
+                                                    @if (o.EsBodegaFinanciera) { <span class="pill neu">Bodega</span> }
+                                                </td>
+                                                @if (detalle is not null) { <td data-l="@detalle">@o.Detalle</td> }
+                                                <td data-l="Estado"><partial name="_Pill" model="@((o.Activo ? "ok" : "neu", o.Activo ? "Activo" : "Inactivo"))" /></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </section>
+                }
+
+                @if (Model.Error is not null)
+                {
+                    <div class="note e" role="alert">@Iconos.Error<div>@Model.Error</div></div>
+                }
+
+                <div class="row fin">
+                    @if (!Model.Vista.PuedeContinuar)
+                    {
+                        <span class="muted" id="motivo-continuar">@Model.Vista.Bloqueo</span>
+                    }
+                    <button class="btn btn-p" type="submit" name="accion" value="continuar" disabled="@(!Model.Vista.PuedeContinuar)" aria-describedby="@(Model.Vista.PuedeContinuar ? null : "motivo-continuar")">Continuar a módulos</button>
+                </div>
+            </form>
+        }
+    </main>
+</div>

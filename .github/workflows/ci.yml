@@ -1,0 +1,83 @@
+# Integración continua del acelerador (ADR-11, RNF-Seg-01): compila y prueba en Linux y en Windows en cada PR y
+# en cada push a main, corre en Windows la prueba del Administrador de credenciales (DPAPI, HU-04) y falla si algún
+# paquete NuGet, directo o transitivo, tiene una vulnerabilidad conocida.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build-test:
+    name: Build y pruebas (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar el SDK de .NET de global.json
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restaurar
+        run: dotnet restore
+
+      - name: Compilar
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Probar
+        run: dotnet test --no-build --configuration Release --logger "trx;LogFilePrefix=pruebas" --results-directory resultados
+
+      # En Windows la prueba del Administrador de credenciales (HU-04 CA2) no puede quedar omitida.
+      - name: Prueba DPAPI de HU-04 (solo Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          dotnet test --no-build --configuration Release `
+            --filter "FullyQualifiedName=Acelerador.Tests.Infra.AlmacenCredencialesTests.Windows" `
+            --logger "trx;LogFileName=dpapi.trx" --results-directory resultados-dpapi
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          [xml]$trx = Get-Content (Get-ChildItem resultados-dpapi -Filter dpapi.trx -Recurse | Select-Object -First 1).FullName
+          $c = $trx.TestRun.ResultSummary.Counters
+          Write-Host "DPAPI: total=$($c.total) ejecutadas=$($c.executed) aprobadas=$($c.passed) no ejecutadas=$($c.notExecuted)"
+          if ($c.total -ne '1' -or $c.passed -ne '1') {
+            Write-Error "La prueba DPAPI de HU-04 no se ejecutó o no pasó."
+            exit 1
+          }
+
+      - name: Paquetes vulnerables (directos y transitivos)
+        shell: bash
+        run: |
+          dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerables.txt
+          if grep -q "has the following vulnerable packages" vulnerables.txt; then
+            echo "::error::Hay paquetes NuGet con vulnerabilidades conocidas."
+            exit 1
+          fi
+
+      - name: Publicar resultados de pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-${{ matrix.os }}
+          path: |
+            resultados
+            resultados-dpapi
+          if-no-files-found: ignore

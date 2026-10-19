@@ -11,17 +11,21 @@ public static class Pasos
     public const string Diagnostico = "UX-03";
     public const string Modulos = "UX-04";
     public const string Sociedades = "UX-05";
+    public const string Mapeo = "UX-06";
+    public const string NoSap = "UX-07";
+    public const string Plan = "UX-08";
+    public const string Ejecucion = "UX-09";
 
     public static readonly IReadOnlyList<Paso> Todos =
     [
         new(Conexiones, "Conexiones", true, "HU-03 a HU-06, HU-57"),
-        new(Diagnostico, "Diagnóstico", false, "HU-07, HU-17"),
+        new(Diagnostico, "Diagnóstico", true, "HU-07, HU-17"),
         new(Modulos, "Módulos", true, "HU-08, HU-12"),
-        new(Sociedades, "Sociedades", false, "HU-09, HU-10"),
-        new("UX-06", "Mapeo de cuentas", false, "HU-11"),
-        new("UX-07", "Sociedades no SAP", false, "HU-25"),
-        new("UX-08", "Plan de generación", false, "HU-12, HU-13, HU-16"),
-        new("UX-09", "Ejecución", false, "HU-14, HU-54"),
+        new(Sociedades, "Sociedades", true, "HU-09, HU-10"),
+        new(Mapeo, "Mapeo de cuentas", true, "HU-11"),
+        new(NoSap, "Sociedades no SAP", false, "HU-25"),
+        new(Plan, "Plan de generación", false, "HU-12, HU-13, HU-16"),
+        new(Ejecucion, "Ejecución", false, "HU-14, HU-54"),
         new("UX-10", "Reportes", false, "HU-32, HU-38, HU-45"),
     ];
 
@@ -37,6 +41,15 @@ public static class Pasos
 
         return -1;
     }
+
+    /// <summary>
+    /// Pasos que ve el cliente en la navegación: UX-07 solo aparece si alguna sociedad no está en SAP (HU-09 CA5).
+    /// </summary>
+    public static IReadOnlyList<Paso> Visibles(Cliente cliente) =>
+        Todos.Where(p => p.Codigo != NoSap || cliente.TieneSociedadesNoSap).ToList();
+
+    /// <summary>Paso siguiente al mapeo de cuentas: UX-07 si hay sociedades no SAP, si no el plan de generación.</summary>
+    public static string DespuesDelMapeo(Cliente cliente) => cliente.TieneSociedadesNoSap ? NoSap : Plan;
 
     public static Paso? Buscar(string codigo) => Todos.FirstOrDefault(p => p.Codigo == codigo);
 

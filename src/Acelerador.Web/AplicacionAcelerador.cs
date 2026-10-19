@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net;
+using Acelerador.Core.Servicios;
 using Acelerador.Infra.Datos;
 using Acelerador.Web.Seguridad;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -47,9 +48,17 @@ public static class AplicacionAcelerador
         return app;
     }
 
-    /// <summary>Crea la base local si no existe.</summary>
-    public static Task InicializarAsync(WebApplication app) =>
-        app.Services.GetRequiredService<BaseLocal>().InicializarAsync();
+    /// <summary>Crea o migra la base local y depura el registro de ejecuciones de más de 12 meses (RNF-Aud-01).</summary>
+    public static async Task InicializarAsync(WebApplication app)
+    {
+        await app.Services.GetRequiredService<BaseLocal>().InicializarAsync();
+        using var scope = app.Services.CreateScope();
+        var depuradas = await scope.ServiceProvider.GetRequiredService<ServicioRegistro>().DepurarAsync();
+        if (depuradas > 0)
+        {
+            app.Logger.LogInformation("Registro de ejecuciones: {Cantidad} entradas de más de 12 meses depuradas", depuradas);
+        }
+    }
 
     private static void Anunciar(WebApplication app)
     {

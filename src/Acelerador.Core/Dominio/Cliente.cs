@@ -54,6 +54,12 @@ public sealed class Cliente
 
     public ISet<Modulo> Modulos { get; init; } = new HashSet<Modulo>();
 
+    /// <summary>Versiones de presupuesto (HU-12). Se proponen al marcar Presupuesto y solo pasan al plan con ese módulo.</summary>
+    public IList<VersionPresupuesto> Versiones { get; set; } = [.. VersionPresupuesto.Propuestas];
+
+    /// <summary>Alguna sociedad del grupo no está en SAP: habilita el paso UX-07 (HU-09 CA5).</summary>
+    public bool TieneSociedadesNoSap { get; set; }
+
     /// <summary>Avanza el paso actual sin retroceder nunca.</summary>
     public void AvanzarA(string paso)
     {

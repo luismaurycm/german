@@ -9,7 +9,7 @@ namespace Acelerador.Sap;
 /// Los errores de SAP no se lanzan como excepción: vuelven en el resultado con el mensaje del
 /// sistema, porque la pantalla los muestra tal cual (HU-03 CA2). El llamador sanitiza el mensaje
 /// antes de mostrarlo o registrarlo (HU-04 CA4).
-/// Todas las operaciones del Sprint 1 son de solo lectura: no crean objetos en el cliente.
+/// Todas las operaciones de los sprints 1 y 2 son de solo lectura: no crean objetos en el cliente.
 /// </remarks>
 public interface ISapGateway
 {
@@ -21,4 +21,16 @@ public interface ISapGateway
 
     /// <summary>Lee SID, componentes de software y tipo de modelo BPC de los tres sistemas (HU-06).</summary>
     Task<ResultadoDeteccion> DetectarPaisajeAsync(DestinoSap erp, DestinoSap bw, DestinoSap bpc, CancellationToken ct = default);
+
+    /// <summary>
+    /// Lee un tipo de objeto del inventario (HU-07). Extractores y campos Z se leen del ERP; InfoProviders de BW;
+    /// modelos de BPC del sistema BPC. El llamador elige el destino según <see cref="TipoInventario"/>.
+    /// </summary>
+    Task<ResultadoInventario> LeerInventarioAsync(DestinoSap destino, TipoInventario tipo, CancellationToken ct = default);
+
+    /// <summary>Sociedades del ERP con moneda local y plan de cuentas (HU-09, RN-07: solo las del grupo).</summary>
+    Task<ResultadoSociedades> LeerSociedadesAsync(DestinoSap erp, CancellationToken ct = default);
+
+    /// <summary>Cuentas del plan de cuentas de una sociedad, con nodo y saldo (HU-11, RN-05, RN-10).</summary>
+    Task<ResultadoCuentas> LeerCuentasAsync(DestinoSap erp, string sociedad, CancellationToken ct = default);
 }

@@ -50,6 +50,51 @@
                 </div>
             </fieldset>
 
+            @* HU-12: versiones del modelo de planeación, visibles solo con Presupuesto marcado. *@
+            <fieldset class="card versiones" id="versiones" data-versiones hidden="@(!Model.Seleccion.Contains(Modulo.Presupuesto))">
+                <legend><span class="h-ver">Versiones de presupuesto</span></legend>
+                <input type="hidden" name="conVersiones" value="true">
+                <p class="muted sin-margen">Versiones del modelo de planeación: presupuesto anual y proyecciones. Pasan al plan de generación. <span class="rn">RF-39</span></p>
+                @if (Model.ErroresVersiones.Any(e => e.Fila < 0))
+                {
+                    <div class="note e" role="alert">@Iconos.Error<div>@foreach (var e in Model.ErroresVersiones.Where(e => e.Fila < 0)) { <span>@e.Mensaje</span> }</div></div>
+                }
+                @if (Model.ErroresVersiones.Any(e => e.Fila >= 0))
+                {
+                    <div class="note e" role="alert">@Iconos.Error<div><b>Revisa las versiones marcadas.</b><ul>@foreach (var e in Model.ErroresVersiones.Where(e => e.Fila >= 0)) { <li>@e.Mensaje</li> }</ul></div></div>
+                }
+                <div class="tblw">
+                    <table class="tbl cards">
+                        <caption class="sr">Versiones de presupuesto con código y nombre</caption>
+                        <thead><tr><th scope="col">Código</th><th scope="col">Nombre</th><th scope="col">Tipo</th><th scope="col"><span class="sr">Acciones</span></th></tr></thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.Versiones.Count; i++)
+                            {
+                                var v = Model.Versiones[i];
+                                var conError = Model.ErroresDeFila(i).Any();
+                                <tr class="@(conError ? "fila-err" : null)">
+                                    <td data-l="Código">
+                                        <input class="ent mono" id="ver-cod-@i" name="versiones[@i].Codigo" value="@v.Codigo" maxlength="@ReglasVersiones.LongitudCodigo" autocomplete="off"
+                                               aria-label="Código de la versión @(i + 1)" aria-invalid="@(conError ? "true" : "false")">
+                                    </td>
+                                    <td data-l="Nombre">
+                                        <input class="ent" id="ver-nom-@i" name="versiones[@i].Nombre" value="@v.Nombre" maxlength="60" autocomplete="off"
+                                               aria-label="Nombre de la versión @(i + 1)" aria-invalid="@(conError ? "true" : "false")">
+                                        <input type="hidden" name="versiones[@i].Anual" value="@(v.Anual ? "true" : "false")">
+                                    </td>
+                                    <td data-l="Tipo">@(v.Anual ? "Presupuesto anual" : "Proyección")</td>
+                                    <td data-l="Acciones"><button class="btn btn-s btn-c" type="submit" name="accion" value="quitar-version-@i" aria-label="Quitar la versión @(v.Codigo.Length > 0 ? v.Codigo : (i + 1).ToString())">Quitar</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row entre">
+                    <span class="muted">Debe existir la versión de presupuesto anual. Los códigos no se repiten.</span>
+                    <button class="btn btn-s" type="submit" name="accion" value="agregar-version">@Iconos.Mas Agregar versión</button>
+                </div>
+            </fieldset>
+
             <div class="note w" role="status" data-sin-modulos hidden="@hay">@Iconos.Aviso<div>@(Model.Error ?? ReglasModulos.MensajeSinModulos)</div></div>
 
             <div class="row entre">

@@ -8,20 +8,14 @@
     <main class="a-main" id="contenido">
         <div class="ph">
             <div>
-                <h1>@(Model.Paso.Codigo == Pasos.Diagnostico ? "Diagnóstico e inventario" : Model.Paso.Nombre)</h1>
+                <h1>@Model.Paso.Nombre</h1>
                 <p>@Model.Paso.Codigo · @Model.Paso.Historias</p>
             </div>
         </div>
         <div class="card empty">
             @Iconos.Vacio
             <p class="big">Esta pantalla llega en un sprint posterior.</p>
-            <p class="muted">Se construye con @Model.Paso.Historias del backlog. El Sprint 1 cubre Clientes, Conexiones y Módulos.</p>
+            <p class="muted">Se construye con @Model.Paso.Historias del backlog.</p>
         </div>
-        @if (Model.Paso.Codigo == Pasos.Diagnostico)
-        {
-            <form method="post" asp-page-handler="Continuar" class="row fin">
-                <button class="btn btn-p" type="submit">Continuar a módulos</button>
-            </form>
-        }
     </main>
 </div>

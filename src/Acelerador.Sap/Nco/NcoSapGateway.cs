@@ -34,4 +34,23 @@ public sealed class NcoSapGateway : ISapGateway
     /// </summary>
     public Task<ResultadoDeteccion> DetectarPaisajeAsync(DestinoSap erp, DestinoSap bw, DestinoSap bpc, CancellationToken ct = default) =>
         Task.FromResult(new ResultadoDeteccion(false, MensajePendiente));
+
+    /// <summary>
+    /// Z_ACC_INVENTARIO con IV_TIPO = EXTRACTORES (ROOSOURCE en el ERP), INFOPROVIDERS (RSDCUBE en BW 7.5 o RSOADSO en
+    /// BW/4HANA, con la marca de bodega financiera), MODELOS_BPC (UJA_APPL, por confirmar) o CAMPOS_Z (DD03L sobre BSEG o
+    /// ACDOCA). Devuelve JSON; si EV_TRUNCADO viene marcado se informa en el mensaje.
+    /// </summary>
+    public Task<ResultadoInventario> LeerInventarioAsync(DestinoSap destino, TipoInventario tipo, CancellationToken ct = default) =>
+        Task.FromResult(new ResultadoInventario(false, MensajePendiente, []));
+
+    /// <summary>BAPI_COMPANYCODE_GETLIST y BAPI_COMPANYCODE_GETDETAIL (moneda y plan de cuentas de T001).</summary>
+    public Task<ResultadoSociedades> LeerSociedadesAsync(DestinoSap erp, CancellationToken ct = default) =>
+        Task.FromResult(new ResultadoSociedades(false, MensajePendiente, []));
+
+    /// <summary>
+    /// BAPI_GL_ACC_GETLIST para el plan de la sociedad, nodo de la versión de estructura de balance (por confirmar en
+    /// HU-01: lectura de FAGL_011ZC o un módulo Z) y BAPI_GL_GETGLACCPERIODBALANCES para el saldo del último periodo cerrado.
+    /// </summary>
+    public Task<ResultadoCuentas> LeerCuentasAsync(DestinoSap erp, string sociedad, CancellationToken ct = default) =>
+        Task.FromResult(new ResultadoCuentas(false, MensajePendiente, "", "", "", []));
 }

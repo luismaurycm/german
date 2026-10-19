@@ -58,21 +58,4 @@ public sealed class ServicioClientes(
     }
 
     public Task<Cliente?> ObtenerAsync(Guid id, CancellationToken ct = default) => clientes.ObtenerAsync(id, ct);
-
-    /// <summary>
-    /// Avanza al paso indicado si el cliente puede abrirlo desde donde está. Al diagnóstico se llega por
-    /// <see cref="ServicioConexiones.ContinuarADiagnosticoAsync"/>; aquí solo se avanza del diagnóstico a módulos.
-    /// </summary>
-    public async Task<bool> AvanzarDesdeDiagnosticoAsync(Guid id, CancellationToken ct = default)
-    {
-        var cliente = await clientes.ObtenerAsync(id, ct);
-        if (cliente is null || ReglaAvance.BloqueoDeConfiguracion(cliente) is not null || Pasos.Indice(cliente.PasoActual) < Pasos.Indice(Pasos.Diagnostico))
-        {
-            return false;
-        }
-
-        cliente.AvanzarA(Pasos.Modulos);
-        await clientes.ActualizarAsync(cliente, ct);
-        return true;
-    }
 }

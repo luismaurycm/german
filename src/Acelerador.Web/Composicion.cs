@@ -46,7 +46,12 @@ public static class Composicion
         services.AddSingleton(new BaseLocal(string.IsNullOrWhiteSpace(opciones.BaseDatos) ? BaseLocal.RutaPorDefecto() : opciones.BaseDatos));
         services.AddSingleton<IClienteRepository, SqliteClienteRepository>();
         services.AddSingleton<IConexionRepository, SqliteConexionRepository>();
-        services.AddSingleton<IRegistroEjecuciones, SqliteRegistroEjecuciones>();
+        services.AddSingleton<SqliteRegistroEjecuciones>();
+        services.AddSingleton<IRegistroEjecuciones>(sp => sp.GetRequiredService<SqliteRegistroEjecuciones>());
+        services.AddSingleton<IDepuracionRegistro>(sp => sp.GetRequiredService<SqliteRegistroEjecuciones>());
+        services.AddSingleton<IInventarioRepository, SqliteInventarioRepository>();
+        services.AddSingleton<ISociedadRepository, SqliteSociedadRepository>();
+        services.AddSingleton<IMapeoRepository, SqliteMapeoRepository>();
         services.AddSingleton(_ => CrearAlmacen(opciones.AlmacenCredenciales));
 
         var modoSap = config["Sap:Modo"] ?? "Simulado";
@@ -57,6 +62,11 @@ public static class Composicion
         services.AddScoped<ServicioClientes>();
         services.AddScoped<ServicioConexiones>();
         services.AddScoped<ServicioModulos>();
+        services.AddScoped<AccesoSap>();
+        services.AddScoped<ServicioDiagnostico>();
+        services.AddScoped<ServicioSociedades>();
+        services.AddScoped<ServicioMapeo>();
+        services.AddScoped<ServicioRegistro>();
         return services;
     }
 

@@ -1,0 +1,167 @@
+@page "/clientes/{id:guid}/mapeo"
+@model Acelerador.Web.Pages.Clientes.MapeoModel
+@{
+    ViewData["Title"] = "Mapeo de cuentas";
+    var v = Model.Vista;
+    var r = v.Rubro;
+    var sinSociedades = v.Error == ReglasMapeo.MensajeSinSociedades;
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(v.Cliente, Pasos.Mapeo))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Mapeo de cuentas</h1>
+                <p>Asigna las cuentas contables de cada sociedad a los rubros de los reportes.</p>
+            </div>
+            @if (v.Error is null)
+            {
+                <div class="row" id="sin-mapear">
+                    <partial name="_Pill" model="@((v.SinMapear == 0 ? "ok" : "warn", v.SinMapear == 0 ? "Todas las cuentas mapeadas" : $"{v.SinMapear} {(v.SinMapear == 1 ? "cuenta" : "cuentas")} sin mapear"))" />
+                </div>
+            }
+        </div>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (Model.Error is not null)
+        {
+            <div class="note e" role="alert" id="error-mapeo">@Iconos.Error<div><b>@(Model.Error.StartsWith("No se pudo guardar", StringComparison.Ordinal) ? "No se pudo guardar el mapeo." : "No se pudo asignar.")</b><br>@Model.Error.Replace("No se pudo guardar el mapeo. ", "", StringComparison.Ordinal)</div></div>
+        }
+
+        @if (sinSociedades)
+        {
+            <div class="card empty">
+                @Iconos.Vacio
+                <p class="big">No hay sociedades en SAP para mapear.</p>
+                <p class="muted">@ReglasMapeo.MensajeSinSociedades</p>
+                <a class="btn btn-p" href="@Formato.Ruta(v.Cliente.Id, Pasos.Sociedades)" data-carga="Cargando sociedades…">Ir a Sociedades</a>
+            </div>
+        }
+        else
+        {
+            <form method="get" class="row filtros" action="@Formato.Ruta(v.Cliente.Id, Pasos.Mapeo)" data-carga="Cargando cuentas…" data-auto>
+                <input type="hidden" name="rubro" value="@r.Codigo">
+                <div class="fld">
+                    <label for="fs">Sociedad</label>
+                    <select id="fs" name="sociedad">
+                        @foreach (var s in v.Sociedades)
+                        {
+                            <option value="@s.Codigo" selected="@(s.Codigo == v.Sociedad?.Codigo)">@s.Codigo @s.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="fld">
+                    <label for="fp">Plan de cuentas</label>
+                    <input id="fp" type="text" value="@v.Sociedad?.PlanCuentas (de la sociedad)" readonly aria-describedby="fp-ayuda">
+                    <span class="hint sr" id="fp-ayuda">El plan de cuentas lo define la sociedad (RN-05).</span>
+                </div>
+                <label class="row chkl" for="fsm"><input id="fsm" class="chk" type="checkbox" name="sinMapear" value="true" checked="@v.SoloSinMapear"> Solo sin mapear</label>
+                <button class="btn btn-s" type="submit">Aplicar</button>
+            </form>
+
+            @if (v.Error is not null)
+            {
+                <div role="alert" class="note e" id="error-cuentas">
+                    @Iconos.Error
+                    <div><b>No se pudieron leer las cuentas del ERP.</b><br>El sistema respondió: «@v.Error»</div>
+                    <a class="btn btn-s" href="@Model.Enlace()" data-carga="Cargando cuentas…">Reintentar</a>
+                </div>
+            }
+            else
+            {
+                <div class="split">
+                    <nav class="l card rubros" aria-labelledby="titulo-rubros">
+                        <h2 id="titulo-rubros">Rubros</h2>
+                        <ul>
+                            @foreach (var x in v.Rubros)
+                            {
+                                <li>
+                                    <a class="rub" href="@Model.Enlace(x.Rubro.Codigo)" aria-current="@(x.Rubro == r ? "true" : null)">
+                                        <span><span class="mono">@x.Rubro.Codigo</span><br>@x.Rubro.Nombre</span>
+                                        <span class="nw">@x.Cuentas @(x.Cuentas == 1 ? "cta" : "ctas")</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                    <div class="r col">
+                        @if (v.SinMapeos)
+                        {
+                            <div class="card empty compacto">
+                                @Iconos.Vacio
+                                <p class="big">Aún no hay cuentas mapeadas.</p>
+                                <p class="muted">Elige un rubro a la izquierda, marca sus cuentas y asígnalas.</p>
+                            </div>
+                        }
+                        <div class="note" id="vista-previa" role="status">
+                            @Iconos.Info
+                            <div>
+                                Vista previa de <b>@r.Codigo @r.Nombre</b> en @v.Sociedad!.Codigo: suma de @v.CuentasDelRubro @(v.CuentasDelRubro == 1 ? "cuenta" : "cuentas") =
+                                <b>@Formato.Importe(v.ValorRubro, v.Moneda)</b> (saldos a @v.Periodo).
+                                El valor del rubro es la suma de sus cuentas. <span class="rn">RN-10</span>
+                            </div>
+                        </div>
+                        <form method="post" class="col" data-ocupado="Guardando…">
+                            <input type="hidden" name="sociedad" value="@v.Sociedad.Codigo">
+                            <input type="hidden" name="rubro" value="@r.Codigo">
+                            <input type="hidden" name="sinMapear" value="@(v.SoloSinMapear ? "true" : "false")">
+                            @if (v.Cuentas.Count == 0)
+                            {
+                                <p class="muted">Todas las cuentas del plan @v.Sociedad.PlanCuentas están mapeadas.</p>
+                            }
+                            else
+                            {
+                                <div class="tblw">
+                                    <table class="tbl cards">
+                                        <caption class="sr">Cuentas del plan @v.Sociedad.PlanCuentas con descripción, nodo, saldo y rubro asignado</caption>
+                                        <thead>
+                                            <tr><th scope="col"><span class="sr">Elegir</span></th><th scope="col">Cuenta</th><th scope="col">Descripción</th><th scope="col">Nodo</th><th scope="col" class="num">Saldo</th><th scope="col">Rubro asignado</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var c in v.Cuentas)
+                                            {
+                                                var delRubro = c.Rubro == r.Codigo;
+                                                <tr class="@(delRubro ? "resaltada" : null)">
+                                                    <td data-l="Elegir"><input class="chk" type="checkbox" name="cuentas" value="@c.Cuenta.Numero" id="cta-@c.Cuenta.Numero" aria-label="Elegir @c.Cuenta.Numero @c.Cuenta.Descripcion"></td>
+                                                    <td data-l="Cuenta" class="mono">@c.Cuenta.Numero</td>
+                                                    <td data-l="Descripción">@c.Cuenta.Descripcion</td>
+                                                    <td data-l="Nodo">@c.Cuenta.Nodo</td>
+                                                    <td data-l="Saldo" class="num mono">@Formato.Importe(c.Cuenta.Saldo, "")</td>
+                                                    <td data-l="Rubro asignado">
+                                                        @if (c.Rubro is null)
+                                                        {
+                                                            <partial name="_Pill" model="@(("warn", "Sin mapear"))" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="mono">@c.Rubro</span>@if (delRubro) { <span class="sr"> (rubro elegido)</span> }
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            <div class="row entre">
+                                <span class="muted">Cuentas filtradas por el plan de cuentas de la sociedad (@v.Sociedad.PlanCuentas). <span class="rn">RN-05</span></span>
+                                <div class="row">
+                                    <button class="btn btn-s" type="submit" name="accion" value="quitar" disabled="@(v.Cuentas.Count == 0)">Quitar del rubro</button>
+                                    <button class="btn btn-p" type="submit" name="accion" value="asignar" disabled="@(v.Cuentas.Count == 0)">Asignar al rubro @r.Codigo</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <form method="post" asp-page-handler="Continuar" class="row fin">
+                <button class="btn btn-p" type="submit">Continuar</button>
+            </form>
+        }
+    </main>
+</div>

@@ -1,0 +1,95 @@
+@page "/clientes/{id:guid}/registro"
+@model Acelerador.Web.Pages.Clientes.RegistroModel
+@{
+    ViewData["Title"] = "Registro de ejecuciones";
+    var v = Model.Vista;
+    var filtros = new (ResultadoEjecucion? Valor, string Texto)[] { (null, "Todos"), (ResultadoEjecucion.Exitoso, "Exitosos"), (ResultadoEjecucion.Fallido, "Fallidos"), (ResultadoEjecucion.NoSoportado, "No soportados") };
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(Model.Cliente, "registro"))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Registro de ejecuciones</h1>
+                <p>Cada paso ejecutado en los sistemas del cliente: quién, cuándo, dónde y con qué resultado. UX-09 · Ejecución y registro.</p>
+            </div>
+            @if (v is { Total: > 0 })
+            {
+                <div class="row">
+                    <a class="btn btn-s" href="@Formato.Registro(Model.Cliente.Id)?handler=Descargar" download>Descargar registro</a>
+                </div>
+            }
+        </div>
+
+        @if (Model.ErrorAlCargar)
+        {
+            <div role="alert" class="note e">
+                @Iconos.Error
+                <div><b>No se pudo cargar el registro.</b><br>Revisa que el acelerador pueda leer su base local e inténtalo de nuevo.</div>
+                <a class="btn btn-s" href="@Formato.Registro(Model.Cliente.Id)">Reintentar</a>
+            </div>
+        }
+        else if (v is null || v.Total == 0)
+        {
+            <div class="card empty">
+                @Iconos.Vacio
+                <p class="big">Aún no hay ejecuciones.</p>
+                <p class="muted">Cada prueba de conexión, validación, detección, escaneo y paso de generación queda aquí.</p>
+                <a class="btn btn-p" href="@Formato.Ruta(Model.Cliente.Id, Pasos.Conexiones)">Ir a Conexiones</a>
+            </div>
+        }
+        else
+        {
+            <form method="get" class="row" role="search" aria-label="Filtrar el registro" data-carga="Cargando registro…" data-auto>
+                <div class="fld">
+                    <label for="resultado">Resultado</label>
+                    <select id="resultado" name="resultado">
+                        @foreach (var (valor, texto) in filtros)
+                        {
+                            <option value="@valor" selected="@(valor == Model.Filtro)">@texto</option>
+                        }
+                    </select>
+                </div>
+                <button class="btn btn-s" type="submit">Filtrar</button>
+                <p class="muted sin-margen" role="status">@v.Ejecuciones.Count de @v.Total @(v.Total == 1 ? "ejecución" : "ejecuciones")</p>
+            </form>
+
+            @if (v.Ejecuciones.Count == 0)
+            {
+                <p class="muted">Ninguna ejecución con ese resultado.</p>
+            }
+            else
+            {
+                <div class="tblw">
+                    <table class="tbl cards" id="tabla-registro">
+                        <caption class="sr">Registro de ejecuciones con fecha y hora, usuario, sistema, paso, objetos, resultado y detalle</caption>
+                        <thead>
+                            <tr>
+                                @foreach (var c in ReglasRegistro.Columnas)
+                                {
+                                    <th scope="col">@c</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var e in v.Ejecuciones)
+                            {
+                                var clase = e.Resultado switch { ResultadoEjecucion.Exitoso => "ok", ResultadoEjecucion.Fallido => "err", _ => "warn" };
+                                <tr>
+                                    <td data-l="Fecha y hora" class="mono nw">@Formato.FechaHora(e.Fecha)</td>
+                                    <td data-l="Usuario">@e.Usuario</td>
+                                    <td data-l="Sistema" class="nw">@e.Sistema</td>
+                                    <td data-l="Paso">@e.Paso</td>
+                                    <td data-l="Objetos">@e.Objetos</td>
+                                    <td data-l="Resultado"><partial name="_Pill" model="@((clase, Textos.Resultado(e.Resultado)))" /></td>
+                                    <td data-l="Detalle" class="detalle">@e.Mensaje</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            <span class="rn">Cada ejecución queda registrada y se conserva al menos 12 meses. RNF-Aud-01</span>
+        }
+    </main>
+</div>

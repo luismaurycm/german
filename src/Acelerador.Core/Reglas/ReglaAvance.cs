@@ -51,12 +51,14 @@ public static class ReglaAvance
 
     /// <summary>
     /// Un paso se abre si el cliente ya llegó a él. Fuera de Conexiones, además, el cliente debe estar
-    /// soportado: a un cliente con arquitectura B o sin variante no se le configura nada (RN-19).
+    /// soportado: a un cliente con arquitectura B o sin variante no se le configura nada (RN-19). UX-07 solo se abre
+    /// si alguna sociedad no está en SAP (HU-09 CA5).
     /// </summary>
     public static bool PuedeAbrir(Cliente cliente, string paso) =>
         Pasos.Indice(paso) >= 0
         && Pasos.Indice(paso) <= Pasos.Indice(cliente.PasoActual)
-        && (paso == Pasos.Conexiones || BloqueoDeConfiguracion(cliente) is null);
+        && (paso == Pasos.Conexiones || BloqueoDeConfiguracion(cliente) is null)
+        && (paso != Pasos.NoSap || cliente.TieneSociedadesNoSap);
 
     /// <summary>RN-19: un cliente con arquitectura B o sin variante no se configura (UX-04 en adelante).</summary>
     public static string? BloqueoDeConfiguracion(Cliente cliente) =>

@@ -121,11 +121,15 @@ public sealed partial class Navegador(HttpClient http)
     }
 
     /// <summary>POST a un formulario de la página actual. Sigue la redirección (PRG) si la hay.</summary>
-    public async Task<HttpResponseMessage> PostAsync(string accion, IDictionary<string, string?> campos, bool seguir = true)
+    public Task<HttpResponseMessage> PostAsync(string accion, IDictionary<string, string?> campos, bool seguir = true) =>
+        PostAsync(accion, campos.Where(c => c.Value is not null).Select(c => new KeyValuePair<string, string>(c.Key, c.Value!)), seguir);
+
+    /// <summary>POST con campos que se repiten (casillas con el mismo nombre).</summary>
+    public async Task<HttpResponseMessage> PostAsync(string accion, IEnumerable<KeyValuePair<string, string>> campos, bool seguir = true)
     {
         var token = TokenAntiforgery().Match(Html);
         Assert.True(token.Success, "La página no tiene token antiforgery.");
-        var datos = campos.Where(c => c.Value is not null).Select(c => new KeyValuePair<string, string>(c.Key, c.Value!)).ToList();
+        var datos = campos.ToList();
         datos.Add(new("__RequestVerificationToken", WebUtility.HtmlDecode(token.Groups[1].Value)));
 
         var r = await Http.PostAsync(accion, new FormUrlEncodedContent(datos));
