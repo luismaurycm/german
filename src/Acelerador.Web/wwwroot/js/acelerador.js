@@ -1,5 +1,6 @@
 // Mejoras progresivas: todo funciona sin JavaScript; esto solo agrega el filtro en vivo,
-// Mostrar/Ocultar la credencial, el resumen de módulos y el estado de carga de los botones.
+// Mostrar/Ocultar la credencial, el resumen de módulos, el estado de carga de los botones y de las
+// pantallas que leen del sistema del cliente, las pestañas del inventario y las versiones de presupuesto.
 (function () {
   'use strict';
 
@@ -71,5 +72,106 @@
       continuar.disabled = n === 0;
     };
     form.addEventListener('change', actualizar);
+  });
+
+  // Estado de carga de pantalla (UX-03, UX-05, UX-06, UX-09): mientras el servidor lee del sistema del cliente,
+  // el contenido se reemplaza por un esqueleto o una barra de progreso con el texto de data-carga.
+  var main = document.getElementById('contenido');
+  function mostrarCarga(texto, tipo, detalle) {
+    if (!main || main.getAttribute('aria-busy') === 'true') return;
+    var ph = main.querySelector('.ph');
+    Array.prototype.forEach.call(main.children, function (c) {
+      if (c !== ph) { c.setAttribute('data-oculto-carga', ''); c.hidden = true; }
+    });
+    var tarjeta = document.createElement('div');
+    tarjeta.className = 'card carga';
+    tarjeta.setAttribute('role', 'status');
+    var titulo = document.createElement(tipo === 'barra' ? 'b' : 'p');
+    titulo.className = tipo === 'barra' ? '' : 'row sin-margen';
+    if (tipo !== 'barra') titulo.innerHTML = '<span class="spin" aria-hidden="true"></span>';
+    titulo.appendChild(document.createTextNode(texto));
+    tarjeta.appendChild(titulo);
+    if (tipo === 'barra') {
+      tarjeta.insertAdjacentHTML('beforeend', '<div class="barra" aria-hidden="true"><span></span></div>');
+      if (detalle) {
+        var d = document.createElement('span');
+        d.className = 'muted';
+        d.textContent = detalle;
+        tarjeta.appendChild(d);
+      }
+    } else {
+      tarjeta.insertAdjacentHTML('beforeend', '<div class="sk l1"></div><div class="sk l2"></div><div class="sk l2"></div><div class="sk l2"></div>');
+    }
+    main.setAttribute('aria-busy', 'true');
+    main.appendChild(tarjeta);
+  }
+  function quitarCarga() {
+    if (!main) return;
+    main.removeAttribute('aria-busy');
+    main.querySelectorAll('.carga').forEach(function (c) { c.remove(); });
+    main.querySelectorAll('[data-oculto-carga]').forEach(function (c) { c.hidden = false; c.removeAttribute('data-oculto-carga'); });
+  }
+  // Al volver con el botón Atrás, el navegador puede restaurar la página con la carga puesta.
+  window.addEventListener('pageshow', function (e) { if (e.persisted) quitarCarga(); });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[data-carga]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    mostrarCarga(a.getAttribute('data-carga'), a.getAttribute('data-carga-tipo'), a.getAttribute('data-carga-detalle'));
+  });
+  document.addEventListener('submit', function (e) {
+    var origen = (e.submitter && e.submitter.hasAttribute('data-carga')) ? e.submitter : e.target;
+    if (e.defaultPrevented || !origen.hasAttribute('data-carga')) return;
+    var texto = origen.getAttribute('data-carga');
+    var tipo = origen.getAttribute('data-carga-tipo');
+    var detalle = origen.getAttribute('data-carga-detalle');
+    setTimeout(function () { mostrarCarga(texto, tipo, detalle); }, 0);
+  });
+
+  // Los filtros de UX-06 y del registro se aplican al cambiar (el botón sigue funcionando sin JavaScript).
+  document.querySelectorAll('form[data-auto]').forEach(function (form) {
+    form.addEventListener('change', function () {
+      if (form.requestSubmit) form.requestSubmit(); else form.submit();
+    });
+  });
+
+  // HU-07 CA1: pestañas del inventario (patrón de pestañas de WAI-ARIA, con flechas, Inicio y Fin).
+  document.querySelectorAll('[data-pestanas]').forEach(function (lista) {
+    var tabs = Array.prototype.slice.call(lista.querySelectorAll('[role="tab"]'));
+    var contenedor = lista.parentElement;
+    function elegir(tab, enfocar) {
+      tabs.forEach(function (t) {
+        var si = t === tab;
+        t.setAttribute('aria-selected', String(si));
+        t.tabIndex = si ? 0 : -1;
+        var panel = document.getElementById(t.getAttribute('aria-controls'));
+        if (panel) { panel.hidden = !si; panel.setAttribute('aria-labelledby', t.id); }
+      });
+      if (enfocar) tab.focus();
+      if (history.replaceState) {
+        var url = new URL(location.href);
+        url.searchParams.set('pestana', tab.id.replace('tab-', ''));
+        history.replaceState(null, '', url);
+      }
+    }
+    lista.hidden = false;
+    contenedor.classList.add('con-pestanas');
+    elegir(tabs.filter(function (t) { return t.getAttribute('aria-selected') === 'true'; })[0] || tabs[0], false);
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { elegir(t, false); });
+      t.addEventListener('keydown', function (e) {
+        var j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
+        if (j === null) return;
+        e.preventDefault();
+        elegir(tabs[(j + tabs.length) % tabs.length], true);
+      });
+    });
+  });
+
+  // HU-12 CA1: la sección de versiones aparece solo con Presupuesto marcado.
+  document.querySelectorAll('[data-versiones]').forEach(function (seccion) {
+    var form = seccion.closest('form');
+    var presupuesto = form && form.querySelector('input[name="modulos"][value="Presupuesto"]');
+    if (!presupuesto) return;
+    presupuesto.addEventListener('change', function () { seccion.hidden = !presupuesto.checked; });
   });
 })();

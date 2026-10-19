@@ -52,3 +52,39 @@ public interface IUsuarioActual
 {
     string Nombre { get; }
 }
+
+/// <summary>
+/// Depuración del registro de ejecuciones (RNF-Aud-01). Va aparte de <see cref="IRegistroEjecuciones"/>: los servicios
+/// solo agregan filas; esta operación solo quita las que pasaron el plazo de retención.
+/// </summary>
+public interface IDepuracionRegistro
+{
+    /// <summary>Quita las entradas con fecha anterior a <paramref name="corte"/> y devuelve cuántas quitó.</summary>
+    Task<int> DepurarAnterioresAAsync(DateTimeOffset corte, CancellationToken ct = default);
+}
+
+/// <summary>Último inventario de cada cliente (HU-07).</summary>
+public interface IInventarioRepository
+{
+    Task<Inventario?> ObtenerAsync(Guid clienteId, CancellationToken ct = default);
+
+    Task GuardarAsync(Inventario inventario, CancellationToken ct = default);
+}
+
+/// <summary>Sociedades del grupo de cada cliente (HU-09, HU-10).</summary>
+public interface ISociedadRepository
+{
+    Task<IReadOnlyList<Sociedad>> ListarAsync(Guid clienteId, CancellationToken ct = default);
+
+    /// <summary>Reemplaza todas las sociedades del cliente en una sola transacción.</summary>
+    Task GuardarAsync(Guid clienteId, IReadOnlyList<Sociedad> sociedades, CancellationToken ct = default);
+}
+
+/// <summary>Mapeo de cuentas a rubros por plan de cuentas (HU-11).</summary>
+public interface IMapeoRepository
+{
+    Task<IReadOnlyList<AsignacionCuenta>> ListarAsync(Guid clienteId, string planCuentas, CancellationToken ct = default);
+
+    /// <summary>Asigna las cuentas al rubro, o las quita de su rubro si <paramref name="rubro"/> es null. Todo o nada.</summary>
+    Task GuardarAsync(Guid clienteId, string planCuentas, IReadOnlyList<string> cuentas, string? rubro, CancellationToken ct = default);
+}

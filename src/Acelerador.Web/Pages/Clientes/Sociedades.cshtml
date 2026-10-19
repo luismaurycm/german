@@ -1,0 +1,167 @@
+@page "/clientes/{id:guid}/sociedades"
+@model Acelerador.Web.Pages.Clientes.SociedadesModel
+@{
+    ViewData["Title"] = "Sociedades del grupo";
+    var filas = Model.Filas;
+    var codigos = filas.Select(f => (f.Codigo ?? "").Trim().ToUpperInvariant()).Where(c => c.Length > 0).Distinct().ToList();
+    var noSap = filas.Count(f => !f.EnSap);
+    var generales = Model.Errores.Where(e => e.Fila < 0).ToList();
+    var deFilas = Model.Errores.Where(e => e.Fila >= 0).ToList();
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(Model.Cliente, Pasos.Sociedades))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Sociedades del grupo</h1>
+                <p>Clientes y proveedores no son entidades de consolidación: solo las sociedades del grupo. <span class="rn">RN-07</span></p>
+            </div>
+        </div>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (Model.ErrorErp is not null)
+        {
+            <div class="note e" role="alert" id="error-erp">
+                @Iconos.Error
+                <div><b>No se pudieron leer las sociedades del ERP.</b><br>El sistema respondió: «@Model.ErrorErp» Sin esa lista no se pueden validar las sociedades en SAP.</div>
+                <a class="btn btn-s" href="@Formato.Ruta(Model.Cliente.Id, Pasos.Sociedades)" data-carga="Cargando sociedades…">Reintentar</a>
+            </div>
+        }
+
+        @if (Model.ErrorGuardado is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>No se pudieron guardar las sociedades.</b><br>@Model.ErrorGuardado.Replace(ServicioSociedades.MensajeNoGuardadas, "").Trim() Tus cambios siguen en pantalla; inténtalo de nuevo.</div></div>
+        }
+
+        @if (generales.Count > 0 || deFilas.Count > 0)
+        {
+            <div class="note e" role="alert" id="errores">
+                @Iconos.Error
+                <div>
+                    <b>No se pudieron guardar las sociedades.</b>
+                    <ul>
+                        @foreach (var e in generales) { <li>@e.Mensaje</li> }
+                        @foreach (var m in deFilas.Select(e => e.Mensaje).Distinct()) { <li>@m</li> }
+                    </ul>
+                </div>
+            </div>
+        }
+
+        <div class="note">@Iconos.Info<div>La consolidación se presenta en moneda local y en dólares. <span class="rn">RN-06</span></div></div>
+
+        <form method="post" class="sociedades" data-ocupado="Guardando…" novalidate>
+            @if (filas.Count == 0)
+            {
+                <div class="card empty">
+                    @Iconos.Vacio
+                    <p class="big">Agrega las sociedades del grupo que entran en la consolidación.</p>
+                    <p class="muted">Solo entran las sociedades que se consolidan. Elige abajo una sociedad del ERP o una sociedad no SAP.</p>
+                </div>
+            }
+            else
+            {
+                <div class="tblw">
+                    <table class="tbl cards edit">
+                        <caption class="sr">Sociedades del grupo con código, nombre, si están en SAP, moneda local, sociedad matriz, plan de cuentas, % de propiedad y método inicial</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Código</th><th scope="col">Nombre</th><th scope="col">En SAP</th><th scope="col">Moneda local</th>
+                                <th scope="col">Sociedad matriz</th><th scope="col">Plan de cuentas</th><th scope="col" class="num">% propiedad</th>
+                                <th scope="col">Método inicial</th><th scope="col"><span class="sr">Acciones</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < filas.Count; i++)
+                            {
+                                var f = filas[i];
+                                var cod = (f.Codigo ?? "").Trim().ToUpperInvariant();
+                                var de = cod.Length > 0 ? cod : $"la fila {i + 1}";
+                                var errores = Model.ErroresDeFila(i).ToList();
+                                var desc = errores.Count > 0 ? $"soc-{i}-err" : null;
+                                string Inv(string campo) => Model.Error(i, campo) ? "true" : "false";
+                                <tr class="@(errores.Count > 0 ? "fila-err" : null)">
+                                    <td data-l="Código">
+                                        <input class="ent mono corto" id="soc-@i-codigo" name="filas[@i].Codigo" value="@f.Codigo" maxlength="4" autocomplete="off"
+                                               aria-label="Código de @de" aria-invalid="@Inv(ReglasSociedades.CampoCodigo)" aria-describedby="@desc">
+                                    </td>
+                                    <td data-l="Nombre">
+                                        <input class="ent" id="soc-@i-nombre" name="filas[@i].Nombre" value="@f.Nombre" maxlength="60" autocomplete="off"
+                                               aria-label="Nombre de @de" aria-invalid="@Inv(ReglasSociedades.CampoNombre)" aria-describedby="@desc">
+                                    </td>
+                                    <td data-l="En SAP">
+                                        <label class="sw" for="soc-@i-ensap">
+                                            <input type="checkbox" role="switch" id="soc-@i-ensap" name="filas[@i].EnSap" value="true" checked="@f.EnSap" aria-describedby="@desc">
+                                            <span>En SAP</span>
+                                        </label>
+                                    </td>
+                                    <td data-l="Moneda local">
+                                        <input class="ent mono corto" id="soc-@i-moneda" name="filas[@i].MonedaLocal" value="@f.MonedaLocal" maxlength="3" autocomplete="off"
+                                               aria-label="Moneda local de @de" aria-invalid="@Inv(ReglasSociedades.CampoMoneda)" aria-describedby="@desc">
+                                    </td>
+                                    <td data-l="Sociedad matriz">
+                                        <select class="ent mono" id="soc-@i-matriz" name="filas[@i].Matriz" aria-label="Sociedad matriz de @de" aria-invalid="@Inv(ReglasSociedades.CampoMatriz)" aria-describedby="@desc">
+                                            <option value="" selected="@string.IsNullOrWhiteSpace(f.Matriz)">—</option>
+                                            @foreach (var c in codigos.Where(c => c != cod))
+                                            {
+                                                <option value="@c" selected="@(string.Equals((f.Matriz ?? "").Trim(), c, StringComparison.OrdinalIgnoreCase))">@c</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td data-l="Plan de cuentas">
+                                        <input class="ent mono corto" id="soc-@i-plan" name="filas[@i].PlanCuentas" value="@f.PlanCuentas" maxlength="4" autocomplete="off"
+                                               aria-label="Plan de cuentas de @de" aria-invalid="@Inv(ReglasSociedades.CampoPlan)" aria-describedby="@desc">
+                                    </td>
+                                    <td data-l="% propiedad" class="num">
+                                        <input class="ent num corto" id="soc-@i-porcentaje" name="filas[@i].Porcentaje" value="@f.Porcentaje" inputmode="decimal" autocomplete="off"
+                                               aria-label="% de propiedad de @de (0 a 100)" aria-invalid="@Inv(ReglasSociedades.CampoPorcentaje)" aria-describedby="@desc">
+                                    </td>
+                                    <td data-l="Método inicial">
+                                        <select class="ent" id="soc-@i-metodo" name="filas[@i].Metodo" aria-label="Método inicial de @de" aria-invalid="@Inv(ReglasSociedades.CampoMetodo)" aria-describedby="@desc">
+                                            @foreach (var m in Enum.GetValues<MetodoConsolidacion>())
+                                            {
+                                                <option value="@m" selected="@(f.Metodo == m.ToString())">@ReglasSociedades.Metodo(m)</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td data-l="Acciones"><button class="btn btn-s btn-c" type="submit" name="accion" value="quitar-@i" aria-label="Quitar @de">Quitar</button></td>
+                                </tr>
+                                @if (errores.Count > 0)
+                                {
+                                    <tr class="fila-msg"><td colspan="9" id="soc-@i-err"><ul class="error">@foreach (var m in errores) { <li>@Iconos.Error @m</li> }</ul></td></tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class="muted sin-margen">
+                    @filas.Count @(filas.Count == 1 ? "sociedad" : "sociedades") · @noSap no SAP. Cada sociedad puede tener su propio plan de cuentas. <span class="rn">RN-05</span>
+                    · El % de propiedad y el método son la estructura inicial; después se mantienen por periodo en C02 (UX-13). <span class="rn">RN-13 · RN-14</span>
+                </p>
+            }
+
+            <div class="row agregar">
+                <div class="fld">
+                    <label for="nueva">Agregar sociedad</label>
+                    <select id="nueva" name="nueva" aria-describedby="nueva-ayuda">
+                        @foreach (var s in Model.Disponibles)
+                        {
+                            <option value="@s.Codigo">@s.Codigo · @s.Nombre · @s.Moneda · @s.PlanCuentas (ERP)</option>
+                        }
+                        <option value="@SociedadesModel.NuevaNoSap">Sociedad no SAP (se carga por archivo)</option>
+                    </select>
+                    <span class="hint" id="nueva-ayuda">Las sociedades en SAP salen del ERP del cliente. Una sociedad no SAP habilita el paso Sociedades no SAP.</span>
+                </div>
+                <button class="btn btn-s" type="submit" name="accion" value="agregar">@Iconos.Mas Agregar sociedad</button>
+            </div>
+
+            <div class="row fin">
+                <button class="btn btn-s" type="submit" name="accion" value="guardar">Guardar</button>
+                <button class="btn btn-p" type="submit" name="accion" value="continuar" disabled="@(filas.Count == 0)" data-carga="Cargando cuentas…">Continuar al mapeo</button>
+            </div>
+        </form>
+    </main>
+</div>

@@ -1,21 +1,23 @@
 @model ModeloNavegacion
 @{
+    var visibles = Pasos.Visibles(Model.Cliente);
     var actual = Pasos.Indice(Model.Cliente.PasoActual);
 }
 <nav class="a-nav" aria-label="Pasos de la implementación">
     <h2>Pasos</h2>
     <ol>
-        @for (var i = 0; i < Pasos.Todos.Count; i++)
+        @for (var i = 0; i < visibles.Count; i++)
         {
-            var paso = Pasos.Todos[i];
-            var estado = i < actual ? "Completo" : i == actual ? "Actual" : "Pendiente";
-            var icono = i < actual ? Iconos.Ok : i == actual ? Iconos.Actual : Iconos.Pendiente;
+            var paso = visibles[i];
+            var indice = Pasos.Indice(paso.Codigo);
+            var estado = indice < actual ? "Completo" : indice == actual ? "Actual" : "Pendiente";
+            var icono = indice < actual ? Iconos.Ok : indice == actual ? Iconos.Actual : Iconos.Pendiente;
             var visto = paso.Codigo == Model.PasoVisto;
             <li>
                 @if (ReglaAvance.PuedeAbrir(Model.Cliente, paso.Codigo))
                 {
-                    <a class="step" href="@Formato.Ruta(Model.Cliente.Id, paso.Codigo)" aria-current="@(visto ? "step" : null)">
-                        @icono<span class="t">@(i + 1). @paso.Nombre</span><span class="s @(i < actual ? "ok" : "")">@estado</span>
+                    <a class="step" href="@Formato.Ruta(Model.Cliente.Id, paso.Codigo)" aria-current="@(visto ? "step" : null)" data-carga="@Formato.Carga(paso.Codigo)">
+                        @icono<span class="t">@(i + 1). @paso.Nombre</span><span class="s @(indice < actual ? "ok" : "")">@estado</span>
                     </a>
                 }
                 else
@@ -27,4 +29,7 @@
             </li>
         }
     </ol>
+    <a class="step reg" href="@Formato.Registro(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "registro" ? "page" : null)">
+        <span class="t">Registro de ejecuciones</span>
+    </a>
 </nav>

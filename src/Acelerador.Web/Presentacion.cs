@@ -37,10 +37,43 @@ public static class Formato
     public static string Ruta(Guid clienteId, string paso) => paso switch
     {
         Pasos.Conexiones => $"/clientes/{clienteId}/conexiones",
+        Pasos.Diagnostico => $"/clientes/{clienteId}/diagnostico",
         Pasos.Modulos => $"/clientes/{clienteId}/modulos",
+        Pasos.Sociedades => $"/clientes/{clienteId}/sociedades",
+        Pasos.Mapeo => $"/clientes/{clienteId}/mapeo",
         _ => $"/clientes/{clienteId}/paso/{paso}",
     };
+
+    public static string Registro(Guid clienteId) => $"/clientes/{clienteId}/registro";
+
+    /// <summary>Texto del estado de carga al abrir un paso que lee del sistema del cliente.</summary>
+    public static string? Carga(string paso) => paso switch
+    {
+        Pasos.Sociedades => "Cargando sociedades…",
+        Pasos.Mapeo => "Cargando cuentas…",
+        _ => null,
+    };
+
+    private static readonly CultureInfo Colombia = CultureInfo.GetCultureInfo("es-CO");
+
+    /// <summary>Importe con separador de miles colombiano y sin decimales (p. ej. «COP 18.452.300.000»).</summary>
+    public static string Importe(decimal valor, string moneda) =>
+        $"{moneda} {valor.ToString("#,##0", Colombia)}".Trim();
+
+    /// <summary>Fecha con segundos, para el registro de ejecuciones.</summary>
+    public static string FechaHora(DateTimeOffset fecha)
+    {
+        var f = fecha.ToLocalTime();
+        return string.Create(CultureInfo.InvariantCulture, $"{Fecha(fecha)}:{f.Second:00}");
+    }
 }
 
 /// <summary>Modelo de la navegación lateral de los pasos.</summary>
 public sealed record ModeloNavegacion(Cliente Cliente, string PasoVisto);
+
+public static class Navegacion
+{
+    /// <summary>Adónde va un cliente que pide un paso que no puede abrir: Conexiones si no está soportado, si no su paso actual.</summary>
+    public static string Destino(Cliente cliente) =>
+        Formato.Ruta(cliente.Id, cliente.Estado == EstadoCliente.NoSoportado ? Pasos.Conexiones : cliente.PasoActual);
+}

@@ -43,7 +43,31 @@ public sealed class Entorno : IAsyncDisposable
         ServicioClientes = new ServicioClientes(Clientes, Registro, Usuario, Reloj);
         ServicioConexiones = new ServicioConexiones(Clientes, Conexiones, Credenciales, Registro, Sap, CatalogoVariantes.VersionUno, Usuario, Reloj);
         ServicioModulos = new ServicioModulos(Clientes);
+        Inventarios = new SqliteInventarioRepository(Base);
+        Sociedades = new SqliteSociedadRepository(Base);
+        Mapeos = new SqliteMapeoRepository(Base);
+        Acceso = new AccesoSap(Conexiones, Credenciales);
+        ServicioDiagnostico = new ServicioDiagnostico(Clientes, Inventarios, Acceso, Registro, Sap, Usuario, Reloj);
+        ServicioSociedades = new ServicioSociedades(Clientes, Sociedades, Acceso, Sap);
+        ServicioMapeo = new ServicioMapeo(Clientes, Sociedades, Mapeos, Acceso, Sap);
+        ServicioRegistro = new ServicioRegistro(Clientes, Registro, Registro, Reloj);
     }
+
+    public SqliteInventarioRepository Inventarios { get; }
+
+    public SqliteSociedadRepository Sociedades { get; }
+
+    public SqliteMapeoRepository Mapeos { get; }
+
+    public AccesoSap Acceso { get; }
+
+    public ServicioDiagnostico ServicioDiagnostico { get; }
+
+    public ServicioSociedades ServicioSociedades { get; }
+
+    public ServicioMapeo ServicioMapeo { get; }
+
+    public ServicioRegistro ServicioRegistro { get; }
 
     public string Carpeta { get; }
 
@@ -101,6 +125,38 @@ public sealed class Entorno : IAsyncDisposable
         {
             await ServicioConexiones.GuardarYProbarAsync(clienteId, s, Datos(s));
         }
+    }
+
+    /// <summary>Lleva un cliente hasta Módulos: conexiones, validación ERP–BW, escaneo y Continuar a módulos.</summary>
+    public async Task<Cliente> ClienteEnModulosAsync(string nombre = "Grupo Ejemplo Andino")
+    {
+        var c = await ClienteAsync(nombre);
+        await ConectarTodoAsync(c.Id);
+        await ServicioConexiones.ValidarErpBwAsync(c.Id);
+        await ServicioConexiones.ContinuarADiagnosticoAsync(c.Id);
+        await ServicioDiagnostico.EscanearAsync(c.Id);
+        var r = await ServicioDiagnostico.GuardarCamposZAsync(c.Id, [], continuar: true);
+        Assert.True(r.Exitosa, r.Mensaje);
+        return c;
+    }
+
+    /// <summary>Filas de UX-05 del prototipo: 1000 matriz, 2000 y 3000 filiales en SAP y 9000 no SAP.</summary>
+    public static List<FilaSociedad> FilasPrototipo() =>
+    [
+        new("1000", "Matriz", true, "COP", "", "PCCO", "100", nameof(MetodoConsolidacion.Matriz)),
+        new("2000", "Filial Colombia", true, "COP", "1000", "PCCO", "80", nameof(MetodoConsolidacion.IntegracionGlobal)),
+        new("3000", "Filial Panamá", true, "USD", "1000", "PCPA", "100", nameof(MetodoConsolidacion.IntegracionGlobal)),
+        new("9000", "Filial no SAP", false, "COP", "1000", "", "35", nameof(MetodoConsolidacion.Participacion)),
+    ];
+
+    /// <summary>Lleva un cliente hasta Mapeo de cuentas con las sociedades del prototipo.</summary>
+    public async Task<Cliente> ClienteEnMapeoAsync(List<FilaSociedad>? filas = null)
+    {
+        var c = await ClienteEnModulosAsync();
+        await ServicioModulos.GuardarAsync(c.Id, [Modulo.Consolidacion], continuar: true);
+        var r = await ServicioSociedades.GuardarAsync(c.Id, filas ?? FilasPrototipo(), continuar: true);
+        Assert.True(r.Guardado, string.Join(" ", r.Errores.Select(x => x.Mensaje)) + r.ErrorGuardado);
+        return (await Clientes.ObtenerAsync(c.Id))!;
     }
 
     public async ValueTask DisposeAsync()

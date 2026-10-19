@@ -76,3 +76,48 @@ public sealed record VersionBpc(ProductoBpc Producto, string Release, ModeloBpc 
 public sealed record PaisajeSap(string SidErp, string SidBw, string SidBpc, VersionBw Bw, VersionBpc Bpc);
 
 public sealed record ResultadoDeteccion(bool Exitosa, string Mensaje, PaisajeSap? Paisaje = null);
+
+/// <summary>Tipos de objeto que lee el escáner de inventario (RF-03, HU-07), en el orden del escaneo.</summary>
+public enum TipoInventario
+{
+    /// <summary>Fuentes de datos (extractores) del ERP, activas o no.</summary>
+    Extractores,
+
+    /// <summary>InfoCubos (BW 7.5) o aDSO (BW/4HANA) de BW.</summary>
+    InfoProviders,
+
+    /// <summary>Ambientes y modelos de BPC.</summary>
+    ModelosBpc,
+
+    /// <summary>Campos Z/ZZ agregados por el cliente en la contabilidad (BSEG o ACDOCA), para RF-09.</summary>
+    CamposZ,
+}
+
+/// <summary>
+/// Un objeto que ya existe en el cliente. Solo metadatos: el escáner nunca lee datos financieros ni de terceros.
+/// <see cref="Detalle"/> es el tipo de InfoProvider (InfoCubo o aDSO), el ambiente del modelo BPC o la tabla del campo Z.
+/// <see cref="EsBodegaFinanciera"/> marca los InfoProviders de la bodega financiera (RN-03).
+/// </summary>
+public sealed record ObjetoInventario(string NombreTecnico, string Descripcion, bool Activo, string? Detalle = null, bool EsBodegaFinanciera = false);
+
+public sealed record ResultadoInventario(bool Exitosa, string Mensaje, IReadOnlyList<ObjetoInventario> Objetos);
+
+/// <summary>Sociedad (código de compañía) definida en el ERP, con su moneda local y su plan de cuentas (RF-06).</summary>
+public sealed record SociedadErp(string Codigo, string Nombre, string Moneda, string PlanCuentas);
+
+public sealed record ResultadoSociedades(bool Exitosa, string Mensaje, IReadOnlyList<SociedadErp> Sociedades);
+
+/// <summary>
+/// Cuenta de mayor del plan de cuentas de una sociedad, con el nodo de la jerarquía y el saldo acumulado de la
+/// sociedad al cierre del último periodo, en su moneda local. El saldo solo alimenta la vista previa de RN-10.
+/// </summary>
+public sealed record CuentaErp(string Numero, string Descripcion, string Nodo, decimal Saldo);
+
+/// <summary>Cuentas del plan de una sociedad. <see cref="Periodo"/> es el periodo de los saldos (aaaa-mm).</summary>
+public sealed record ResultadoCuentas(
+    bool Exitosa,
+    string Mensaje,
+    string PlanCuentas,
+    string Moneda,
+    string Periodo,
+    IReadOnlyList<CuentaErp> Cuentas);

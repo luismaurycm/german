@@ -1,8 +1,13 @@
 # Acelerador de consolidación · guía de desarrollo
 
-Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). El Sprint 1 cubre
-HU-01 a HU-06 y HU-08 (con el rechazo de la arquitectura B de HU-57): clientes (UX-01),
-conexiones (UX-02) y módulos (UX-04). SAP se simula hasta la prueba técnica HU-01.
+Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). SAP se simula hasta la prueba técnica HU-01.
+
+| Sprint | HU | Pantallas |
+|---|---|---|
+| 1 | HU-01 a HU-06, HU-08 (y el rechazo de la arquitectura B de HU-57) | UX-01 Clientes, UX-02 Conexiones, UX-04 Módulos |
+| 2 | HU-07, HU-09, HU-10, HU-11, HU-12, HU-54 | UX-03 Diagnóstico e inventario, versiones de presupuesto en UX-04, UX-05 Sociedades, UX-06 Mapeo de cuentas, registro de UX-09 |
+
+Coberturas por sprint: `tests/COBERTURA-Sprint-1.md`, `tests/COBERTURA-Sprint-2.md`.
 
 ## Requisitos
 
@@ -59,6 +64,13 @@ de entorno (`Seccion__Clave`).
 | `Simulador:FallaValidacionErpBw` | false | La validación ERP–BW falla. |
 | `Simulador:FallaDeteccion` | false | La detección de arquitectura falla. |
 | `Simulador:LatenciaMs` | 600 | Demora de cada llamada, para ver el estado de carga. |
+| `Simulador:BodegaExistente` | false | BW ya tiene la bodega financiera (RN-03). |
+| `Simulador:InventarioVacio` | false | El cliente no tiene extractores, InfoProviders, modelos BPC ni campos Z. |
+| `Simulador:FallaInventario` | vacío | Paso del escaneo que falla: `Extractores`, `InfoProviders`, `ModelosBpc` o `CamposZ`. |
+| `Simulador:CamposZAdicionales` | [] | Campos Z que aparecen al volver a escanear (p. ej. `ZZNUEVO`). |
+| `Simulador:FallaSociedades` | false | La lectura de sociedades del ERP falla. |
+| `Simulador:FallaCuentas` | false | La lectura de cuentas del ERP falla. |
+| `Simulador:CuentasAdicionales` | [] | Cuentas nuevas en el ERP (`Plan`, `Numero`, `Descripcion`, `Nodo`, `Saldo`). |
 
 ### Recorrer los estados con el simulador
 
@@ -66,7 +78,14 @@ Además del perfil, el simulador reacciona a lo que se escribe en UX-02:
 
 - host que contiene `falla` → «Fallida: Partner '…:sapgw00' not reached»;
 - credencial `invalida` → «Fallida: Name or password is incorrect»;
-- host de BW que contiene `sinfuente` → la validación ERP–BW falla.
+- host de BW que contiene `sinfuente` → la validación ERP–BW falla;
+- host de BW que contiene `bodega` → el escaneo marca «Bodega existente: Sí» (UX-03, RN-03);
+- host de BPC que contiene `sinpermiso` → el escaneo falla en el paso 3, modelos BPC (UX-03);
+- host del ERP que contiene `vacio` → sin extractores ni campos Z.
+
+Datos del ERP de ejemplo: sociedades 1000 Matriz (COP, plan PCCO), 2000 Filial Colombia (COP, PCCO) y 3000 Filial
+Panamá (USD, PCPA). La 9000 del prototipo es la sociedad no SAP: se agrega con «Sociedad no SAP». El plan PCCO tiene
+25 cuentas y el PCPA 9, con saldos a 2026-09 para la vista previa de RN-10. El tercero T901 sirve para probar RN-07.
 
 Paisaje del prototipo en arquitectura A: ERP `erp-ejemplo.local` mandante 300; BW y BPC
 `bw-ejemplo.local` mandante 100. Para la arquitectura B, los tres en `s4-ejemplo.local` 300 con:
@@ -87,10 +106,31 @@ dotnet run --project src/Acelerador.Web -- --Simulador:Perfil=B
 
 ## Registro de ejecuciones
 
-Tabla `ejecuciones` en SQLite (RNF-Aud-01, base de HU-54): cada prueba de conexión, validación ERP–BW y
-detección de arquitectura deja fecha, usuario de Windows, cliente, sistema, paso, objetos y resultado.
-Solo se agregan filas. La consulta y descarga en pantalla llegan con HU-54 (UX-09).
+Tabla `ejecuciones` en SQLite (RNF-Aud-01, HU-54): cada prueba de conexión, validación ERP–BW, detección de
+arquitectura y paso del escaneo de inventario deja fecha, usuario de Windows, cliente, sistema, paso, objetos y
+resultado. Los servicios solo agregan filas (`IRegistroEjecuciones`); la depuración (`IDepuracionRegistro`) corre al
+arrancar y quita solo las entradas de más de 12 meses. Las lecturas que llenan una pantalla (sociedades y cuentas
+del ERP) no son ejecuciones y no se registran.
+
+En pantalla: enlace «Registro de ejecuciones» al pie de la navegación (`/clientes/{id}/registro`), con filtro por
+resultado y «Descargar registro» (CSV con punto y coma, BOM UTF-8 y celdas protegidas contra fórmulas de Excel).
+
+## Base local
+
+El esquema va en la versión 2: `BaseLocal.InicializarAsync` crea las tablas `inventarios`, `sociedades` y
+`mapeo_cuentas` y agrega a `clientes` las columnas `versiones` y `sociedades_no_sap`. Una base del Sprint 1 se migra
+sola al arrancar.
+
+## Integración continua
+
+`.github/workflows/ci.yml` (ADR-11) corre en cada PR y en cada push a `main`, en `ubuntu-latest` y `windows-latest`:
+restaurar, compilar en Release, probar; en Windows exige que la prueba DPAPI de HU-04 se ejecute y apruebe; y falla si
+`dotnet list package --vulnerable --include-transitive` encuentra un paquete vulnerable. La firma del ejecutable y la
+publicación en Azure Artifacts quedan para el sprint de distribución.
 
 ## Pendiente de SAP real (HU-01)
 
 Ver `docs/05-arquitectura/spike-HU-01.md` y `abap/`. `NcoSapGateway` y el paquete Z son esqueletos hasta la prueba técnica.
+Del Sprint 2 quedan pendientes las lecturas reales de inventario (`Z_ACC_INVENTARIO`), sociedades
+(`BAPI_COMPANYCODE_GETLIST` y `BAPI_COMPANYCODE_GETDETAIL`) y cuentas (`BAPI_GL_ACC_GETLIST`, nodo de la estructura de
+balance y `BAPI_GL_GETGLACCPERIODBALANCES`).

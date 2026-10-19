@@ -229,7 +229,7 @@ public class PantallasTests
         Assert.Contains("<button class=\"btn btn-p\" type=\"submit\">Continuar al diagnóstico</button>", nav.Html, StringComparison.Ordinal);
         r = await nav.PostAsync($"{cliente}/conexiones?handler=Continuar", new Dictionary<string, string?>(), seguir: false);
         Assert.Equal(HttpStatusCode.Redirect, r.StatusCode);
-        Assert.Equal($"{cliente}/paso/UX-03", r.Headers.Location!.OriginalString);
+        Assert.Equal($"{cliente}/diagnostico", r.Headers.Location!.OriginalString);
     }
 
     [Fact(DisplayName = "HU-03 CA4: cada prueba queda en el registro de ejecuciones")]
@@ -439,7 +439,8 @@ public class PantallasTests
         await nav.PostAsync($"{cliente}/conexiones?handler=Validar", new Dictionary<string, string?>());
         await nav.PostAsync($"{cliente}/conexiones?handler=Continuar", new Dictionary<string, string?>());
         Assert.Contains("Diagnóstico e inventario", nav.Texto, StringComparison.Ordinal);
-        await nav.PostAsync($"{cliente}/paso/UX-03?handler=Continuar", new Dictionary<string, string?>());
+        await nav.PostAsync($"{cliente}/diagnostico?handler=Escanear", new Dictionary<string, string?>());
+        await nav.PostAsync($"{cliente}/diagnostico?handler=Campos", new Dictionary<string, string?> { ["accion"] = "continuar" });
         Assert.Contains("<h1>Módulos</h1>", nav.Html, StringComparison.Ordinal);
         return cliente;
     }
@@ -489,7 +490,7 @@ public class PantallasTests
 
         r = await nav.PostAsync($"{cliente}/modulos", new Dictionary<string, string?> { ["modulos"] = "Presupuesto", ["accion"] = "continuar" }, seguir: false);
         Assert.Equal(HttpStatusCode.Redirect, r.StatusCode);
-        Assert.Equal($"{cliente}/paso/UX-05", r.Headers.Location!.OriginalString);
+        Assert.Equal($"{cliente}/sociedades", r.Headers.Location!.OriginalString);
     }
 
     [Fact(DisplayName = "Flujo: un paso al que el cliente no ha llegado redirige a su paso actual")]

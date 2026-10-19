@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using Acelerador.Core.Dominio;
 using Acelerador.Core.Puertos;
 using Acelerador.Core.Reglas;
@@ -39,7 +40,8 @@ public sealed class SqliteClienteRepository(BaseLocal db) : IClienteRepository
     private const string Columnas = """
         id, nombre, creado, creado_por, paso_actual, estado, motivo_estado,
         arquitectura, bw_producto, bw_release, bpc_producto, bpc_release, bpc_modelo, variante, deteccion_fecha,
-        validacion_exitosa, validacion_fecha, validacion_usuario, validacion_mensaje, modulos
+        validacion_exitosa, validacion_fecha, validacion_usuario, validacion_mensaje, modulos,
+        versiones, sociedades_no_sap
         """;
 
     public async Task<IReadOnlyList<Cliente>> ListarAsync(CancellationToken ct = default)
@@ -98,7 +100,7 @@ public sealed class SqliteClienteRepository(BaseLocal db) : IClienteRepository
                 arquitectura = $arq, bw_producto = $bwp, bw_release = $bwr, bpc_producto = $bpcp, bpc_release = $bpcr,
                 bpc_modelo = $bpcm, variante = $variante, deteccion_fecha = $dfecha,
                 validacion_exitosa = $vok, validacion_fecha = $vfecha, validacion_usuario = $vusuario, validacion_mensaje = $vmensaje,
-                modulos = $modulos
+                modulos = $modulos, versiones = $versiones, sociedades_no_sap = $nosap
             WHERE id = $id
             """;
         Sql.Parametros(cmd,
@@ -118,7 +120,9 @@ public sealed class SqliteClienteRepository(BaseLocal db) : IClienteRepository
             ("$vfecha", Sql.Fecha(v?.Fecha)),
             ("$vusuario", v?.Usuario),
             ("$vmensaje", v?.Mensaje),
-            ("$modulos", string.Join(',', cliente.Modulos.OrderBy(m => m))));
+            ("$modulos", string.Join(',', cliente.Modulos.OrderBy(m => m))),
+            ("$versiones", JsonSerializer.Serialize(cliente.Versiones)),
+            ("$nosap", cliente.TieneSociedadesNoSap ? 1 : 0));
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
@@ -150,6 +154,10 @@ public sealed class SqliteClienteRepository(BaseLocal db) : IClienteRepository
                 ? null
                 : new ValidacionErpBw(r.GetInt32(15) == 1, Sql.LeerFecha(r, 16), r.GetString(17), r.GetString(18)),
             Modulos = modulos,
+            Versiones = r.IsDBNull(20)
+                ? [.. VersionPresupuesto.Propuestas]
+                : JsonSerializer.Deserialize<List<VersionPresupuesto>>(r.GetString(20)) ?? [],
+            TieneSociedadesNoSap = r.GetInt64(21) == 1,
         };
     }
 }
@@ -216,9 +224,23 @@ public sealed class SqliteConexionRepository(BaseLocal db) : IConexionRepository
     }
 }
 
-/// <summary>Registro de ejecuciones en SQLite (RNF-Aud-01). Solo inserta y consulta: no borra ni modifica.</summary>
-public sealed class SqliteRegistroEjecuciones(BaseLocal db) : IRegistroEjecuciones
+/// <summary>
+/// Registro de ejecuciones en SQLite (RNF-Aud-01). Inserta y consulta; nunca modifica. Solo borra en la depuración,
+/// y solo las entradas que pasaron el plazo de retención de 12 meses.
+/// </summary>
+public sealed class SqliteRegistroEjecuciones(BaseLocal db) : IRegistroEjecuciones, IDepuracionRegistro
 {
+    public async Task<int> DepurarAnterioresAAsync(DateTimeOffset corte, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+
+        // Las fechas se guardan en UTC con formato ISO 8601 de ancho fijo: el orden de texto es el orden de fechas.
+        cmd.CommandText = "DELETE FROM ejecuciones WHERE fecha < $corte";
+        cmd.Parameters.AddWithValue("$corte", Sql.Fecha(corte));
+        return await cmd.ExecuteNonQueryAsync(ct);
+    }
+
     public async Task RegistrarAsync(Ejecucion e, CancellationToken ct = default)
     {
         await using var cn = await db.AbrirAsync(ct);
@@ -267,5 +289,168 @@ public sealed class SqliteRegistroEjecuciones(BaseLocal db) : IRegistroEjecucion
         }
 
         return lista;
+    }
+}
+
+public sealed class SqliteInventarioRepository(BaseLocal db) : IInventarioRepository
+{
+    public async Task<Inventario?> ObtenerAsync(Guid clienteId, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = """
+            SELECT fecha, usuario, objetos, campos_z, fallo_tipo, fallo_mensaje, fallo_fecha
+            FROM inventarios WHERE cliente_id = $id
+            """;
+        cmd.Parameters.AddWithValue("$id", clienteId.ToString());
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        if (!await r.ReadAsync(ct))
+        {
+            return null;
+        }
+
+        var objetos = JsonSerializer.Deserialize<Dictionary<TipoInventario, List<ObjetoInventario>>>(r.GetString(2)) ?? [];
+        return new Inventario
+        {
+            ClienteId = clienteId,
+            Fecha = Sql.LeerFechaNula(r, 0),
+            Usuario = Sql.Texto(r, 1),
+            Objetos = objetos.ToDictionary(o => o.Key, o => (IReadOnlyList<ObjetoInventario>)o.Value),
+            CamposZIncorporados = r.GetString(3).Split(',', StringSplitOptions.RemoveEmptyEntries).ToHashSet(StringComparer.Ordinal),
+            Fallo = r.IsDBNull(4) ? null : new FalloEscaneo(Sql.Enumeracion<TipoInventario>(r.GetString(4)), r.GetString(5), Sql.LeerFecha(r, 6)),
+        };
+    }
+
+    public async Task GuardarAsync(Inventario i, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO inventarios (cliente_id, fecha, usuario, objetos, campos_z, fallo_tipo, fallo_mensaje, fallo_fecha)
+            VALUES ($cliente, $fecha, $usuario, $objetos, $campos, $ftipo, $fmensaje, $ffecha)
+            ON CONFLICT (cliente_id) DO UPDATE SET
+                fecha = excluded.fecha, usuario = excluded.usuario, objetos = excluded.objetos, campos_z = excluded.campos_z,
+                fallo_tipo = excluded.fallo_tipo, fallo_mensaje = excluded.fallo_mensaje, fallo_fecha = excluded.fallo_fecha
+            """;
+        Sql.Parametros(cmd,
+            ("$cliente", i.ClienteId.ToString()),
+            ("$fecha", Sql.Fecha(i.Fecha)),
+            ("$usuario", i.Usuario),
+            ("$objetos", JsonSerializer.Serialize(i.Objetos)),
+            ("$campos", string.Join(',', i.CamposZIncorporados.Order(StringComparer.Ordinal))),
+            ("$ftipo", i.Fallo?.Tipo.ToString()),
+            ("$fmensaje", i.Fallo?.Mensaje),
+            ("$ffecha", Sql.Fecha(i.Fallo?.Fecha)));
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+}
+
+public sealed class SqliteSociedadRepository(BaseLocal db) : ISociedadRepository
+{
+    public async Task<IReadOnlyList<Sociedad>> ListarAsync(Guid clienteId, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = """
+            SELECT codigo, nombre, en_sap, moneda, matriz, plan_cuentas, porcentaje, metodo
+            FROM sociedades WHERE cliente_id = $id ORDER BY orden
+            """;
+        cmd.Parameters.AddWithValue("$id", clienteId.ToString());
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        var lista = new List<Sociedad>();
+        while (await r.ReadAsync(ct))
+        {
+            lista.Add(new Sociedad
+            {
+                Codigo = r.GetString(0),
+                Nombre = r.GetString(1),
+                EnSap = r.GetInt64(2) == 1,
+                MonedaLocal = r.GetString(3),
+                Matriz = r.GetString(4),
+                PlanCuentas = r.GetString(5),
+                PorcentajePropiedad = decimal.Parse(r.GetString(6), CultureInfo.InvariantCulture),
+                Metodo = Sql.Enumeracion<MetodoConsolidacion>(r.GetString(7)),
+            });
+        }
+
+        return lista;
+    }
+
+    public async Task GuardarAsync(Guid clienteId, IReadOnlyList<Sociedad> sociedades, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var tx = (Microsoft.Data.Sqlite.SqliteTransaction)await cn.BeginTransactionAsync(ct);
+        await using (var borrar = cn.CreateCommand())
+        {
+            borrar.Transaction = tx;
+            borrar.CommandText = "DELETE FROM sociedades WHERE cliente_id = $id";
+            borrar.Parameters.AddWithValue("$id", clienteId.ToString());
+            await borrar.ExecuteNonQueryAsync(ct);
+        }
+
+        for (var i = 0; i < sociedades.Count; i++)
+        {
+            var s = sociedades[i];
+            await using var cmd = cn.CreateCommand();
+            cmd.Transaction = tx;
+            cmd.CommandText = """
+                INSERT INTO sociedades (cliente_id, orden, codigo, nombre, en_sap, moneda, matriz, plan_cuentas, porcentaje, metodo)
+                VALUES ($cliente, $orden, $codigo, $nombre, $ensap, $moneda, $matriz, $plan, $porcentaje, $metodo)
+                """;
+            Sql.Parametros(cmd,
+                ("$cliente", clienteId.ToString()),
+                ("$orden", i),
+                ("$codigo", s.Codigo),
+                ("$nombre", s.Nombre),
+                ("$ensap", s.EnSap ? 1 : 0),
+                ("$moneda", s.MonedaLocal),
+                ("$matriz", s.Matriz),
+                ("$plan", s.PlanCuentas),
+                ("$porcentaje", s.PorcentajePropiedad.ToString(CultureInfo.InvariantCulture)),
+                ("$metodo", s.Metodo.ToString()));
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+
+        await tx.CommitAsync(ct);
+    }
+}
+
+public sealed class SqliteMapeoRepository(BaseLocal db) : IMapeoRepository
+{
+    public async Task<IReadOnlyList<AsignacionCuenta>> ListarAsync(Guid clienteId, string planCuentas, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = "SELECT cuenta, rubro FROM mapeo_cuentas WHERE cliente_id = $id AND plan_cuentas = $plan ORDER BY cuenta";
+        Sql.Parametros(cmd, ("$id", clienteId.ToString()), ("$plan", planCuentas));
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        var lista = new List<AsignacionCuenta>();
+        while (await r.ReadAsync(ct))
+        {
+            lista.Add(new AsignacionCuenta(planCuentas, r.GetString(0), r.GetString(1)));
+        }
+
+        return lista;
+    }
+
+    public async Task GuardarAsync(Guid clienteId, string planCuentas, IReadOnlyList<string> cuentas, string? rubro, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var tx = (Microsoft.Data.Sqlite.SqliteTransaction)await cn.BeginTransactionAsync(ct);
+        foreach (var cuenta in cuentas)
+        {
+            await using var cmd = cn.CreateCommand();
+            cmd.Transaction = tx;
+            cmd.CommandText = rubro is null
+                ? "DELETE FROM mapeo_cuentas WHERE cliente_id = $id AND plan_cuentas = $plan AND cuenta = $cuenta"
+                : """
+                  INSERT INTO mapeo_cuentas (cliente_id, plan_cuentas, cuenta, rubro) VALUES ($id, $plan, $cuenta, $rubro)
+                  ON CONFLICT (cliente_id, plan_cuentas, cuenta) DO UPDATE SET rubro = excluded.rubro
+                  """;
+            Sql.Parametros(cmd, ("$id", clienteId.ToString()), ("$plan", planCuentas), ("$cuenta", cuenta), ("$rubro", rubro));
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+
+        await tx.CommitAsync(ct);
     }
 }

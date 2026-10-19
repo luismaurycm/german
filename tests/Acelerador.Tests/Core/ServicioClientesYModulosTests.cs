@@ -80,11 +80,7 @@ public class ServicioModulosTests
     private static async Task<(Entorno, Cliente)> ClienteEnModulosAsync()
     {
         var e = await Entorno.CrearAsync();
-        var c = await e.ClienteAsync();
-        await e.ConectarTodoAsync(c.Id);
-        await e.ServicioConexiones.ValidarErpBwAsync(c.Id);
-        await e.ServicioConexiones.ContinuarADiagnosticoAsync(c.Id);
-        Assert.True(await e.ServicioClientes.AvanzarDesdeDiagnosticoAsync(c.Id));
+        var c = await e.ClienteEnModulosAsync();
         return (e, c);
     }
 
@@ -133,7 +129,7 @@ public class ServicioModulosTests
         var c = await e.ClienteAsync();
         await e.ServicioConexiones.GuardarYProbarAsync(c.Id, SistemaSap.Erp, Entorno.Datos(SistemaSap.Erp));
 
-        Assert.False(await e.ServicioClientes.AvanzarDesdeDiagnosticoAsync(c.Id));
+        Assert.False((await e.ServicioDiagnostico.GuardarCamposZAsync(c.Id, [], continuar: true)).Exitosa);
         Assert.Equal(Pasos.Conexiones, (await e.Clientes.ObtenerAsync(c.Id))!.PasoActual);
     }
 }
