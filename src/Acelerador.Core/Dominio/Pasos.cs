@@ -24,7 +24,7 @@ public static class Pasos
         new(Modulos, "Módulos", true, "HU-08, HU-12"),
         new(Sociedades, "Sociedades", true, "HU-09, HU-10"),
         new(Mapeo, "Mapeo de cuentas", true, "HU-11"),
-        new(NoSap, "Sociedades no SAP", false, "HU-25"),
+        new(NoSap, "Sociedades no SAP", true, "HU-25"),
         new(Plan, "Plan de generación", true, "HU-12, HU-13, HU-16"),
         new(Ejecucion, "Ejecución", true, "HU-14, HU-54"),
         new(Reportes, "Reportes", false, "HU-32, HU-38, HU-45"),

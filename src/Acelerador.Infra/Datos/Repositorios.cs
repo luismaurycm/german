@@ -508,3 +508,52 @@ public sealed class SqliteEjecucionPlanRepository(BaseLocal db) : IEjecucionPlan
         return datos is null ? null : JsonSerializer.Deserialize<EjecucionPlan>(datos, Json);
     }
 }
+
+public sealed class SqliteCargaNoSapRepository(BaseLocal db) : ICargaNoSapRepository
+{
+    public async Task<IReadOnlyList<CargaNoSap>> ListarAsync(Guid clienteId, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = "SELECT sociedad, periodo, archivo, filas, total, fecha, usuario FROM cargas_no_sap WHERE cliente_id = $id ORDER BY sociedad, periodo";
+        cmd.Parameters.AddWithValue("$id", clienteId.ToString());
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        var lista = new List<CargaNoSap>();
+        while (await r.ReadAsync(ct))
+        {
+            lista.Add(new CargaNoSap(clienteId, r.GetString(0), r.GetString(1), r.GetString(2), r.GetInt32(3),
+                decimal.Parse(r.GetString(4), CultureInfo.InvariantCulture), Sql.LeerFecha(r, 5), r.GetString(6)));
+        }
+
+        return lista;
+    }
+
+    public async Task GuardarAsync(IReadOnlyList<CargaNoSap> cargas, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var tx = (Microsoft.Data.Sqlite.SqliteTransaction)await cn.BeginTransactionAsync(ct);
+        foreach (var c in cargas)
+        {
+            await using var cmd = cn.CreateCommand();
+            cmd.Transaction = tx;
+            cmd.CommandText = """
+                INSERT INTO cargas_no_sap (cliente_id, sociedad, periodo, archivo, filas, total, fecha, usuario)
+                VALUES ($cliente, $sociedad, $periodo, $archivo, $filas, $total, $fecha, $usuario)
+                ON CONFLICT (cliente_id, sociedad, periodo) DO UPDATE SET
+                    archivo = excluded.archivo, filas = excluded.filas, total = excluded.total, fecha = excluded.fecha, usuario = excluded.usuario
+                """;
+            Sql.Parametros(cmd,
+                ("$cliente", c.ClienteId.ToString()),
+                ("$sociedad", c.Sociedad),
+                ("$periodo", c.Periodo),
+                ("$archivo", c.Archivo),
+                ("$filas", c.Filas),
+                ("$total", c.Total.ToString(CultureInfo.InvariantCulture)),
+                ("$fecha", Sql.Fecha(c.Fecha)),
+                ("$usuario", c.Usuario));
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+
+        await tx.CommitAsync(ct);
+    }
+}

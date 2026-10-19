@@ -193,4 +193,39 @@
     };
     setTimeout(consultar, 1000);
   }
+
+  // HU-25: subir el archivo no SAP con barra de progreso y arrastrar y soltar (sin JavaScript, el formulario normal funciona).
+  document.querySelectorAll('form[data-subida]').forEach(function (form) {
+    var zona = form.querySelector('.zona');
+    var campo = form.querySelector('input[type="file"]');
+    var progreso = form.querySelector('.progreso');
+    var barra = progreso && progreso.querySelector('progress');
+    var pct = progreso && progreso.querySelector('[data-pct]');
+    if (zona && campo) {
+      ['dragenter', 'dragover'].forEach(function (t) { zona.addEventListener(t, function (e) { e.preventDefault(); zona.classList.add('encima'); }); });
+      ['dragleave', 'drop'].forEach(function (t) { zona.addEventListener(t, function () { zona.classList.remove('encima'); }); });
+      zona.addEventListener('drop', function (e) {
+        e.preventDefault();
+        if (e.dataTransfer && e.dataTransfer.files.length) { campo.files = e.dataTransfer.files; }
+      });
+    }
+    if (!window.XMLHttpRequest || !window.FormData || !progreso) return;
+    form.addEventListener('submit', function (e) {
+      if (!campo.files || !campo.files.length) return;
+      e.preventDefault();
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', form.action);
+      progreso.hidden = false;
+      xhr.upload.addEventListener('progress', function (ev) {
+        if (!ev.lengthComputable) return;
+        var v = Math.round(ev.loaded * 100 / ev.total);
+        barra.value = v;
+        barra.textContent = v + ' %';
+        pct.textContent = v + ' %';
+      });
+      xhr.addEventListener('load', function () { location.href = xhr.responseURL || location.href; });
+      xhr.addEventListener('error', function () { form.submit(); });
+      xhr.send(new FormData(form));
+    });
+  });
 })();

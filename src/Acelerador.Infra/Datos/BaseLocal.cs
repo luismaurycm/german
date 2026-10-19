@@ -8,7 +8,7 @@ namespace Acelerador.Infra.Datos;
 /// </summary>
 public sealed class BaseLocal
 {
-    public const int VersionEsquema = 3;
+    public const int VersionEsquema = 4;
 
     private readonly string _cadena;
 
@@ -151,6 +151,19 @@ public sealed class BaseLocal
                 datos       TEXT NOT NULL
             );
             CREATE INDEX IF NOT EXISTS ix_ejecuciones_plan_cliente ON ejecuciones_plan (cliente_id, inicio);
+
+            -- Cargas confirmadas de sociedades no SAP (HU-25). Solo metadatos: las filas quedan en BW.
+            CREATE TABLE IF NOT EXISTS cargas_no_sap (
+                cliente_id  TEXT NOT NULL REFERENCES clientes(id),
+                sociedad    TEXT NOT NULL,
+                periodo     TEXT NOT NULL,
+                archivo     TEXT NOT NULL,
+                filas       INTEGER NOT NULL,
+                total       TEXT NOT NULL,
+                fecha       TEXT NOT NULL,
+                usuario     TEXT NOT NULL,
+                PRIMARY KEY (cliente_id, sociedad, periodo)
+            );
             """;
         await cmd.ExecuteNonQueryAsync(ct);
 

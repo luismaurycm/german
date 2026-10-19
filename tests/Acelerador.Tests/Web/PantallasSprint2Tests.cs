@@ -737,8 +737,8 @@ public class PantallasSprint2Tests
 
         await nav.PostAsync($"{cliente}/mapeo?handler=Continuar", Vacio);
 
-        Assert.Equal($"{cliente}/paso/UX-07", nav.Ruta);
-        Assert.Contains("Sociedades no SAP", nav.Texto, StringComparison.Ordinal);
+        Assert.Equal($"{cliente}/no-sap", nav.Ruta);
+        Assert.Contains("Carga de sociedades no SAP", nav.Texto, StringComparison.Ordinal);
     }
 
     private sealed class MapeoRoto : IMapeoRepository

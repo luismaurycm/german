@@ -9,7 +9,36 @@ public static class FuncionesZ
 {
     public const string CrearObjeto = "Z_ACC_CREAR_OBJETO";
     public const string Activar = "Z_ACC_ACTIVAR";
+    public const string EjecutarCadena = "Z_ACC_EJECUTAR_CADENA";
+    public const string CargarArchivo = "Z_ACC_CARGAR_ARCHIVO";
     public const string BpcCrearMiembro = "Z_ACC_BPC_CREAR_MIEMBRO";
+}
+
+/// <summary>Ayudas comunes de los generadores de BW.</summary>
+public static class ReglasBw
+{
+    /// <summary>
+    /// Extractor financiero del ERP (RF-08, INT-01): 0FI_GL_14 en ECC; en S/4HANA, 0FI_ACDOCA_10 sobre ACDOCA por ODP
+    /// (por confirmar en la pregunta abierta 11 del DAF). Se elige por lo que el inventario encontró en el ERP.
+    /// </summary>
+    public static string ExtractorFinanciero(Inventario inventario) =>
+        inventario.Lista(TipoInventario.Extractores).Any(e => e.NombreTecnico == "0FI_ACDOCA_10") ? "0FI_ACDOCA_10" : GeneradorBodegaBw75.Extractor;
+
+    public static bool ExtractorActivo(Inventario inventario, string extractor) =>
+        inventario.Lista(TipoInventario.Extractores).Any(e => e.NombreTecnico == extractor && e.Activo);
+
+    public static bool ExisteInfoProvider(Inventario inventario, string nombre) =>
+        inventario.Lista(TipoInventario.InfoProviders).Any(o => o.NombreTecnico == nombre);
+
+    /// <summary>Tipo de InfoProvider de la variante (RNF-Comp-05: aDSO en BW/4HANA).</summary>
+    public static string TipoInfoProvider(VarianteGeneracion v) => v.InfoProvider == Reglas.TipoInfoProvider.Adso ? "aDSO" : "InfoCubo";
+
+    public static bool TieneBodega(Cliente c) => c.Modulos.Contains(Modulo.Consolidacion) || c.Modulos.Contains(Modulo.Presupuesto);
+
+    public static ObjetoPlan Objeto(string paso, string grupo, SistemaSap sistema, string tipo, string nombre, string descripcion,
+        EstadoObjeto estado, string funcion, object definicion, string? nota = null) =>
+        new(paso, Capa.Bw, grupo, sistema, tipo, nombre, descripcion, estado,
+            new OperacionSap(funcion, tipo.ToUpperInvariant(), nombre, Definicion.Json(definicion)), nota);
 }
 
 /// <summary>InfoObjects estándar de la bodega financiera (contenido de negocio de SAP).</summary>
@@ -34,24 +63,22 @@ public sealed class GeneradorBodegaBw75 : IGeneradorObjetos
     public const string CuboMovimientos = "ZACC_C02";
     public const string Grupo = "Bodega financiera";
 
-    public bool Aplica(ContextoPlan c) =>
-        c.Variante.InfoProvider == TipoInfoProvider.InfoCubo
-        && (c.Cliente.Modulos.Contains(Modulo.Consolidacion) || c.Cliente.Modulos.Contains(Modulo.Presupuesto));
+    public bool Aplica(ContextoPlan c) => c.Variante.InfoProvider == TipoInfoProvider.InfoCubo && ReglasBw.TieneBodega(c.Cliente);
 
     public IEnumerable<ObjetoPlan> Generar(ContextoPlan c)
     {
         var bodega = c.Inventario.BodegaExistente;
         var campos = CamposZIncorporables(c).ToList();
-        var extractorActivo = c.Inventario.Lista(TipoInventario.Extractores).Any(e => e.NombreTecnico == Extractor && e.Activo);
+        var extractor = ReglasBw.ExtractorFinanciero(c.Inventario);
 
-        yield return Objeto(SistemaSap.Erp, "DataSource", Extractor, "Partidas individuales de contabilidad general (activar en el ERP)",
-            extractorActivo ? EstadoObjeto.Existente : EstadoObjeto.Nuevo, FuncionesZ.Activar, new { tipo = "DATASOURCE", nombre = Extractor });
+        yield return Objeto(SistemaSap.Erp, "DataSource", extractor, "Partidas individuales de contabilidad general (activar en el ERP)",
+            ReglasBw.ExtractorActivo(c.Inventario, extractor) ? EstadoObjeto.Existente : EstadoObjeto.Nuevo, FuncionesZ.Activar, new { tipo = "DATASOURCE", nombre = extractor });
 
         EstadoObjeto Estado(string nombre) =>
             bodega || c.Inventario.Lista(TipoInventario.InfoProviders).Any(o => o.NombreTecnico == nombre) ? EstadoObjeto.Existente : EstadoObjeto.Nuevo;
 
-        yield return Objeto(SistemaSap.Bw, "DataSource", Extractor, "Replicación del DataSource desde el sistema fuente ERP",
-            bodega ? EstadoObjeto.Existente : EstadoObjeto.Nuevo, FuncionesZ.CrearObjeto, new { tipo = "DATASOURCE_REPLICA", nombre = Extractor });
+        yield return Objeto(SistemaSap.Bw, "DataSource", extractor, "Replicación del DataSource desde el sistema fuente ERP",
+            bodega ? EstadoObjeto.Existente : EstadoObjeto.Nuevo, FuncionesZ.CrearObjeto, new { tipo = "DATASOURCE_REPLICA", nombre = extractor, sistemaFuente = "SAP" });
 
         var definicionCampos = new { caracteristicas = CamposBodega.Caracteristicas.Concat(campos), ratios = CamposBodega.Ratios };
         yield return Objeto(SistemaSap.Bw, "DSO", Dso, "Partidas de contabilidad general (DSO estándar)", Estado(Dso), FuncionesZ.CrearObjeto,
@@ -61,7 +88,7 @@ public sealed class GeneradorBodegaBw75 : IGeneradorObjetos
         yield return Objeto(SistemaSap.Bw, "InfoCubo", CuboMovimientos, "Movimientos de contabilidad general por periodo", Estado(CuboMovimientos), FuncionesZ.CrearObjeto,
             new { tipo = "INFOCUBO", nombre = CuboMovimientos, campos = definicionCampos, activar = true });
 
-        foreach (var (origen, destino) in new[] { (Extractor, Dso), (Dso, CuboSaldos), (Dso, CuboMovimientos) })
+        foreach (var (origen, destino) in new[] { (extractor, Dso), (Dso, CuboSaldos), (Dso, CuboMovimientos) })
         {
             var estado = bodega ? EstadoObjeto.Existente : EstadoObjeto.Nuevo;
             yield return Objeto(SistemaSap.Bw, "Transformación", $"{origen}→{destino}", $"Transformación de {origen} a {destino}", estado, FuncionesZ.CrearObjeto,
@@ -90,8 +117,7 @@ public sealed class GeneradorCamposZ : IGeneradorObjetos
 {
     public const string Grupo = "Campos Z";
 
-    public bool Aplica(ContextoPlan c) => c.Inventario.CamposZIncorporados.Count > 0
-        && (c.Cliente.Modulos.Contains(Modulo.Consolidacion) || c.Cliente.Modulos.Contains(Modulo.Presupuesto));
+    public bool Aplica(ContextoPlan c) => c.Inventario.CamposZIncorporados.Count > 0 && ReglasBw.TieneBodega(c.Cliente);
 
     public IEnumerable<ObjetoPlan> Generar(ContextoPlan c)
     {

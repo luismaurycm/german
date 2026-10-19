@@ -14,6 +14,7 @@ public sealed class ServicioPlan(
     ISociedadRepository sociedades,
     IMapeoRepository mapeo,
     IEjecucionPlanRepository ejecuciones,
+    ICargaNoSapRepository cargas,
     GeneradorPlan generador)
 {
     public async Task<VistaPlan?> ObtenerAsync(Guid clienteId, CancellationToken ct = default)
@@ -37,6 +38,7 @@ public sealed class ServicioPlan(
             mapeadas += (await mapeo.ListarAsync(cliente.Id, plan, ct)).Count;
         }
 
-        return generador.Armar(cliente, inventario, lista, mapeadas);
+        var cargadas = (await cargas.ListarAsync(cliente.Id, ct)).Select(c => c.Sociedad).ToHashSet();
+        return generador.Armar(cliente, inventario, lista, mapeadas, cargadas);
     }
 }

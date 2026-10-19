@@ -7,6 +7,7 @@ Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). S
 | 1 | HU-01 a HU-06, HU-08 (y el rechazo de la arquitectura B de HU-57) | UX-01 Clientes, UX-02 Conexiones, UX-04 Módulos |
 | 2 | HU-07, HU-09, HU-10, HU-11, HU-12, HU-54 | UX-03 Diagnóstico e inventario, versiones de presupuesto en UX-04, UX-05 Sociedades, UX-06 Mapeo de cuentas, registro de UX-09 |
 | 3 | HU-13, HU-14, HU-15, HU-17 | UX-08 Plan de generación, UX-09 Ejecución (pasos, reintento), bodega BW 7.5 y campos Z |
+| 4 | HU-16, HU-18, HU-19, HU-20, HU-25 | Variante BW/4HANA (aDSO, ODP), cadenas full y delta, activos fijos y deterioros en BW, UX-07 Sociedades no SAP |
 
 Coberturas por sprint: `tests/COBERTURA-Sprint-N.md`.
 
@@ -117,6 +118,13 @@ generador a `GeneradorPlan.VersionUno` (ADR-07, RNF-Comp-04).
 Convenciones del simulador para la ejecución: `Simulador:FallaEscritura` (sistemas sin permiso de escritura),
 `Simulador:FallaObjetos` (objetos que fallan), `Simulador:LatenciaEscrituraMs` y el usuario técnico `rfc_lectura`, que
 no tiene permiso de escritura.
+
+## Sociedades no SAP (UX-07)
+
+El archivo de cada sociedad no SAP (formato provisional, pregunta 5 del DAF: CSV UTF-8 con `sociedad;cuenta;periodo;tercero;ceco;cebe;importe`)
+se valida en memoria y, al confirmar, se carga a la tabla de staging `ZACC_NOSAP` de BW con `Z_ACC_CARGAR_ARCHIVO`; una
+carga nueva del periodo reemplaza la anterior. La base local guarda solo los metadatos de la carga. UX-07 tiene «Descargar
+plantilla» con el formato.
 
 ## Registro de ejecuciones
 

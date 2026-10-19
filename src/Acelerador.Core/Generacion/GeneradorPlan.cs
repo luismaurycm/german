@@ -10,14 +10,19 @@ public sealed class GeneradorPlan(IReadOnlyList<IGeneradorObjetos> generadores, 
     public static IReadOnlyList<IGeneradorObjetos> VersionUno { get; } =
     [
         new GeneradorBodegaBw75(),
+        new GeneradorBodegaBw4Hana(),
         new GeneradorCamposZ(),
+        new GeneradorCadenas(),
+        new GeneradorActivosFijos(),
+        new GeneradorDeterioros(),
+        new GeneradorNoSap(),
     ];
 
     public static GeneradorPlan Predeterminado { get; } = new(VersionUno, CatalogoVariantes.VersionUno);
 
-    public PlanGeneracion Armar(Cliente cliente, Inventario? inventario, IReadOnlyList<Sociedad> sociedades, int cuentasMapeadas)
+    public PlanGeneracion Armar(Cliente cliente, Inventario? inventario, IReadOnlyList<Sociedad> sociedades, int cuentasMapeadas, IReadOnlyCollection<string>? noSapCargadas = null)
     {
-        var faltantes = Faltantes(cliente, inventario, sociedades, cuentasMapeadas);
+        var faltantes = Faltantes(cliente, inventario, sociedades, cuentasMapeadas, noSapCargadas);
         var variante = catalogo.Buscar(cliente.Deteccion?.VarianteId);
         var monedas = new MonedasPlan(
             sociedades.Select(s => (s.Codigo, s.MonedaLocal)).ToList(),
@@ -38,7 +43,8 @@ public sealed class GeneradorPlan(IReadOnlyList<IGeneradorObjetos> generadores, 
     }
 
     /// <summary>HU-13 CA4: qué paso anterior falta, en el orden de la navegación, con la pantalla que lo completa.</summary>
-    public static IReadOnlyList<Faltante> Faltantes(Cliente cliente, Inventario? inventario, IReadOnlyList<Sociedad> sociedades, int cuentasMapeadas)
+    public static IReadOnlyList<Faltante> Faltantes(
+        Cliente cliente, Inventario? inventario, IReadOnlyList<Sociedad> sociedades, int cuentasMapeadas, IReadOnlyCollection<string>? noSapCargadas = null)
     {
         var faltan = new List<Faltante>();
         var bloqueo = ReglaAvance.BloqueoDeConfiguracion(cliente);
@@ -68,6 +74,12 @@ public sealed class GeneradorPlan(IReadOnlyList<IGeneradorObjetos> generadores, 
         if (sociedades.Any(s => s.EnSap) && cuentasMapeadas == 0)
         {
             faltan.Add(new Faltante(Pasos.Mapeo, "Mapeo de cuentas: aún no hay cuentas mapeadas a los rubros."));
+        }
+
+        var sinCarga = sociedades.Where(s => !s.EnSap && !(noSapCargadas ?? []).Contains(s.Codigo)).Select(s => s.Codigo).ToList();
+        if (sinCarga.Count > 0)
+        {
+            faltan.Add(new Faltante(Pasos.NoSap, $"Sociedades no SAP: falta cargar el archivo de {string.Join(", ", sinCarga)}."));
         }
 
         return faltan;
