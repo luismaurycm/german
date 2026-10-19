@@ -15,6 +15,7 @@ public static class Pasos
     public const string NoSap = "UX-07";
     public const string Plan = "UX-08";
     public const string Ejecucion = "UX-09";
+    public const string Reportes = "UX-10";
 
     public static readonly IReadOnlyList<Paso> Todos =
     [
@@ -24,9 +25,9 @@ public static class Pasos
         new(Sociedades, "Sociedades", true, "HU-09, HU-10"),
         new(Mapeo, "Mapeo de cuentas", true, "HU-11"),
         new(NoSap, "Sociedades no SAP", false, "HU-25"),
-        new(Plan, "Plan de generación", false, "HU-12, HU-13, HU-16"),
-        new(Ejecucion, "Ejecución", false, "HU-14, HU-54"),
-        new("UX-10", "Reportes", false, "HU-32, HU-38, HU-45"),
+        new(Plan, "Plan de generación", true, "HU-12, HU-13, HU-16"),
+        new(Ejecucion, "Ejecución", true, "HU-14, HU-54"),
+        new(Reportes, "Reportes", false, "HU-32, HU-38, HU-45"),
     ];
 
     public static int Indice(string codigo)

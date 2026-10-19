@@ -78,7 +78,8 @@
   // el contenido se reemplaza por un esqueleto o una barra de progreso con el texto de data-carga.
   var main = document.getElementById('contenido');
   function mostrarCarga(texto, tipo, detalle) {
-    if (!main || main.getAttribute('aria-busy') === 'true') return;
+    // Razor deja data-carga="" cuando el paso no lee del cliente: sin texto no hay estado de carga.
+    if (!texto || !main || main.getAttribute('aria-busy') === 'true') return;
     var ph = main.querySelector('.ph');
     Array.prototype.forEach.call(main.children, function (c) {
       if (c !== ph) { c.setAttribute('data-oculto-carga', ''); c.hidden = true; }
@@ -174,4 +175,22 @@
     if (!presupuesto) return;
     presupuesto.addEventListener('change', function () { seccion.hidden = !presupuesto.checked; });
   });
+
+  // HU-14: mientras la ejecución avanza, UX-09 consulta el estado y se recarga cuando cambia un paso.
+  if (main && main.getAttribute('data-refrescar')) {
+    var url = main.getAttribute('data-refrescar');
+    var anterior = null;
+    var consultar = function () {
+      fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var actual = JSON.stringify(d);
+          if (anterior !== null && actual !== anterior) { location.reload(); return; }
+          anterior = actual;
+          if (d.estado === 'EnCurso') setTimeout(consultar, 1500); else location.reload();
+        })
+        .catch(function () { setTimeout(consultar, 3000); });
+    };
+    setTimeout(consultar, 1000);
+  }
 })();

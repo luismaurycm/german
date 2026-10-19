@@ -6,8 +6,9 @@ Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). S
 |---|---|---|
 | 1 | HU-01 a HU-06, HU-08 (y el rechazo de la arquitectura B de HU-57) | UX-01 Clientes, UX-02 Conexiones, UX-04 Módulos |
 | 2 | HU-07, HU-09, HU-10, HU-11, HU-12, HU-54 | UX-03 Diagnóstico e inventario, versiones de presupuesto en UX-04, UX-05 Sociedades, UX-06 Mapeo de cuentas, registro de UX-09 |
+| 3 | HU-13, HU-14, HU-15, HU-17 | UX-08 Plan de generación, UX-09 Ejecución (pasos, reintento), bodega BW 7.5 y campos Z |
 
-Coberturas por sprint: `tests/COBERTURA-Sprint-1.md`, `tests/COBERTURA-Sprint-2.md`.
+Coberturas por sprint: `tests/COBERTURA-Sprint-N.md`.
 
 ## Requisitos
 
@@ -103,6 +104,19 @@ dotnet run --project src/Acelerador.Web -- --Simulador:Perfil=B
   `CMConsulting.Acelerador/<cliente>/<sistema>`. Las credenciales nunca vuelven al navegador ni llegan a un registro:
   los mensajes de SAP se sanitizan y las pruebas buscan la clave en la base, los registros y la configuración.
 - Fuera de Windows (desarrollo en macOS o Linux) el almacén es en memoria y la aplicación lo avisa en pantalla.
+
+## Motor de generación
+
+`Acelerador.Core/Generacion`: cada área tiene un generador (`IGeneradorObjetos`) que produce objetos del plan con la operación
+del paquete Z que los crea (`OperacionSap`, definición JSON). `GeneradorPlan` los agrupa en los pasos de UX-09
+(`PasosGeneracion`) y marca lo que ya existe (RN-03). `ServicioEjecucion` corre los pasos en orden en una cola en segundo
+plano (`ColaEjecuciones`), registra cada objeto, se detiene en el primer error y reanuda desde ese paso. Cada llamada RFC
+tiene 120 s de espera y un solo reintento en errores de comunicación. Agregar una variante o un área es agregar un
+generador a `GeneradorPlan.VersionUno` (ADR-07, RNF-Comp-04).
+
+Convenciones del simulador para la ejecución: `Simulador:FallaEscritura` (sistemas sin permiso de escritura),
+`Simulador:FallaObjetos` (objetos que fallan), `Simulador:LatenciaEscrituraMs` y el usuario técnico `rfc_lectura`, que
+no tiene permiso de escritura.
 
 ## Registro de ejecuciones
 

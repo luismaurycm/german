@@ -1,3 +1,4 @@
+using Acelerador.Core.Generacion;
 using Acelerador.Core.Puertos;
 using Acelerador.Core.Reglas;
 using Acelerador.Core.Servicios;
@@ -52,6 +53,11 @@ public static class Composicion
         services.AddSingleton<IInventarioRepository, SqliteInventarioRepository>();
         services.AddSingleton<ISociedadRepository, SqliteSociedadRepository>();
         services.AddSingleton<IMapeoRepository, SqliteMapeoRepository>();
+        services.AddSingleton<IEjecucionPlanRepository, SqliteEjecucionPlanRepository>();
+        services.AddSingleton(GeneradorPlan.Predeterminado);
+        services.AddSingleton<ColaEjecuciones>();
+        services.AddSingleton<IColaEjecuciones>(sp => sp.GetRequiredService<ColaEjecuciones>());
+        services.AddHostedService(sp => sp.GetRequiredService<ColaEjecuciones>());
         services.AddSingleton(_ => CrearAlmacen(opciones.AlmacenCredenciales));
 
         var modoSap = config["Sap:Modo"] ?? "Simulado";
@@ -67,6 +73,8 @@ public static class Composicion
         services.AddScoped<ServicioSociedades>();
         services.AddScoped<ServicioMapeo>();
         services.AddScoped<ServicioRegistro>();
+        services.AddScoped<ServicioPlan>();
+        services.AddScoped<ServicioEjecucion>();
         return services;
     }
 

@@ -1,4 +1,5 @@
 using Acelerador.Core.Dominio;
+using Acelerador.Core.Generacion;
 using Acelerador.Core.Puertos;
 using Acelerador.Core.Reglas;
 using Acelerador.Core.Servicios;
@@ -9,6 +10,14 @@ using Acelerador.Sap.Simulador;
 using Microsoft.Data.Sqlite;
 
 namespace Acelerador.Tests.Soporte;
+
+/// <summary>Cola de ejecuciones que solo guarda lo encolado; las pruebas la procesan con <see cref="Entorno.ProcesarColaAsync"/>.</summary>
+public sealed class ColaManual : IColaEjecuciones
+{
+    public System.Collections.Concurrent.ConcurrentQueue<(Guid Cliente, Guid Ejecucion)> Pendientes { get; } = new();
+
+    public void Encolar(Guid clienteId, Guid ejecucionId) => Pendientes.Enqueue((clienteId, ejecucionId));
+}
 
 public sealed class UsuarioFijo(string nombre = @"CM\consultor1") : IUsuarioActual
 {
@@ -51,7 +60,18 @@ public sealed class Entorno : IAsyncDisposable
         ServicioSociedades = new ServicioSociedades(Clientes, Sociedades, Acceso, Sap);
         ServicioMapeo = new ServicioMapeo(Clientes, Sociedades, Mapeos, Acceso, Sap);
         ServicioRegistro = new ServicioRegistro(Clientes, Registro, Registro, Reloj);
+        Ejecuciones = new SqliteEjecucionPlanRepository(Base);
+        ServicioPlan = new ServicioPlan(Clientes, Inventarios, Sociedades, Mapeos, Ejecuciones, GeneradorPlan.Predeterminado);
+        ServicioEjecucion = new ServicioEjecucion(Clientes, Ejecuciones, ServicioPlan, Acceso, Sap, Registro, Cola, Usuario, Reloj);
     }
+
+    public SqliteEjecucionPlanRepository Ejecuciones { get; }
+
+    public ColaManual Cola { get; } = new();
+
+    public ServicioPlan ServicioPlan { get; }
+
+    public ServicioEjecucion ServicioEjecucion { get; }
 
     public SqliteInventarioRepository Inventarios { get; }
 
@@ -157,6 +177,41 @@ public sealed class Entorno : IAsyncDisposable
         var r = await ServicioSociedades.GuardarAsync(c.Id, filas ?? FilasPrototipo(), continuar: true);
         Assert.True(r.Guardado, string.Join(" ", r.Errores.Select(x => x.Mensaje)) + r.ErrorGuardado);
         return (await Clientes.ObtenerAsync(c.Id))!;
+    }
+
+    /// <summary>Lleva un cliente hasta el plan: mapea dos cuentas de cada plan y continúa (sin sociedades no SAP por defecto).</summary>
+    public async Task<Cliente> ClienteEnPlanAsync(IReadOnlyList<string>? camposZ = null, List<FilaSociedad>? filas = null)
+    {
+        var c = await ClienteEnModulosAsync();
+        if (camposZ is not null)
+        {
+            await ServicioDiagnostico.GuardarCamposZAsync(c.Id, camposZ, continuar: false);
+        }
+
+        await ServicioModulos.GuardarAsync(c.Id, [Modulo.Consolidacion], continuar: true);
+        var r = await ServicioSociedades.GuardarAsync(c.Id, filas ?? FilasPrototipo().Take(3).ToList(), continuar: true);
+        Assert.True(r.Guardado, string.Join(" ", r.Errores.Select(x => x.Mensaje)));
+        await ServicioMapeo.AsignarAsync(c.Id, "1000", "F-00-101", ["11050501", "11100501"]);
+        await ServicioMapeo.AsignarAsync(c.Id, "3000", "F-00-101", ["1010", "1020"]);
+        Assert.NotNull(await ServicioMapeo.ContinuarAsync(c.Id));
+        return (await Clientes.ObtenerAsync(c.Id))!;
+    }
+
+    /// <summary>Genera y ejecuta lo que haya en la cola (lo que en la aplicación hace la cola en segundo plano).</summary>
+    public async Task<EjecucionPlan> GenerarAsync(Guid clienteId)
+    {
+        var inicio = await ServicioEjecucion.IniciarAsync(clienteId);
+        Assert.Null(inicio.Error);
+        await ProcesarColaAsync();
+        return (await Ejecuciones.ObtenerAsync(inicio.EjecucionId!.Value))!;
+    }
+
+    public async Task ProcesarColaAsync()
+    {
+        while (Cola.Pendientes.TryDequeue(out var item))
+        {
+            await ServicioEjecucion.EjecutarAsync(item.Cliente, item.Ejecucion);
+        }
     }
 
     public async ValueTask DisposeAsync()

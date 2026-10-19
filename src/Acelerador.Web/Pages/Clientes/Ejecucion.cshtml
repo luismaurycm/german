@@ -1,0 +1,142 @@
+@page "/clientes/{id:guid}/ejecucion"
+@model Acelerador.Web.Pages.Clientes.EjecucionModel
+@{
+    ViewData["Title"] = "Ejecución y registro";
+    var v = Model.Vista;
+    var e = v.Ejecucion;
+    var enCurso = e?.Estado == EstadoEjecucion.EnCurso;
+    var subtitulo = e?.Estado switch
+    {
+        EstadoEjecucion.EnCurso => $"Ejecutando… paso {e.PasoActual} de {e.Pasos.Count}.",
+        EstadoEjecucion.ConError => "Un paso falló; corrige la causa y reintenta desde ese paso.",
+        _ => "Seguimiento paso a paso de la generación.",
+    };
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(v.Cliente, Pasos.Ejecucion))" />
+    <main class="a-main" id="contenido" data-refrescar="@(enCurso ? Formato.Ruta(v.Cliente.Id, Pasos.Ejecucion) + "?handler=Estado" : null)">
+        <div class="ph">
+            <div>
+                <h1>Ejecución y registro</h1>
+                <p role="status">@subtitulo</p>
+            </div>
+            @if (e?.Estado == EstadoEjecucion.Completa)
+            {
+                <div class="row"><a class="btn btn-p" href="@Formato.Ruta(v.Cliente.Id, Pasos.Reportes)">Ver reportes</a></div>
+            }
+        </div>
+
+        @if (Model.Error is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div>@Model.Error</div></div>
+        }
+
+        @if (e is null)
+        {
+            <div class="card empty">
+                @Iconos.Vacio
+                <p class="big">Aún no hay ejecuciones.</p>
+                <p class="muted">Revisa el plan y presiona Generar.</p>
+                <a class="btn btn-p" href="@Formato.Ruta(v.Cliente.Id, Pasos.Plan)" data-carga="Calculando el plan…">Ir al plan de generación</a>
+            </div>
+        }
+        else
+        {
+            @if (e.Estado == EstadoEjecucion.Completa)
+            {
+                <div class="note o" id="resumen-ejecucion">
+                    @Iconos.Ok
+                    <div><b>Generación completa.</b> @Textos.Cantidad(e.Creados, "objeto creado", "objetos creados") y @Textos.Cantidad(e.Existentes, "existente", "existentes"), no modificados. <span class="rn">RN-03</span></div>
+                </div>
+            }
+
+            <div class="split">
+                <section class="l card tl" aria-labelledby="titulo-pasos">
+                    <h2 id="titulo-pasos" class="sr">Pasos de la ejecución</h2>
+                    <ol class="tl-lista">
+                        @for (var i = 0; i < e.Pasos.Count; i++)
+                        {
+                            var p = e.Pasos[i];
+                            var (clase, icono) = p.Estado switch
+                            {
+                                EstadoPaso.Completo or EstadoPaso.Existente => ("ok", Iconos.Ok),
+                                EstadoPaso.Error => ("err", Iconos.Error),
+                                EstadoPaso.EnCurso => ("neu", null),
+                                _ => ("neu", Iconos.Pendiente),
+                            };
+                            <li class="tl-i" id="paso-@p.Id">
+                                @if (icono is null)
+                                {
+                                    <span class="spin tl-spin" aria-hidden="true"></span>
+                                }
+                                else
+                                {
+                                    @icono
+                                }
+                                <div>
+                                    <b>@(i + 1). @p.Nombre</b>
+                                    @if (p.Terminado)
+                                    {
+                                        <span class="muted bloque">@Textos.Cantidad(p.Creados, "objeto creado", "objetos creados")@(p.Existentes > 0 ? " · " + Textos.Cantidad(p.Existentes, "existente", "existentes") : "")</span>
+                                    }
+                                    @if (p.Estado == EstadoPaso.Error)
+                                    {
+                                        <div class="note e" role="alert">
+                                            @Iconos.Error
+                                            <div>
+                                                @p.Mensaje
+                                                <div class="row acciones">
+                                                    @if (p.PantallaCorrige is { } pantalla)
+                                                    {
+                                                        <a class="btn btn-s" href="@Formato.Ruta(v.Cliente.Id, pantalla)">Ir a @Pasos.Nombre(pantalla)</a>
+                                                    }
+                                                    <form method="post" asp-page-handler="Reintentar" data-ocupado="Reintentando…">
+                                                        <button class="btn btn-p" type="submit">Reintentar desde este paso</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="row tl-estado">
+                                    @if (p.Terminado)
+                                    {
+                                        <span class="mono muted">@Textos.Duracion(p.Duracion)</span>
+                                    }
+                                    <partial name="_Pill" model="@((clase, Textos.Estado(p.Estado)))" />
+                                </div>
+                            </li>
+                        }
+                    </ol>
+                </section>
+
+                <section class="r card col" aria-labelledby="titulo-registro">
+                    <div class="row entre">
+                        <h2 id="titulo-registro">Registro</h2>
+                        <a class="btn btn-s" href="@Formato.Registro(v.Cliente.Id)?handler=Descargar" download>Descargar registro</a>
+                    </div>
+                    <div class="tblw sin-borde">
+                        <table class="tbl cards">
+                            <caption class="sr">Últimas entradas del registro de ejecuciones</caption>
+                            <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Usuario</th><th scope="col">Sistema</th><th scope="col">Paso</th><th scope="col">Objetos</th><th scope="col">Resultado</th></tr></thead>
+                            <tbody>
+                                @foreach (var r in v.Registro)
+                                {
+                                    <tr>
+                                        <td data-l="Fecha y hora" class="mono nw">@Formato.FechaHora(r.Fecha)</td>
+                                        <td data-l="Usuario">@r.Usuario</td>
+                                        <td data-l="Sistema" class="nw">@r.Sistema</td>
+                                        <td data-l="Paso">@r.Paso</td>
+                                        <td data-l="Objetos" class="mono">@r.Objetos</td>
+                                        <td data-l="Resultado"><partial name="_Pill" model="@((r.Resultado == ResultadoEjecucion.Fallido ? "err" : "ok", r.Resultado == ResultadoEjecucion.Fallido ? "Error" : "Correcto"))" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <span class="rn">Cada ejecución queda registrada. RNF-Aud-01 · <a href="@Formato.Registro(v.Cliente.Id)">Ver el registro completo</a></span>
+                </section>
+            </div>
+        }
+    </main>
+</div>

@@ -9,11 +9,17 @@ public enum Arquitectura
     B,
 }
 
-/// <summary>Estado del cliente que se ve en UX-01. Los estados de ejecución (con error, completo) llegan con HU-13.</summary>
+/// <summary>Estado del cliente que se ve en UX-01.</summary>
 public enum EstadoCliente
 {
     EnCurso,
     NoSoportado,
+
+    /// <summary>La última ejecución del plan tiene un paso con error (HU-14).</summary>
+    ConError,
+
+    /// <summary>La última ejecución del plan terminó completa.</summary>
+    Completo,
 }
 
 /// <summary>Resultado de RF-04 guardado en el cliente (HU-06 CA4).</summary>

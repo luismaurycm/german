@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Acelerador.Core.Dominio;
 using Acelerador.Core.Puertos;
 using Acelerador.Core.Reglas;
@@ -452,5 +453,58 @@ public sealed class SqliteMapeoRepository(BaseLocal db) : IMapeoRepository
         }
 
         await tx.CommitAsync(ct);
+    }
+}
+
+public sealed class SqliteEjecucionPlanRepository(BaseLocal db) : IEjecucionPlanRepository
+{
+    private static readonly JsonSerializerOptions Json = new() { Converters = { new JsonStringEnumConverter() } };
+
+    public Task<EjecucionPlan?> ObtenerUltimaAsync(Guid clienteId, CancellationToken ct = default) =>
+        UnaAsync("SELECT datos FROM ejecuciones_plan WHERE cliente_id = $p ORDER BY inicio DESC LIMIT 1", clienteId.ToString(), ct);
+
+    public Task<EjecucionPlan?> ObtenerAsync(Guid id, CancellationToken ct = default) =>
+        UnaAsync("SELECT datos FROM ejecuciones_plan WHERE id = $p", id.ToString(), ct);
+
+    public async Task<IReadOnlyList<EjecucionPlan>> ListarAbiertasAsync(CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = "SELECT datos FROM ejecuciones_plan WHERE fin IS NULL";
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        var lista = new List<EjecucionPlan>();
+        while (await r.ReadAsync(ct))
+        {
+            lista.Add(JsonSerializer.Deserialize<EjecucionPlan>(r.GetString(0), Json)!);
+        }
+
+        return lista;
+    }
+
+    public async Task GuardarAsync(EjecucionPlan e, CancellationToken ct = default)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO ejecuciones_plan (id, cliente_id, inicio, fin, datos) VALUES ($id, $cliente, $inicio, $fin, $datos)
+            ON CONFLICT (id) DO UPDATE SET fin = excluded.fin, datos = excluded.datos
+            """;
+        Sql.Parametros(cmd,
+            ("$id", e.Id.ToString()),
+            ("$cliente", e.ClienteId.ToString()),
+            ("$inicio", Sql.Fecha(e.Inicio)),
+            ("$fin", Sql.Fecha(e.Fin)),
+            ("$datos", JsonSerializer.Serialize(e, Json)));
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    private async Task<EjecucionPlan?> UnaAsync(string sql, string parametro, CancellationToken ct)
+    {
+        await using var cn = await db.AbrirAsync(ct);
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = sql;
+        cmd.Parameters.AddWithValue("$p", parametro);
+        var datos = await cmd.ExecuteScalarAsync(ct) as string;
+        return datos is null ? null : JsonSerializer.Deserialize<EjecucionPlan>(datos, Json);
     }
 }

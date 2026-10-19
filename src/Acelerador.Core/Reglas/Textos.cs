@@ -37,6 +37,8 @@ public static class Textos
     public static string Estado(EstadoCliente estado) => estado switch
     {
         EstadoCliente.NoSoportado => "No soportado",
+        EstadoCliente.ConError => "Con error",
+        EstadoCliente.Completo => "Completo",
         _ => "En curso",
     };
 
@@ -46,4 +48,21 @@ public static class Textos
         ResultadoEjecucion.Fallido => "Fallido",
         _ => "No soportado",
     };
+
+    public static string Estado(EstadoPaso estado) => estado switch
+    {
+        EstadoPaso.Completo => "Completo",
+        EstadoPaso.Existente => "Existente",
+        EstadoPaso.EnCurso => "En curso",
+        EstadoPaso.Error => "Con error",
+        _ => "Pendiente",
+    };
+
+    /// <summary>Duración como en el prototipo: «6:30» (minutos y segundos).</summary>
+    public static string Duracion(TimeSpan? duracion) => duracion is null
+        ? ""
+        : $"{(int)duracion.Value.TotalMinutes}:{duracion.Value.Seconds:00}";
+
+    /// <summary>«1 objeto», «3 objetos»: cantidad con el sustantivo en singular o plural.</summary>
+    public static string Cantidad(int n, string singular, string plural) => $"{n} {(n == 1 ? singular : plural)}";
 }

@@ -53,4 +53,11 @@ public sealed class NcoSapGateway : ISapGateway
     /// </summary>
     public Task<ResultadoCuentas> LeerCuentasAsync(DestinoSap erp, string sociedad, CancellationToken ct = default) =>
         Task.FromResult(new ResultadoCuentas(false, MensajePendiente, "", "", "", []));
+
+    /// <summary>
+    /// Llama la función Z de <see cref="OperacionSap.Funcion"/> (Z_ACC_CREAR_OBJETO, Z_ACC_ACTIVAR, Z_ACC_BPC_*) con la
+    /// definición JSON y traduce ET_MENSAJES: EXISTE → <see cref="ResultadoEscritura.Existente"/>.
+    /// </summary>
+    public Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap destino, OperacionSap operacion, CancellationToken ct = default) =>
+        Task.FromResult(new ResultadoOperacionSap(false, MensajePendiente));
 }

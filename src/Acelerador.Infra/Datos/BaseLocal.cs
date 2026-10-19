@@ -4,11 +4,11 @@ namespace Acelerador.Infra.Datos;
 
 /// <summary>
 /// Base SQLite local en el perfil del usuario (ADR-04): clientes, conexiones sin credencial, inventario,
-/// sociedades, mapeo de cuentas y registro de ejecuciones. Sin servicios de base de datos (RNF-Comp-03).
+/// sociedades, mapeo de cuentas, ejecuciones del plan y registro de ejecuciones. Sin servicios de base de datos (RNF-Comp-03).
 /// </summary>
 public sealed class BaseLocal
 {
-    public const int VersionEsquema = 2;
+    public const int VersionEsquema = 3;
 
     private readonly string _cadena;
 
@@ -141,6 +141,16 @@ public sealed class BaseLocal
                 rubro          TEXT NOT NULL,
                 PRIMARY KEY (cliente_id, plan_cuentas, cuenta)
             );
+
+            -- Ejecuciones del plan de generación (HU-14): pasos, estado y objetos en JSON.
+            CREATE TABLE IF NOT EXISTS ejecuciones_plan (
+                id          TEXT PRIMARY KEY,
+                cliente_id  TEXT NOT NULL REFERENCES clientes(id),
+                inicio      TEXT NOT NULL,
+                fin         TEXT,
+                datos       TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS ix_ejecuciones_plan_cliente ON ejecuciones_plan (cliente_id, inicio);
             """;
         await cmd.ExecuteNonQueryAsync(ct);
 

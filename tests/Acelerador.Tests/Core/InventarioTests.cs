@@ -93,7 +93,7 @@ public class ServicioDiagnosticoTests
         Assert.Contains(inv.Lista(TipoInventario.Extractores), o => o.NombreTecnico == "0FI_AA_11" && !o.Activo);
         Assert.All(inv.Lista(TipoInventario.InfoProviders), o => Assert.Equal("InfoCubo", o.Detalle));
         Assert.Single(inv.Lista(TipoInventario.ModelosBpc));
-        Assert.Equal(["ZZREGION", "ZZLINEA"], inv.Lista(TipoInventario.CamposZ).Select(o => o.NombreTecnico));
+        Assert.Equal(["ZZREGION", "ZZLINEA", "ZZNOTAS"], inv.Lista(TipoInventario.CamposZ).Select(o => o.NombreTecnico));
         Assert.Equal(@"CM\consultor1", inv.Usuario);
         Assert.Equal(e.Reloj.Ahora, inv.Fecha);
         Assert.DoesNotContain(e.Sap.Llamadas, l => l.EsEscritura);
@@ -242,5 +242,7 @@ public class ServicioDiagnosticoTests
         public Task<ResultadoSociedades> LeerSociedadesAsync(DestinoSap erp, CancellationToken ct = default) => interno.LeerSociedadesAsync(erp, ct);
 
         public Task<ResultadoCuentas> LeerCuentasAsync(DestinoSap erp, string sociedad, CancellationToken ct = default) => interno.LeerCuentasAsync(erp, sociedad, ct);
+
+        public Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap destino, OperacionSap operacion, CancellationToken ct = default) => interno.EjecutarAsync(destino, operacion, ct);
     }
 }

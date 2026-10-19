@@ -10,14 +10,16 @@
         {
             var paso = visibles[i];
             var indice = Pasos.Indice(paso.Codigo);
-            var estado = indice < actual ? "Completo" : indice == actual ? "Actual" : "Pendiente";
-            var icono = indice < actual ? Iconos.Ok : indice == actual ? Iconos.Actual : Iconos.Pendiente;
+            var conError = paso.Codigo == Pasos.Ejecucion && Model.Cliente.Estado == EstadoCliente.ConError;
+            var completo = indice < actual || (paso.Codigo == Pasos.Ejecucion && Model.Cliente.Estado == EstadoCliente.Completo);
+            var estado = conError ? "Con error" : completo ? "Completo" : indice == actual ? "Actual" : "Pendiente";
+            var icono = conError ? Iconos.Error : completo ? Iconos.Ok : indice == actual ? Iconos.Actual : Iconos.Pendiente;
             var visto = paso.Codigo == Model.PasoVisto;
             <li>
                 @if (ReglaAvance.PuedeAbrir(Model.Cliente, paso.Codigo))
                 {
                     <a class="step" href="@Formato.Ruta(Model.Cliente.Id, paso.Codigo)" aria-current="@(visto ? "step" : null)" data-carga="@Formato.Carga(paso.Codigo)">
-                        @icono<span class="t">@(i + 1). @paso.Nombre</span><span class="s @(indice < actual ? "ok" : "")">@estado</span>
+                        @icono<span class="t">@(i + 1). @paso.Nombre</span><span class="s @(conError ? "err" : completo ? "ok" : "")">@estado</span>
                     </a>
                 }
                 else

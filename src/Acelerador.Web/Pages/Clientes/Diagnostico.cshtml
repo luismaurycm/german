@@ -102,15 +102,17 @@
                             <div class="tblw">
                                 <table class="tbl cards">
                                     <caption class="sr">Campos Z del cliente; marca los que se incorporan a la bodega</caption>
-                                    <thead><tr><th scope="col">Incorporar</th><th scope="col">Campo</th><th scope="col">Descripción</th><th scope="col">Tabla</th></tr></thead>
+                                    <thead><tr><th scope="col">Incorporar</th><th scope="col">Campo</th><th scope="col">Descripción</th><th scope="col">Tabla</th><th scope="col">Tipo</th></tr></thead>
                                     <tbody>
                                         @foreach (var o in objetos)
                                         {
+                                            var motivo = ReglasCamposZ.MotivoIncompatible(o.TipoDato);
                                             <tr>
-                                                <td data-l="Incorporar"><input class="chk" type="checkbox" name="campos" value="@o.NombreTecnico" id="cz-@o.NombreTecnico" checked="@inv.CamposZIncorporados.Contains(o.NombreTecnico)" aria-label="Incorporar @o.NombreTecnico"></td>
+                                                <td data-l="Incorporar"><input class="chk" type="checkbox" name="campos" value="@o.NombreTecnico" id="cz-@o.NombreTecnico" checked="@inv.CamposZIncorporados.Contains(o.NombreTecnico)" disabled="@(motivo is not null)" aria-label="Incorporar @o.NombreTecnico" aria-describedby="@(motivo is null ? null : $"cz-{o.NombreTecnico}-motivo")"></td>
                                                 <td data-l="Campo" class="mono">@o.NombreTecnico</td>
-                                                <td data-l="Descripción">@o.Descripcion</td>
+                                                <td data-l="Descripción">@o.Descripcion@if (motivo is not null) { <span class="nota-obj aviso" id="cz-@o.NombreTecnico-motivo">@Iconos.Aviso No se incorpora: @motivo</span> }</td>
                                                 <td data-l="Tabla" class="mono">@o.Detalle</td>
+                                                <td data-l="Tipo" class="mono">@o.TipoDato</td>
                                             </tr>
                                         }
                                     </tbody>
