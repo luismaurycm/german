@@ -143,6 +143,31 @@ public sealed partial class Navegador(HttpClient http)
         return r;
     }
 
+    /// <summary>POST multipart (subir un archivo) con antiforgery; sigue la redirección.</summary>
+    public async Task<HttpResponseMessage> SubirAsync(string accion, IDictionary<string, string> campos, string campoArchivo, string nombreArchivo, byte[] contenido)
+    {
+        var token = TokenAntiforgery().Match(Html);
+        Assert.True(token.Success, "La página no tiene token antiforgery.");
+        using var datos = new MultipartFormDataContent();
+        foreach (var (k, v) in campos)
+        {
+            datos.Add(new StringContent(v), k);
+        }
+
+        datos.Add(new StringContent(WebUtility.HtmlDecode(token.Groups[1].Value)), "__RequestVerificationToken");
+        var archivo = new ByteArrayContent(contenido);
+        archivo.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/csv");
+        datos.Add(archivo, campoArchivo, nombreArchivo);
+        var r = await Http.PostAsync(accion, datos);
+        if (r.StatusCode == HttpStatusCode.Redirect)
+        {
+            return await GetAsync(r.Headers.Location!.OriginalString.Split('#')[0]);
+        }
+
+        Html = await r.Content.ReadAsStringAsync();
+        return r;
+    }
+
     /// <summary>Texto visible aproximado (sin etiquetas ni espacios repetidos), con entidades decodificadas.</summary>
     public string Texto => Espacios().Replace(WebUtility.HtmlDecode(Etiquetas().Replace(Html, " ")), " ");
 

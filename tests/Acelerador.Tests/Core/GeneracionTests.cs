@@ -180,7 +180,7 @@ public class PlanGeneracionTests
         await using var e = await Entorno.CrearAsync();
         var c = await e.ClienteEnPlanAsync();
         var generador = new GeneradorPlan([.. GeneradorPlan.VersionUno, new GeneradorDePrueba()], CatalogoVariantes.VersionUno);
-        var servicio = new Acelerador.Core.Servicios.ServicioPlan(e.Clientes, e.Inventarios, e.Sociedades, e.Mapeos, e.Ejecuciones, generador);
+        var servicio = new Acelerador.Core.Servicios.ServicioPlan(e.Clientes, e.Inventarios, e.Sociedades, e.Mapeos, e.Ejecuciones, e.Cargas, generador);
 
         var plan = (await servicio.ObtenerAsync(c.Id))!.Plan;
 

@@ -1,0 +1,172 @@
+@page "/clientes/{id:guid}/no-sap"
+@model Acelerador.Web.Pages.Clientes.NoSapModel
+@{
+    ViewData["Title"] = "Carga de sociedades no SAP";
+    var v = Model.Vista;
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(v.Cliente, Pasos.NoSap))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Carga de sociedades no SAP</h1>
+                <p>Sube el archivo contable de cada sociedad del grupo que no está en SAP.</p>
+            </div>
+        </div>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note @(Model.AvisoExitoso ? "o" : "e")" role="@(Model.AvisoExitoso ? "status" : "alert")">@(Model.AvisoExitoso ? Iconos.Ok : Iconos.Error)<div>@Model.Aviso</div></div>
+        }
+
+        @if (v.Sociedades.Count == 0)
+        {
+            <div class="card empty">
+                @Iconos.Vacio
+                <p class="big">Ninguna sociedad está marcada como no SAP.</p>
+                <p class="muted">Este paso no aparece en la navegación cuando todas las sociedades están en SAP.</p>
+                <a class="btn btn-p" href="@Formato.Ruta(v.Cliente.Id, Pasos.Plan)" data-carga="Calculando el plan…">Ir al plan de generación</a>
+            </div>
+        }
+        else
+        {
+            <div class="note">
+                @Iconos.Info
+                <div>
+                    Formato del archivo <span class="pill warn">por definir</span> (pregunta 5 del DAF): CSV en UTF-8 con encabezado y las columnas
+                    <span class="mono">sociedad, cuenta, periodo (aaaa-mm), tercero, ceco, cebe, importe</span> en moneda local. Las cuentas deben estar en el mapeo.
+                    Una carga nueva del mismo periodo reemplaza la anterior.
+                </div>
+            </div>
+
+            @foreach (var s in v.Sociedades)
+            {
+                var soc = s.Sociedad;
+                var p = s.Pendiente;
+                var idArchivo = $"archivo-{soc.Codigo}";
+                <section class="card col" id="soc-@soc.Codigo" aria-labelledby="titulo-@soc.Codigo">
+                    <div class="row entre">
+                        <h2 id="titulo-@soc.Codigo"><span class="mono">@soc.Codigo</span> @soc.Nombre</h2>
+                        @if (p is { Valido: false })
+                        {
+                            <partial name="_Pill" model="@(("err", "Con errores"))" />
+                        }
+                        else if (p is { Valido: true })
+                        {
+                            <partial name="_Pill" model="@(("ok", "Validado · 0 errores"))" />
+                        }
+                        else if (s.Cargada)
+                        {
+                            <partial name="_Pill" model="@(("ok", $"Cargada · {Textos.Cantidad(s.Cargas.Sum(c => c.Filas), "fila", "filas")}"))" />
+                        }
+                        else
+                        {
+                            <partial name="_Pill" model="@(("neu", "Pendiente"))" />
+                        }
+                    </div>
+
+                    @if (s.Cargada)
+                    {
+                        <p class="muted sin-margen">
+                            Cargas confirmadas:
+                            @string.Join(" · ", s.Cargas.Select(c => $"{c.Periodo}: {Textos.Cantidad(c.Filas, "fila", "filas")} de {c.Archivo}, {Formato.Fecha(c.Fecha)} por {c.Usuario}"))
+                        </p>
+                    }
+
+                    <form method="post" asp-page-handler="Subir" enctype="multipart/form-data" class="subida" data-subida>
+                        <input type="hidden" name="sociedad" value="@soc.Codigo">
+                        <label class="zona" for="@idArchivo">
+                            @Iconos.Subir
+                            <span><b>Arrastra el archivo aquí</b> o elige uno</span>
+                            <span class="hint">CSV en UTF-8, hasta 20 MB. Una sociedad por archivo.</span>
+                            <input id="@idArchivo" type="file" name="archivo" accept=".csv,.txt,text/csv" required>
+                        </label>
+                        <div class="row">
+                            <button class="btn btn-s" type="submit">Subir y validar</button>
+                            <a class="lnk-sec" href="@Formato.Ruta(v.Cliente.Id, Pasos.NoSap)?handler=Plantilla&amp;sociedad=@soc.Codigo">Descargar plantilla</a>
+                        </div>
+                        <div class="progreso" hidden>
+                            <label for="prog-@soc.Codigo">Subiendo archivo de @soc.Codigo</label>
+                            <progress id="prog-@soc.Codigo" max="100" value="0">0 %</progress>
+                            <span class="muted" aria-live="polite" data-pct>0 %</span>
+                        </div>
+                    </form>
+
+                    @if (p is not null)
+                    {
+                        <p class="sin-margen"><b>@p.Nombre</b> · @Textos.Cantidad(p.Filas.Count, "fila válida", "filas válidas")
+                            @if (p.Periodos.Count > 0) { <span>· periodo @string.Join(", ", p.Periodos)</span> }
+                            · total @Formato.Importe(p.Total, soc.MonedaLocal)</p>
+
+                        @if (p.TotalErrores > 0)
+                        {
+                            <div class="note e" role="alert">
+                                @Iconos.Error
+                                <div><b>@Textos.Cantidad(p.TotalErrores, "error", "errores") en el archivo.</b> Corrígelo y vuelve a subirlo.@if (p.TotalErrores > p.Errores.Count) { <span> Se muestran los primeros @p.Errores.Count.</span> }</div>
+                            </div>
+                            <div class="tblw">
+                                <table class="tbl cards">
+                                    <caption class="sr">Errores del archivo de @soc.Codigo por fila, columna y motivo</caption>
+                                    <thead><tr><th scope="col">Fila</th><th scope="col">Columna</th><th scope="col">Motivo</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var e in p.Errores)
+                                        {
+                                            <tr><td data-l="Fila" class="mono">@(e.Fila == 0 ? "—" : e.Fila)</td><td data-l="Columna" class="mono">@e.Columna</td><td data-l="Motivo">@e.Motivo</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        @if (p.Filas.Count > 0)
+                        {
+                            <div class="tblw">
+                                <table class="tbl cards">
+                                    <caption class="sr">Vista previa de las primeras filas del archivo de @soc.Codigo</caption>
+                                    <thead><tr>@foreach (var t in LectorArchivoNoSap.Titulos) { <th scope="col" class="@(t == "Importe" ? "num" : null)">@t</th> }</tr></thead>
+                                    <tbody>
+                                        @foreach (var f in p.Filas.Take(NoSapModel.FilasVistaPrevia))
+                                        {
+                                            <tr>
+                                                <td data-l="Sociedad" class="mono">@f.Sociedad</td>
+                                                <td data-l="Cuenta" class="mono">@f.Cuenta</td>
+                                                <td data-l="Periodo" class="mono">@f.Periodo</td>
+                                                <td data-l="Tercero">@(f.Tercero.Length == 0 ? "—" : f.Tercero)</td>
+                                                <td data-l="CeCo" class="mono">@f.CentroCosto</td>
+                                                <td data-l="CeBe" class="mono">@f.CentroBeneficio</td>
+                                                <td data-l="Importe" class="num mono">@Formato.Importe(f.Importe, "")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        <div class="row fin">
+                            <form method="post" asp-page-handler="Descartar">
+                                <input type="hidden" name="sociedad" value="@soc.Codigo">
+                                <button class="btn btn-s" type="submit">Descartar</button>
+                            </form>
+                            <form method="post" asp-page-handler="Confirmar" data-ocupado="Cargando…">
+                                <input type="hidden" name="sociedad" value="@soc.Codigo">
+                                <button class="btn btn-p" type="submit" disabled="@(!p.Valido)" aria-describedby="@(p.Valido ? null : $"bloqueo-{soc.Codigo}")">Confirmar carga</button>
+                            </form>
+                        </div>
+                        @if (!p.Valido)
+                        {
+                            <p class="muted sin-margen" id="bloqueo-@soc.Codigo">Confirmar carga se habilita cuando el archivo no tiene errores.</p>
+                        }
+                    }
+                </section>
+            }
+
+            <form method="post" asp-page-handler="Continuar" class="row fin">
+                @if (!v.TodasCargadas)
+                {
+                    <span class="muted" id="motivo-continuar">Confirma la carga de todas las sociedades no SAP para continuar.</span>
+                }
+                <button class="btn btn-p" type="submit" disabled="@(!v.TodasCargadas)" aria-describedby="@(v.TodasCargadas ? null : "motivo-continuar")" data-carga="Calculando el plan…">Continuar al plan</button>
+            </form>
+        }
+    </main>
+</div>

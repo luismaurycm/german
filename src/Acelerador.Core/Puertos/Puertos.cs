@@ -107,3 +107,12 @@ public interface IColaEjecuciones
 {
     void Encolar(Guid clienteId, Guid ejecucionId);
 }
+
+/// <summary>Cargas confirmadas de sociedades no SAP (HU-25). Solo metadatos; los importes van a BW.</summary>
+public interface ICargaNoSapRepository
+{
+    Task<IReadOnlyList<CargaNoSap>> ListarAsync(Guid clienteId, CancellationToken ct = default);
+
+    /// <summary>Reemplaza las cargas de esa sociedad en esos periodos (una carga nueva del periodo reemplaza la anterior).</summary>
+    Task GuardarAsync(IReadOnlyList<CargaNoSap> cargas, CancellationToken ct = default);
+}

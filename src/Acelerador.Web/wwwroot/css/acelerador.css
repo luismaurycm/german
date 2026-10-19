@@ -200,3 +200,13 @@ dl.row { margin: 0; gap: 4px 8px; } dl.row dt { font-weight: 500; } dl.row dd { 
 .split > .l.tl { flex: 2 1 360px; } .split > .r.col { flex: 3 1 420px; }
 .nota-obj.aviso { color: var(--a-warn); display: flex; gap: 6px; align-items: center; }
 .nota-obj.aviso svg { flex: none; width: 16px; height: 16px; }
+
+/* Sprint 4: UX-07 carga de sociedades no SAP. */
+.subida { display: grid; gap: 10px; }
+.zona { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 16px; border: 2px dashed #9FB3CC; border-radius: 8px; background: var(--a-blue-xl); text-align: center; cursor: pointer; font-size: 14px; }
+.zona.encima { border-color: var(--a-blue); background: var(--a-blue-l); }
+.zona input[type="file"] { font: inherit; font-size: 14px; max-width: 100%; }
+.zona:focus-within { outline: 3px solid var(--a-blue-d); outline-offset: 2px; }
+.progreso { display: grid; gap: 6px; font-size: 14px; }
+.progreso progress { width: 100%; height: 12px; accent-color: var(--a-blue); }
+.lnk-sec { font-size: 14px; }

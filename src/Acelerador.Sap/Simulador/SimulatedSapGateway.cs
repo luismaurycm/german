@@ -35,6 +35,10 @@ public sealed class SimulatedSapGateway : ISapGateway
     private readonly Func<OpcionesSimulador> _opciones;
     private readonly ConcurrentQueue<LlamadaSimulada> _llamadas = new();
     private readonly ConcurrentDictionary<string, ObjetoSimulado> _objetos = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, OperacionSap> _datos = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Cargas de datos (p. ej. archivos no SAP en ZACC_NOSAP) por nombre técnico; una carga nueva reemplaza la anterior.</summary>
+    public IReadOnlyDictionary<string, OperacionSap> Datos => _datos;
 
     /// <summary>Nombres técnicos de la bodega financiera que ya existe cuando BW la tiene (RN-03).</summary>
     public static readonly IReadOnlyList<string> ObjetosBodegaBw75 = ["ZACC_O01", "ZACC_C01", "ZACC_C02"];
@@ -75,6 +79,15 @@ public sealed class SimulatedSapGateway : ISapGateway
             || string.Equals(destino.Parametros.UsuarioTecnico, "RFC_LECTURA", StringComparison.OrdinalIgnoreCase))
         {
             return new ResultadoOperacionSap(false, MensajeSinEscritura(operacion, destino.Sistema));
+        }
+
+        if (operacion.TipoObjeto == "DATOS")
+        {
+            // Una carga de datos no es un objeto: se reemplaza completa (todo o nada) y nunca responde EXISTE.
+            var reemplazo = _datos.ContainsKey(operacion.NombreTecnico);
+            _datos[operacion.NombreTecnico] = operacion;
+            return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico}: datos {(reemplazo ? "reemplazados" : "cargados")}.",
+                reemplazo ? ResultadoEscritura.Modificado : ResultadoEscritura.Creado);
         }
 
         var bodega = o.BodegaExistente || Contiene(destino.Parametros.Host, "bodega");
