@@ -57,6 +57,7 @@ public static class Composicion
         services.AddSingleton<IEjecucionPlanRepository, SqliteEjecucionPlanRepository>();
         services.AddSingleton<ICargaNoSapRepository, SqliteCargaNoSapRepository>();
         services.AddSingleton<CargasPendientes>();
+        services.AddSingleton<IProveedorPlantillas, Acelerador.Infra.Reportes.ProveedorPlantillas>();
         services.AddSingleton(GeneradorPlan.Predeterminado);
         services.AddSingleton<ColaEjecuciones>();
         services.AddSingleton<IColaEjecuciones>(sp => sp.GetRequiredService<ColaEjecuciones>());
@@ -79,6 +80,7 @@ public static class Composicion
         services.AddScoped<ServicioPlan>();
         services.AddScoped<ServicioEjecucion>();
         services.AddScoped<ServicioNoSap>();
+        services.AddScoped<ServicioParticipaciones>();
         return services;
     }
 

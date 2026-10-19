@@ -10,6 +10,7 @@ Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). S
 | 4 | HU-16, HU-18, HU-19, HU-20, HU-25 | Variante BW/4HANA (aDSO, ODP), cadenas full y delta, activos fijos y deterioros en BW, UX-07 Sociedades no SAP |
 | 5 | HU-21, HU-22, HU-23, HU-24, HU-26 | Datos maestros (planes, CeCo y CeBe, monedas y tasas, jerarquía) y modelo de consolidación en BPC |
 | 6 | HU-27, HU-28, HU-29, HU-30, HU-31, HU-36 | Validación de cuadre, importación a BPC, scripts, conversión con diferencia en conversión y eliminación intercompañía |
+| 7 | HU-32, HU-33, HU-34, HU-35 | Modelo de propiedad y plantilla C02, eliminación de inversión e interés minoritario, método de participación, UX-13 Participaciones y métodos |
 
 Coberturas por sprint: `tests/COBERTURA-Sprint-N.md`.
 
@@ -133,6 +134,20 @@ y los scripts generados. Así el simulador tiene datos consolidados para los rep
 `Simulador:AjustesSaldo` («2000:11050501:5000000» descuadra una sociedad), `Simulador:FallaLogica` (nombre técnico de
 una ejecución de lógica que falla). El paisaje de ejemplo cuadra (RN-16) y tiene partidas intercompañía entre 1000, 2000
 y 3000; las tasas COP/USD son 4.000 de cierre, 3.950 promedio y 3.800 histórica.
+
+Propiedad (Sprint 7): `ModeloPropiedad` lee y escribe el modelo `PROPIEDAD` (cuentas PCTRL, PCON, POWN y METHOD por grupo,
+sociedad y periodo). Las participaciones vigentes de un periodo son las del último periodo registrado hasta él (RN-14).
+`MotorConsolidacion.EliminarInversion` elimina la inversión de la matriz contra el patrimonio de las subsidiarias en
+integración global, deja el interés minoritario en `ZACC_IM` y la diferencia en `ZACC_DIF_INV`;
+`AplicarParticipacion` reconoce el % del resultado de las coligadas en `ZACC_RES_PART`. `Consolidado` integra solo
+matriz e integración global. La matriz 1000 tiene inversiones en 2000 (80 %) y 3000 (100 %) en la cuenta 12050501.
+
+## Plantillas EPM
+
+`Acelerador.Infra/Reportes`: `LibroExcel` escribe xlsx con Open XML; `ProveedorPlantillas` genera el contenido de cada
+plantilla que sube el plan (`Z_ACC_BPC_SUBIR_PLANTILLA`, en base64). C02 lleva las fórmulas `EPMRetrieveData` contra el
+modelo de propiedad y una lista de métodos. UX-13 (`/clientes/{id}/participaciones`) lee y escribe el mismo modelo con
+`Z_ACC_BPC_GUARDAR_PARTICIPACIONES`; la auditoría (usuario, fecha, valor anterior y nuevo) la guarda BPC.
 
 ## Sociedades no SAP (UX-07)
 

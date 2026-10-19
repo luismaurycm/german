@@ -212,3 +212,5 @@ dl.row { margin: 0; gap: 4px 8px; } dl.row dt { font-weight: 500; } dl.row dd { 
 .lnk-sec { font-size: 14px; }
 .detalles { margin: 4px 0 0; padding-left: 18px; font-size: 13px; color: var(--a-muted); }
 .tl-i .note.w { margin-top: 8px; }
+.a-nav h2.nav-sub { margin: 14px 8px 4px; }
+.celda-epm:not([aria-invalid="true"]) { background: #FFF4C2; }

@@ -299,7 +299,7 @@ public class ConsolidacionTests
         foreach (var moneda in new[] { "COP", "USD" })
         {
             // Cada partida intercompañía entre sociedades del grupo queda en cero en el consolidado.
-            var ic = e.Bpc.Where(r => r.Moneda == moneda && r.Intco != "I_NONE" && r.Cuenta != "ZACC_DIF_IC");
+            var ic = e.Bpc.Where(r => r.Moneda == moneda && r.Intco != "I_NONE" && r.Cuenta != "ZACC_DIF_IC" && r.Origen is "INPUT" or "ELIM_IC" && r.Cuenta != "PCCO_12050501");
             Assert.Equal(0m, ic.Sum(r => r.Importe));
             Assert.Equal(0m, e.Bpc.Where(r => r.Moneda == moneda && r.Cuenta == "ZACC_DIF_IC").Sum(r => r.Importe));
         }

@@ -50,6 +50,8 @@ public static class Formato
 
     public static string Registro(Guid clienteId) => $"/clientes/{clienteId}/registro";
 
+    public static string Participaciones(Guid clienteId) => $"/clientes/{clienteId}/participaciones";
+
     /// <summary>Texto del estado de carga al abrir un paso que lee del sistema del cliente.</summary>
     public static string? Carga(string paso) => paso switch
     {

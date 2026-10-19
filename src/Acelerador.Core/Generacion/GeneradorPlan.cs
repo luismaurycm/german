@@ -18,6 +18,7 @@ public sealed class GeneradorPlan(IReadOnlyList<IGeneradorObjetos> generadores, 
         new GeneradorNoSap(),
         new GeneradorDatosMaestros(),
         new GeneradorModeloBpc(),
+        new GeneradorPropiedad(),
         new GeneradorScripts(),
         new GeneradorConsolidacion(),
     ];

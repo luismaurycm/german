@@ -64,8 +64,9 @@ public sealed class Entorno : IAsyncDisposable
         Cargas = new SqliteCargaNoSapRepository(Base);
         Pendientes = new CargasPendientes(Reloj);
         ServicioPlan = new ServicioPlan(Clientes, Inventarios, Sociedades, Mapeos, Ejecuciones, Cargas, GeneradorPlan.Predeterminado, Reloj);
+        ServicioParticipaciones = new ServicioParticipaciones(Clientes, Sociedades, Acceso, Sap, Registro, Usuario, Reloj);
         ServicioNoSap = new ServicioNoSap(Clientes, Sociedades, Mapeos, Cargas, Pendientes, Acceso, Sap, Registro, Usuario, Reloj);
-        ServicioEjecucion = new ServicioEjecucion(Clientes, Ejecuciones, ServicioPlan, Acceso, Sap, Registro, Cola, Usuario, Reloj);
+        ServicioEjecucion = new ServicioEjecucion(Clientes, Ejecuciones, ServicioPlan, Acceso, Sap, Registro, Cola, Usuario, Reloj, plantillas: new Acelerador.Infra.Reportes.ProveedorPlantillas());
     }
 
     public SqliteEjecucionPlanRepository Ejecuciones { get; }
@@ -75,6 +76,8 @@ public sealed class Entorno : IAsyncDisposable
     public CargasPendientes Pendientes { get; }
 
     public ServicioNoSap ServicioNoSap { get; }
+
+    public ServicioParticipaciones ServicioParticipaciones { get; }
 
     public ColaManual Cola { get; } = new();
 
@@ -217,6 +220,7 @@ public sealed class Entorno : IAsyncDisposable
         ["Obligaciones financieras"] = "F-00-202",
         ["Obligaciones laborales"] = "F-00-203",
         ["Patrimonio"] = "F-00-301",
+        ["Inversiones"] = "F-00-107",
         ["Ingresos operacionales"] = "F-00-401",
         ["Gastos de administración"] = "F-00-501",
         ["Gastos de ventas"] = "F-00-502",
@@ -245,7 +249,7 @@ public sealed class Entorno : IAsyncDisposable
     }
 
     /// <summary>Registros del modelo de consolidación en el simulador.</summary>
-    public IReadOnlyList<RegistroBpc> Bpc => Sap.Almacen.Registros;
+    public IReadOnlyList<RegistroBpc> Bpc => Sap.Almacen.Registros.Where(r => r.Modelo == Acelerador.Core.Generacion.GeneradorModeloBpc.Modelo).ToList();
 
     /// <summary>Genera y ejecuta lo que haya en la cola (lo que en la aplicación hace la cola en segundo plano).</summary>
     public async Task<EjecucionPlan> GenerarAsync(Guid clienteId)

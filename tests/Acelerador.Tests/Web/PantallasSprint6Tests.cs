@@ -12,13 +12,13 @@ namespace Acelerador.Tests.Web;
 [Collection("Web")]
 public class PantallasSprint6Tests
 {
-    private static readonly Dictionary<string, string?> Nada = [];
+    internal static readonly Dictionary<string, string?> Nada = [];
 
-    private static FabricaWeb App() => new(PerfilSimulado.ABw75,
+    internal static FabricaWeb App() => new(PerfilSimulado.ABw75,
         s => s.Replace(ServiceDescriptor.Singleton<TimeProvider>(new RelojFijo(new DateTimeOffset(2026, 10, 16, 15, 0, 0, TimeSpan.Zero)))));
 
     /// <summary>Hasta UX-08 con todas las cuentas mapeadas (el mapeo completo se escribe directo en la base, como lo dejaría UX-06).</summary>
-    private static async Task<string> LlegarAPlanCompletoAsync(FabricaWeb app, Navegador nav)
+    internal static async Task<string> LlegarAPlanCompletoAsync(FabricaWeb app, Navegador nav)
     {
         var cliente = await LlegarAMapeoAsync(nav, Entorno.FilasPrototipo().Take(3));
         var id = Guid.Parse(cliente.Split('/')[^1]);
@@ -37,7 +37,7 @@ public class PantallasSprint6Tests
         return cliente;
     }
 
-    private static async Task GenerarAsync(Navegador nav, string cliente)
+    internal static async Task GenerarAsync(Navegador nav, string cliente)
     {
         await nav.GetAsync($"{cliente}/plan?confirmar=true");
         await nav.PostAsync($"{cliente}/plan?handler=Generar", Nada);

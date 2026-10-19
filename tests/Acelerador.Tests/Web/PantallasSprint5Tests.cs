@@ -74,7 +74,7 @@ public class PantallasSprint5Tests
 
         Assert.Contains("Generación completa.", nav.Texto, StringComparison.Ordinal);
         Assert.Matches(@"\d+\. Planes de cuentas", nav.Texto);
-        Assert.Contains("PCCO: 25 cuentas cargadas.", nav.Texto, StringComparison.Ordinal);
+        Assert.Contains($"PCCO: {Acelerador.Sap.Simulador.SimulatedSapGateway.Cuentas.Count(c => c.Plan == "PCCO")} cuentas cargadas.", nav.Texto, StringComparison.Ordinal);
         Assert.Contains("1000: 12 centros de costo y 5 centros de beneficio cargados.", nav.Texto, StringComparison.Ordinal);
         Assert.Matches(@"PCCO: \d+ nodos cargados\.", nav.Texto);
         Assert.Contains("COP/USD: 27 tasas cargadas", nav.Texto, StringComparison.Ordinal);

@@ -23,8 +23,96 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
             "IMPORTAR" => Importar(d, almacen),
             "CONVERSION" => Convertir(d, almacen),
             "ELIMINACION_IC" => EliminarIntercompania(d, almacen),
+            "PARTICIPACIONES" => GuardarParticipaciones(d, almacen),
+            "INVERSION" => EliminarInversion(d, almacen),
+            "PARTICIPACION" => AplicarParticipacion(d, almacen),
             _ => null,
         };
+    }
+
+    /// <summary>
+    /// Guardar datos de C02 en el modelo de propiedad (RF-31): reemplaza las participaciones de esas sociedades en el periodo
+    /// y audita cada valor que cambia con usuario, fecha, valor anterior y nuevo (RNF-Aud-02).
+    /// </summary>
+    private static ResultadoOperacionSap GuardarParticipaciones(JsonElement d, IAlmacenSimulado almacen)
+    {
+        var grupo = d.GetProperty("grupo").GetString()!;
+        var periodo = MotorConsolidacion.PeriodoBpc(d.GetProperty("periodo").GetString()!);
+        var usuario = d.GetProperty("usuario").GetString()!;
+        var fecha = d.GetProperty("fecha").GetDateTimeOffset();
+        var nuevas = d.GetProperty("filas").EnumerateArray().Select(f => new Participacion(
+            f.GetProperty("sociedad").GetString()!, f.GetProperty("control").GetDecimal(), f.GetProperty("consolidacion").GetDecimal(),
+            f.GetProperty("propiedad").GetDecimal(), Enum.Parse<MetodoConsolidacion>(f.GetProperty("metodo").GetString()!))).ToList();
+
+        var antes = ModeloPropiedad.DelPeriodo(almacen.Registros, grupo, periodo);
+        if (antes.Count == 0)
+        {
+            antes = ModeloPropiedad.Vigentes(almacen.Registros, grupo, periodo).Participaciones;
+        }
+
+        var cambios = new List<AuditoriaBpc>();
+        foreach (var n in nuevas)
+        {
+            var a = antes.FirstOrDefault(x => x.Sociedad == n.Sociedad);
+            void Cambio(string dato, string? anterior, string nuevo)
+            {
+                if (anterior != nuevo)
+                {
+                    cambios.Add(new AuditoriaBpc(fecha, usuario, ModeloPropiedad.Modelo, n.Sociedad, periodo, dato, anterior ?? "—", nuevo));
+                }
+            }
+
+            Cambio(ModeloPropiedad.Control, a?.Control.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), n.Control.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            Cambio(ModeloPropiedad.Consolidacion, a?.Consolidacion.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), n.Consolidacion.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            Cambio(ModeloPropiedad.Propiedad, a?.Propiedad.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), n.Propiedad.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture));
+            Cambio(ModeloPropiedad.Metodo, a?.Metodo.ToString(), n.Metodo.ToString());
+        }
+
+        var sociedades = nuevas.Select(n => n.Sociedad).ToHashSet();
+        almacen.Reemplazar(r => r.Modelo == ModeloPropiedad.Modelo && r.Grupo == grupo && r.Periodo == periodo && sociedades.Contains(r.Entidad),
+            ModeloPropiedad.Registros(grupo, periodo, nuevas));
+        almacen.Auditar(cambios);
+        return new ResultadoOperacionSap(true, $"Participaciones de {nuevas.Count} sociedades guardadas en {periodo}; {cambios.Count} cambios auditados.",
+            ResultadoEscritura.Creado, Cantidad: nuevas.Count);
+    }
+
+    private static (string Grupo, string Periodo, IReadOnlyList<Participacion> Vigentes, IReadOnlyDictionary<string, ClaseCuenta> Clases, IReadOnlyList<RegistroBpc> Base) Contexto(JsonElement d, IAlmacenSimulado almacen)
+    {
+        var grupo = d.GetProperty("grupo").GetString()!;
+        var periodo = MotorConsolidacion.PeriodoBpc(d.GetProperty("periodo").GetString()!);
+        var vigentes = ModeloPropiedad.Vigentes(almacen.Registros, grupo, periodo).Participaciones;
+        var clases = d.GetProperty("clases").EnumerateObject().ToDictionary(p => p.Name, p => Enum.Parse<ClaseCuenta>(p.Value.GetString()!));
+        var base_ = almacen.Registros.Where(r => r.Modelo == MotorConsolidacion.Modelo && r.Periodo == periodo && r.Moneda != MotorConsolidacion.MonedaLocal && r.Grupo.Length == 0).ToList();
+        return (grupo, periodo, vigentes, clases, base_);
+    }
+
+    private static ResultadoOperacionSap EliminarInversion(JsonElement d, IAlmacenSimulado almacen)
+    {
+        var (grupo, periodo, vigentes, clases, base_) = Contexto(d, almacen);
+        if (vigentes.Count == 0)
+        {
+            return new ResultadoOperacionSap(false, $"No hay participaciones en el modelo de propiedad para {grupo} en {periodo} (C02).");
+        }
+
+        var inversiones = d.GetProperty("cuentasInversion").EnumerateArray().Select(x => x.GetString()!).ToHashSet();
+        var registros = MotorConsolidacion.EliminarInversion(base_, vigentes, d.GetProperty("matriz").GetString()!, inversiones, clases, grupo);
+        almacen.Reemplazar(r => r.Periodo == periodo && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenEliminacionInversion, registros);
+        var subsidiarias = vigentes.Where(p => p.Metodo == MetodoConsolidacion.IntegracionGlobal).Select(p => $"{p.Sociedad} ({p.Propiedad:0.##} %)");
+        var im = registros.Where(r => r.Cuenta == ReglasRubros.CuentaInteresMinoritario.Id).GroupBy(r => r.Moneda).Select(g => $"{g.Key} {ReglaCuadre.Formato(g.Sum(r => r.Importe))}");
+        return new ResultadoOperacionSap(true,
+            $"Inversión eliminada en {string.Join(", ", subsidiarias)}; interés minoritario en {ReglasRubros.CuentaInteresMinoritario.Id}: {string.Join(" · ", im)}.",
+            ResultadoEscritura.Creado, Cantidad: registros.Count);
+    }
+
+    private static ResultadoOperacionSap AplicarParticipacion(JsonElement d, IAlmacenSimulado almacen)
+    {
+        var (grupo, periodo, vigentes, clases, base_) = Contexto(d, almacen);
+        var registros = MotorConsolidacion.AplicarParticipacion(base_, vigentes, d.GetProperty("matriz").GetString()!, d.GetProperty("cuentaInversion").GetString()!, clases, grupo);
+        almacen.Reemplazar(r => r.Periodo == periodo && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenParticipacion, registros);
+        var coligadas = vigentes.Where(p => p.Metodo == MetodoConsolidacion.Participacion).Select(p => $"{p.Sociedad} ({p.Propiedad:0.##} %)").ToList();
+        return new ResultadoOperacionSap(true,
+            coligadas.Count == 0 ? "No hay coligadas con método participación en el periodo." : $"Participación en el resultado reconocida de {string.Join(", ", coligadas)}.",
+            ResultadoEscritura.Creado, Cantidad: registros.Count);
     }
 
     private static IReadOnlyList<SaldoErp> Datos(JsonElement d, IAlmacenSimulado almacen)
@@ -108,10 +196,15 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
     {
         var periodoBpc = MotorConsolidacion.PeriodoBpc(d.GetProperty("periodo").GetString()!);
         var grupo = d.GetProperty("grupo").GetString()!;
-        var metodos = d.GetProperty("metodos").EnumerateObject().ToDictionary(p => p.Name, p => Enum.Parse<MetodoConsolidacion>(p.Value.GetString()!));
+        // RN-13 y RN-14: los métodos vigentes del periodo en el modelo de propiedad; sin modelo, los de la estructura inicial.
+        var (_, vigentes) = ModeloPropiedad.Vigentes(almacen.Registros, grupo, periodoBpc);
+        var metodos = vigentes.Count > 0
+            ? vigentes.ToDictionary(p => p.Sociedad, p => p.Metodo)
+            : d.GetProperty("metodos").EnumerateObject().ToDictionary(p => p.Name, p => Enum.Parse<MetodoConsolidacion>(p.Value.GetString()!));
         var presentacion = d.GetProperty("presentacion").EnumerateArray().Select(x => x.GetString()!).ToList();
-        var base_ = almacen.Registros.Where(r => r.Periodo == periodoBpc && presentacion.Contains(r.Moneda) && r.Grupo.Length == 0).ToList();
-        var eliminaciones = MotorConsolidacion.EliminarIntercompania(base_, metodos, grupo);
+        var base_ = almacen.Registros.Where(r => r.Modelo == MotorConsolidacion.Modelo && r.Periodo == periodoBpc && presentacion.Contains(r.Moneda) && r.Grupo.Length == 0).ToList();
+        var excluir = d.TryGetProperty("excluir", out var x) ? x.EnumerateArray().Select(e => e.GetString()!).ToHashSet() : null;
+        var eliminaciones = MotorConsolidacion.EliminarIntercompania(base_, metodos, grupo, excluir);
         almacen.Reemplazar(r => r.Periodo == periodoBpc && r.Grupo == grupo && r.Origen == MotorConsolidacion.OrigenEliminacionIc, eliminaciones);
         var parejas = eliminaciones.Where(r => r.Cuenta != ReglasRubros.CuentaDiferenciaIntercompania.Id).Select(r => r.Entidad + "–" + r.Intco[2..]).Distinct().Count();
         return new ResultadoOperacionSap(true, $"Eliminaciones intercompañía de {grupo}: {eliminaciones.Count} registros en {parejas} partidas entre sociedades del grupo.",
