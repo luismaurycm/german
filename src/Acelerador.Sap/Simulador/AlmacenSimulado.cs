@@ -12,6 +12,9 @@ public interface IAlmacenSimulado
 
     IReadOnlyList<SaldoErp> DatosNoSap(string sociedad, string periodo);
 
+    /// <summary>Presupuesto y ejecución del ERP por cuenta, centro y mes (0FI_GL_14 en BW) para el modelo de planeación.</summary>
+    IReadOnlyList<SaldoPlan> PlanErp(string sociedad, int anio);
+
     /// <summary>Tasa de la moneda frente al dólar (unidades de moneda por dólar) para el tipo y periodo, o null si falta.</summary>
     decimal? Tasa(string moneda, string tipo, string periodo);
 
@@ -132,6 +135,8 @@ internal sealed class AlmacenSimulado(Func<OpcionesSimulador> opciones, Func<IRe
     }
 
     public IReadOnlyList<SaldoErp> SaldosErp(string sociedad) => SimulatedSapGateway.SaldosErp(sociedad, opciones());
+
+    public IReadOnlyList<SaldoPlan> PlanErp(string sociedad, int anio) => SimulatedSapGateway.PlanErp(sociedad, anio, opciones());
 
     public IReadOnlyList<SaldoErp> DatosNoSap(string sociedad, string periodo)
     {

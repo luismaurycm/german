@@ -264,4 +264,38 @@
       if (e.target.matches('[data-debito], [data-credito]')) recalcular();
     });
   });
+
+  // HU-50 (UX-12): totales por fila, por mes y general de P05 al escribir; una celda que no es número se marca en rojo.
+  document.querySelectorAll('form[data-presupuesto]').forEach(function (form) {
+    function leer(texto) {
+      var t = (texto || '').replace(/[\s$]/g, '').replace('\u2212', '-');
+      if (!t) return 0;
+      var negativo = t.charAt(0) === '-';
+      if (negativo) t = t.slice(1);
+      if (t.indexOf(',') >= 0 || /^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '').replace(',', '.');
+      if (!/^\d+(\.\d+)?$/.test(t)) return NaN;
+      return (negativo ? -1 : 1) * Number(t);
+    }
+    function formato(v) { return v.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function recalcular() {
+      var porMes = {}, general = 0;
+      form.querySelectorAll('tbody tr').forEach(function (fila) {
+        var total = 0, peso = Number(fila.getAttribute('data-peso') || 1);
+        fila.querySelectorAll('input[data-mes]').forEach(function (c) {
+          var v = leer(c.value);
+          c.setAttribute('aria-invalid', isNaN(v) ? 'true' : 'false');
+          if (isNaN(v)) return;
+          total += v;
+          porMes[c.dataset.mes] = (porMes[c.dataset.mes] || 0) + peso * v;
+        });
+        var celda = fila.querySelector('[data-total-fila]');
+        if (celda) celda.textContent = formato(total);
+        general += peso * total;
+      });
+      form.querySelectorAll('[data-total-mes]').forEach(function (c) { c.textContent = formato(porMes[c.getAttribute('data-total-mes')] || 0); });
+      var g = form.querySelector('[data-total-general]');
+      if (g) g.textContent = formato(general);
+    }
+    form.addEventListener('input', function (e) { if (e.target.matches('input[data-mes]')) recalcular(); });
+  });
 })();

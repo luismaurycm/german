@@ -93,18 +93,22 @@ public sealed class GeneradorCadenas : IGeneradorObjetos
 }
 
 /// <summary>Un módulo que se queda en BW (RN-12): extractores, InfoProviders, cargas y cadenas, sin modelo en BPC.</summary>
-public abstract class GeneradorModuloBw(Modulo modulo, string paso, string grupo, string prefijo, IReadOnlyList<(string Nombre, string Descripcion)> extractores, string descripcionDatos)
+public abstract class GeneradorModuloBw(Modulo modulo, string paso, string grupo, string prefijo, IReadOnlyList<(string Nombre, string Descripcion)> extractores, string descripcionDatos,
+    string nota = "Se queda en BW; no crea modelo en BPC. RN-12")
     : IGeneradorObjetos
 {
     public string Prefijo => prefijo;
 
+    /// <summary>ZACC_{prefijo}_D01 (aDSO) o ZACC_{prefijo}_C01 (InfoCubo), según la variante.</summary>
+    public string InfoProvider(ContextoPlan c) => $"ZACC_{prefijo}_{(c.Variante.InfoProvider == TipoInfoProvider.Adso ? "D" : "C")}01";
+
     public bool Aplica(ContextoPlan c) => c.Cliente.Modulos.Contains(modulo);
 
-    public IEnumerable<ObjetoPlan> Generar(ContextoPlan c)
+    public virtual IEnumerable<ObjetoPlan> Generar(ContextoPlan c)
     {
         var adso = c.Variante.InfoProvider == TipoInfoProvider.Adso;
         var tipo = ReglasBw.TipoInfoProvider(c.Variante);
-        var provider = $"ZACC_{prefijo}_{(adso ? "D" : "C")}01";
+        var provider = InfoProvider(c);
         var dtps = new List<string>();
         foreach (var (extractor, descripcion) in extractores)
         {
@@ -118,7 +122,7 @@ public abstract class GeneradorModuloBw(Modulo modulo, string paso, string grupo
 
         yield return ReglasBw.Objeto(paso, grupo, SistemaSap.Bw, tipo, provider, descripcionDatos,
             ReglasBw.ExisteInfoProvider(c.Inventario, provider) ? EstadoObjeto.Existente : EstadoObjeto.Nuevo, FuncionesZ.CrearObjeto,
-            new { tipo = adso ? "ADSO" : "INFOCUBO", nombre = provider, modulo = modulo.ToString(), activar = true }, "Se queda en BW; no crea modelo en BPC. RN-12");
+            new { tipo = adso ? "ADSO" : "INFOCUBO", nombre = provider, modulo = modulo.ToString(), activar = true }, nota);
 
         foreach (var dtp in dtps)
         {

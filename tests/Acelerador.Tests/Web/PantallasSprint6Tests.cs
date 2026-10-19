@@ -18,9 +18,9 @@ public class PantallasSprint6Tests
         s => s.Replace(ServiceDescriptor.Singleton<TimeProvider>(new RelojFijo(new DateTimeOffset(2026, 10, 16, 15, 0, 0, TimeSpan.Zero)))));
 
     /// <summary>Hasta UX-08 con todas las cuentas mapeadas (el mapeo completo se escribe directo en la base, como lo dejaría UX-06).</summary>
-    internal static async Task<string> LlegarAPlanCompletoAsync(FabricaWeb app, Navegador nav)
+    internal static async Task<string> LlegarAPlanCompletoAsync(FabricaWeb app, Navegador nav, IReadOnlyList<Acelerador.Core.Dominio.Modulo>? modulos = null)
     {
-        var cliente = await LlegarAMapeoAsync(nav, Entorno.FilasPrototipo().Take(3));
+        var cliente = await LlegarAMapeoAsync(nav, Entorno.FilasPrototipo().Take(3), modulos);
         var id = Guid.Parse(cliente.Split('/')[^1]);
         var mapeo = app.Services.GetRequiredService<IMapeoRepository>();
         foreach (var plan in new[] { "PCCO", "PCPA" })

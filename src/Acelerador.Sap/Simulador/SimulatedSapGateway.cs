@@ -154,7 +154,7 @@ public sealed partial class SimulatedSapGateway : ISapGateway
             return CargarMaestro(o, operacion);
         }
 
-        if (operacion.TipoObjeto is "VALIDACION" or "IMPORTACION" or "LOGICA" or "PARTICIPACIONES" or "ASIENTO" or "BLOQUEO")
+        if (operacion.TipoObjeto is "VALIDACION" or "IMPORTACION" or "LOGICA" or "PARTICIPACIONES" or "ASIENTO" or "BLOQUEO" or "PRESUPUESTO")
         {
             if (o.FallaLogica.Contains(operacion.NombreTecnico, StringComparer.OrdinalIgnoreCase))
             {
@@ -445,6 +445,12 @@ public sealed partial class SimulatedSapGateway : ISapGateway
 
             case "MONEDAS":
                 return new ResultadoOperacionSap(true, $"{sociedades.Count} monedas locales cargadas desde T001.", ResultadoEscritura.Creado, Cantidad: sociedades.Count);
+
+            case "MIEMBROS_BW":
+            {
+                var cantidad = sociedades.Sum(x => Centros.GetValueOrDefault(x, (0, 0)) is var (cc, pc) ? cc + pc : 0);
+                return new ResultadoOperacionSap(true, $"{cantidad} centros cargados como miembros de {Texto("dimension")}.", ResultadoEscritura.Creado, Cantidad: cantidad);
+            }
 
             default:
                 return new ResultadoOperacionSap(true, $"{op.NombreTecnico} cargado.", ResultadoEscritura.Creado);

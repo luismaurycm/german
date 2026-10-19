@@ -72,6 +72,7 @@ public sealed class Entorno : IAsyncDisposable
         ServicioEjecucion = new ServicioEjecucion(Clientes, Ejecuciones, ServicioPlan, Acceso, Sap, Registro, Cola, Usuario, Reloj, plantillas: new Acelerador.Infra.Reportes.ProveedorPlantillas());
         Reportes = new SqliteReporteRepository(Base);
         ServicioCierre = new ServicioCierre(ContextoCierre, ServicioControles, Ejecuciones, Reportes, Acceso, Sap, Registro, Usuario, Reloj);
+        ServicioPresupuesto = new ServicioPresupuesto(ContextoCierre, Acceso, Sap, Registro, Usuario, Reloj);
         ServicioReportes = new ServicioReportes(ContextoCierre, Reportes, Acceso, Sap, new Acelerador.Infra.Reportes.ProveedorPlantillas(), Registro, Usuario, Reloj);
     }
 
@@ -96,6 +97,8 @@ public sealed class Entorno : IAsyncDisposable
     public SqliteReporteRepository Reportes { get; }
 
     public ServicioReportes ServicioReportes { get; }
+
+    public ServicioPresupuesto ServicioPresupuesto { get; }
 
     public ColaManual Cola { get; } = new();
 
@@ -210,7 +213,7 @@ public sealed class Entorno : IAsyncDisposable
     }
 
     /// <summary>Lleva un cliente hasta el plan: mapea dos cuentas de cada plan y continúa (sin sociedades no SAP por defecto).</summary>
-    public async Task<Cliente> ClienteEnPlanAsync(IReadOnlyList<string>? camposZ = null, List<FilaSociedad>? filas = null)
+    public async Task<Cliente> ClienteEnPlanAsync(IReadOnlyList<string>? camposZ = null, List<FilaSociedad>? filas = null, IReadOnlyList<Modulo>? modulos = null)
     {
         var c = await ClienteEnModulosAsync();
         if (camposZ is not null)
@@ -218,7 +221,7 @@ public sealed class Entorno : IAsyncDisposable
             await ServicioDiagnostico.GuardarCamposZAsync(c.Id, camposZ, continuar: false);
         }
 
-        await ServicioModulos.GuardarAsync(c.Id, [Modulo.Consolidacion], continuar: true);
+        await ServicioModulos.GuardarAsync(c.Id, modulos ?? [Modulo.Consolidacion], continuar: true);
         var r = await ServicioSociedades.GuardarAsync(c.Id, filas ?? FilasPrototipo().Take(3).ToList(), continuar: true);
         Assert.True(r.Guardado, string.Join(" ", r.Errores.Select(x => x.Mensaje)));
         await ServicioMapeo.AsignarAsync(c.Id, "1000", "F-00-101", ["11050501", "11100501"]);
@@ -259,9 +262,9 @@ public sealed class Entorno : IAsyncDisposable
     }
 
     /// <summary>Lleva un cliente hasta el plan con todas las cuentas mapeadas, listo para consolidar.</summary>
-    public async Task<Cliente> ClienteListoParaConsolidarAsync(List<FilaSociedad>? filas = null)
+    public async Task<Cliente> ClienteListoParaConsolidarAsync(List<FilaSociedad>? filas = null, IReadOnlyList<Modulo>? modulos = null)
     {
-        var c = await ClienteEnPlanAsync(filas: filas);
+        var c = await ClienteEnPlanAsync(filas: filas, modulos: modulos);
         await MapearTodoAsync(c.Id);
         return c;
     }

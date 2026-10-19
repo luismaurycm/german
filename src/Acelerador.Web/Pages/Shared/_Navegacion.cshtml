@@ -49,6 +49,12 @@
         <a class="step" href="@Formato.Cierre(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "C04" ? "page" : null)" data-carga="Consultando el estado del cierre…">
             <span class="t">C04 Estado del cierre</span>
         </a>
+        @if (Model.Cliente.Modulos.Contains(Modulo.Presupuesto))
+        {
+            <a class="step" href="@Formato.Presupuesto(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "P05" ? "page" : null)" data-carga="Consultando el modelo de planeación…">
+                <span class="t">P05 Captura de presupuesto</span>
+            </a>
+        }
         <a class="step" href="@Formato.Asientos(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "asientos" ? "page" : null)" data-carga="Consultando los asientos del periodo…">
             <span class="t">Asientos de ajuste</span>
         </a>

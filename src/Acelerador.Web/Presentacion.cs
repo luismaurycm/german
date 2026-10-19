@@ -65,10 +65,14 @@ public static class Formato
         Acelerador.Core.Reportes.VistaReporte.Ux13 => Participaciones(clienteId),
         Acelerador.Core.Reportes.VistaReporte.Ux15 => Cierre(clienteId),
         Acelerador.Core.Reportes.VistaReporte.Ux14 => Asientos(clienteId),
+        Acelerador.Core.Reportes.VistaReporte.Ux12 => Presupuesto(clienteId),
         _ => Reporte(clienteId, r.Id),
     };
 
     public static string Asientos(Guid clienteId) => $"/clientes/{clienteId}/asientos";
+
+    /// <summary>UX-12 Captura de presupuesto (P05).</summary>
+    public static string Presupuesto(Guid clienteId) => $"/clientes/{clienteId}/presupuesto";
 
     /// <summary>Hoja o pantalla que explica la causa de un paso de C04 con error.</summary>
     public static string Causa(Guid clienteId, string causa, string periodo) => causa == ReglasCierreMensual.Ejecucion

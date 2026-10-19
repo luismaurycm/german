@@ -64,4 +64,7 @@ public sealed class NcoSapGateway : ISapGateway
     /// <summary>Z_ACC_BPC_LEER sobre el modelo (RSDRI / UJQ, por confirmar en HU-01) con los filtros de la consulta.</summary>
     public Task<ResultadoConsultaBpc> ConsultarBpcAsync(DestinoSap bpc, ConsultaBpc consulta, CancellationToken ct = default) =>
         Task.FromResult(new ResultadoConsultaBpc(false, MensajePendiente, [], []));
+
+    public Task<ResultadoConsultaBw> ConsultarBwAsync(DestinoSap bw, ConsultaBw consulta, CancellationToken ct = default) =>
+        Task.FromResult(new ResultadoConsultaBw(false, MensajePendiente, []));
 }

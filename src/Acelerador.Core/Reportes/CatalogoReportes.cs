@@ -16,6 +16,7 @@ public enum VistaReporte
     Ux13,
     Ux15,
     Ux14,
+    Ux12,
 }
 
 /// <summary>
@@ -29,6 +30,15 @@ public sealed record DefinicionReporte(string Id, string Nombre, Modulo Modulo, 
 
     /// <summary>Reportes con la estructura común de rubros de UX-11 (parámetros sociedad, filiales, moneda y periodo).</summary>
     public bool EsEstadoFinanciero => Id[0] == 'R';
+
+    /// <summary>P01 a P04: modelo de planeación (sociedad, versión y año).</summary>
+    public bool EsPresupuesto => Id[0] == 'P' && Id != "P05";
+
+    /// <summary>A01 a A03 y D01, D02: leen BW (sociedad y periodo, RN-12).</summary>
+    public bool EsBw => Fuente == FuenteReporte.Bw;
+
+    /// <summary>Se ve en UX-11 con parámetros y cuerpo calculado.</summary>
+    public bool EnUx11 => Vista == VistaReporte.Ux11 && Id[0] is 'R' or 'P' or 'A' or 'D';
 }
 
 /// <summary>Resultado de generar un reporte del catálogo (HU-48 CA4): generado, o con error y su causa.</summary>
@@ -49,29 +59,29 @@ public static class CatalogoReportes
         R("R05", "Hoja de eliminaciones intercompañía", "1", true),
         R("R06", "Saldos y transacciones con partes relacionadas", "2", true),
         R("R07", "Efectivo y equivalentes de efectivo", "1", true),
-        R("R08", "Cuentas por cobrar", "3"),
-        R("R09", "Carteras colectivas", "3"),
-        R("R10", "Propiedad, planta y equipo", "3"),
-        R("R11", "Intangibles", "3"),
-        R("R12", "Cuentas por pagar", "3"),
-        R("R13", "Obligaciones financieras", "3"),
-        R("R14", "Beneficios a empleados", "3"),
-        R("R15", "Provisiones y contingencias", "3"),
-        R("R16", "Impuesto a las ganancias", "3"),
-        R("R17", "Dividendos pagados", "3"),
-        R("R18", "Dividendos recibidos", "3"),
-        R("R19", "Ingresos de actividades ordinarias", "3"),
-        R("R20", "Informe a junta directiva", "3"),
-        new("P01", "Presupuesto frente a ejecución", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, false),
-        new("P02", "Presupuesto de gastos por centro de costo", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, false),
-        new("P03", "Presupuesto de ingresos por centro de beneficio", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, false),
-        new("P04", "Ejecución acumulada y proyección de cierre", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, false),
-        new("P05", "Formulario de captura de presupuesto", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, false),
-        new("A01", "Movimiento de activos fijos por clase", Modulo.ActivosFijos, FuenteReporte.Bw, null, VistaReporte.Ux11, false),
-        new("A02", "Depreciación del periodo", Modulo.ActivosFijos, FuenteReporte.Bw, null, VistaReporte.Ux11, false),
-        new("A03", "Listado de activos fijos por sociedad", Modulo.ActivosFijos, FuenteReporte.Bw, null, VistaReporte.Ux11, false),
-        new("D01", "Movimiento del deterioro", Modulo.Deterioros, FuenteReporte.Bw, null, VistaReporte.Ux11, false),
-        new("D02", "Deterioro por cuenta y sociedad", Modulo.Deterioros, FuenteReporte.Bw, null, VistaReporte.Ux11, false),
+        R("R08", "Cuentas por cobrar", "3", true),
+        R("R09", "Carteras colectivas", "3", true),
+        R("R10", "Propiedad, planta y equipo", "3", true),
+        R("R11", "Intangibles", "3", true),
+        R("R12", "Cuentas por pagar", "3", true),
+        R("R13", "Obligaciones financieras", "3", true),
+        R("R14", "Beneficios a empleados", "3", true),
+        R("R15", "Provisiones y contingencias", "3", true),
+        R("R16", "Impuesto a las ganancias", "3", true),
+        R("R17", "Dividendos pagados", "3", true),
+        R("R18", "Dividendos recibidos", "3", true),
+        R("R19", "Ingresos de actividades ordinarias", "3", true),
+        R("R20", "Informe a junta directiva", "3", true),
+        new("P01", "Presupuesto frente a ejecución", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, true),
+        new("P02", "Presupuesto de gastos por centro de costo", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, true),
+        new("P03", "Presupuesto de ingresos por centro de beneficio", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, true),
+        new("P04", "Ejecución acumulada y proyección de cierre", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux11, true),
+        new("P05", "Formulario de captura de presupuesto", Modulo.Presupuesto, FuenteReporte.Bpc, null, VistaReporte.Ux12, true),
+        new("A01", "Movimiento de activos fijos por clase", Modulo.ActivosFijos, FuenteReporte.Bw, null, VistaReporte.Ux11, true),
+        new("A02", "Depreciación del periodo", Modulo.ActivosFijos, FuenteReporte.Bw, null, VistaReporte.Ux11, true),
+        new("A03", "Listado de activos fijos por sociedad", Modulo.ActivosFijos, FuenteReporte.Bw, null, VistaReporte.Ux11, true),
+        new("D01", "Movimiento del deterioro", Modulo.Deterioros, FuenteReporte.Bw, null, VistaReporte.Ux11, true),
+        new("D02", "Deterioro por cuenta y sociedad", Modulo.Deterioros, FuenteReporte.Bw, null, VistaReporte.Ux11, true),
         new("C01", "Conciliación intercompañía por pareja de sociedades", Modulo.Consolidacion, FuenteReporte.Bpc, "1", VistaReporte.Ux11, true),
         new("C02", "Participaciones y métodos (plantilla)", Modulo.Consolidacion, FuenteReporte.Bpc, "1", VistaReporte.Ux13, true),
         new("C03", "Validación de cuadre por sociedad", Modulo.Consolidacion, FuenteReporte.Bpc, "1", VistaReporte.Ux11, true),

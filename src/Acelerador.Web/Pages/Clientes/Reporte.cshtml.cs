@@ -24,14 +24,14 @@ public sealed class ReporteModel(ServicioControles servicio, ServicioReportes re
 
     public string? Error => C01?.Error ?? C03?.Error ?? Estado?.Error;
 
-    public async Task<IActionResult> OnGetAsync(Guid id, string codigo, string? periodo, string? moneda, string? sociedad, string? filiales, string? rubro, CancellationToken ct)
+    public async Task<IActionResult> OnGetAsync(Guid id, string codigo, string? periodo, string? moneda, string? sociedad, string? filiales, string? rubro, string? version, int? anio, CancellationToken ct)
     {
         Hoja = codigo.ToUpperInvariant();
         Cliente? cliente;
         switch (Hoja)
         {
-            case ['R', ..]:
-                Estado = await reportes.ConsultarAsync(id, Hoja, sociedad, filiales is null ? null : filiales == "Sí", moneda, periodo, rubro, ct);
+            case ['R' or 'P' or 'A' or 'D', ..]:
+                Estado = await reportes.ConsultarAsync(id, Hoja, sociedad, filiales is null ? null : filiales == "Sí", moneda, periodo, rubro, version, anio, ct);
                 cliente = Estado?.Contexto.Cliente;
                 break;
             case "C01":

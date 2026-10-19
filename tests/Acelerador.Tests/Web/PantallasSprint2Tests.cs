@@ -72,10 +72,11 @@ public class PantallasSprint2Tests
         return cliente;
     }
 
-    internal static async Task<string> LlegarASociedadesAsync(Navegador nav)
+    internal static async Task<string> LlegarASociedadesAsync(Navegador nav, IReadOnlyList<Modulo>? modulos = null)
     {
         var cliente = await LlegarAModulosAsync(nav);
-        await nav.PostAsync($"{cliente}/modulos", new Dictionary<string, string?> { ["modulos"] = "Consolidacion", ["accion"] = "continuar" });
+        await nav.PostAsync($"{cliente}/modulos", (modulos ?? [Modulo.Consolidacion]).Select(m => new KeyValuePair<string, string>("modulos", m.ToString()))
+            .Append(new KeyValuePair<string, string>("accion", "continuar")).ToList());
         Assert.Equal($"{cliente}/sociedades", nav.Ruta);
         return cliente;
     }
@@ -100,9 +101,9 @@ public class PantallasSprint2Tests
         return d;
     }
 
-    internal static async Task<string> LlegarAMapeoAsync(Navegador nav, IEnumerable<FilaSociedad>? filas = null)
+    internal static async Task<string> LlegarAMapeoAsync(Navegador nav, IEnumerable<FilaSociedad>? filas = null, IReadOnlyList<Modulo>? modulos = null)
     {
-        var cliente = await LlegarASociedadesAsync(nav);
+        var cliente = await LlegarASociedadesAsync(nav, modulos);
         await nav.PostAsync($"{cliente}/sociedades", FormularioSociedades(filas ?? Entorno.FilasPrototipo(), "continuar"));
         Assert.Equal($"{cliente}/mapeo", nav.Ruta);
         return cliente;

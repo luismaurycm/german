@@ -13,6 +13,7 @@ Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). S
 | 7 | HU-32, HU-33, HU-34, HU-35 | Modelo de propiedad y plantilla C02, eliminación de inversión e interés minoritario, método de participación, UX-13 Participaciones y métodos |
 | 8 | HU-37, HU-38, HU-39, HU-40, HU-41 | UX-11 C01 Conciliación intercompañía y C03 Validación de cuadre, UX-14 Asientos de ajuste, UX-15 C04 Estado del cierre con bloqueo por sociedad |
 | 9 | HU-42, HU-43, HU-44, HU-45, HU-48 | UX-10 Reportes (catálogo, generación y .zip), UX-11 con la estructura común y R01 a R07 |
+| 10 | HU-46, HU-47, HU-49, HU-50, HU-51, HU-52, HU-53 | Notas R08 a R20, modelo de planeación, UX-12 Captura de presupuesto (P05), P01 a P04 y reportes de BW A01 a D02 |
 
 Coberturas por sprint: `tests/COBERTURA-Sprint-N.md`.
 
@@ -166,6 +167,13 @@ cuarto dato con la sociedad socia para crear diferencias intercompañía («2000
 (RN-10), con columnas por sociedad, eliminaciones y total consolidado al incluir filiales (RN-09). `ServicioReportes` arma
 el catálogo, genera los Excel con `IProveedorPlantillas` (`PlantillaReporte` para la estructura común) y el .zip. La tabla
 `reportes_generados` guarda solo el estado de cada generación.
+
+## Presupuesto y reportes de BW
+
+`GeneradorPresupuesto` carga 0FI_GL_14 en BW y crea el modelo `PLANEACION` en BPC (HU-49). `ServicioPresupuesto` es la
+captura de P05 (UX-12, `/clientes/{id}/presupuesto`); `MotorPresupuesto` calcula P01 a P04. Los reportes de activos fijos y
+deterioros leen BW con `ISapGateway.ConsultarBwAsync` y `MotorBw` (RN-12). El simulador genera en `DatosBwSimulados` el
+presupuesto y la ejecución por centro y mes y los movimientos de activos y deterioro a partir del plan de cuentas de ejemplo.
 
 ## Sociedades no SAP (UX-07)
 
