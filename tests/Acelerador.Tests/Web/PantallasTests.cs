@@ -361,7 +361,8 @@ public class PantallasTests
 
         await ProbarAsync(nav, cliente, SistemaSap.Bw, "bw-ejemplo.local", "100");
         await nav.PostAsync($"{cliente}/conexiones?handler=Validar", new Dictionary<string, string?>());
-        Assert.Matches($@"Validada \d\d-\w{{3}}-\d\d \d\d:\d\d por {System.Text.RegularExpressions.Regex.Escape(Environment.UserName)}", nav.Texto);
+        // En Windows el usuario va como DOMINIO\usuario (ADR-05).
+        Assert.Matches($@"Validada \d\d-\w{{3}}-\d\d \d\d:\d\d por (?:[^\s\\]+\\)?{System.Text.RegularExpressions.Regex.Escape(Environment.UserName)}", nav.Texto);
     }
 
     [Theory(DisplayName = "HU-06 CA1: UX-02 muestra la insignia A y las versiones de BW y BPC detectadas")]
