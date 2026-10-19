@@ -1,5 +1,6 @@
 using System.Globalization;
 using Acelerador.Core.Dominio;
+using Acelerador.Core.Reglas;
 using Microsoft.AspNetCore.Html;
 
 namespace Acelerador.Web;
@@ -51,6 +52,18 @@ public static class Formato
     public static string Registro(Guid clienteId) => $"/clientes/{clienteId}/registro";
 
     public static string Participaciones(Guid clienteId) => $"/clientes/{clienteId}/participaciones";
+
+    /// <summary>UX-11 con la hoja elegida (C01, C03).</summary>
+    public static string Reporte(Guid clienteId, string hoja) => $"/clientes/{clienteId}/reportes/{hoja}";
+
+    public static string Cierre(Guid clienteId) => $"/clientes/{clienteId}/cierre";
+
+    public static string Asientos(Guid clienteId) => $"/clientes/{clienteId}/asientos";
+
+    /// <summary>Hoja o pantalla que explica la causa de un paso de C04 con error.</summary>
+    public static string Causa(Guid clienteId, string causa, string periodo) => causa == ReglasCierreMensual.Ejecucion
+        ? Ruta(clienteId, Pasos.Ejecucion)
+        : $"{Reporte(clienteId, causa)}?periodo={periodo}";
 
     /// <summary>Texto del estado de carga al abrir un paso que lee del sistema del cliente.</summary>
     public static string? Carga(string paso) => paso switch

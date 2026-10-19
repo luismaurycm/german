@@ -1,0 +1,204 @@
+@page "/clientes/{id:guid}/asientos"
+@model Acelerador.Web.Pages.Clientes.AsientosModel
+@{
+    ViewData["Title"] = "Asientos de ajuste";
+    var v = Model.Vista;
+    var c = v.Contexto;
+    var id = c.Cliente.Id;
+    var a = Model.Validado;
+    var bloqueadasEnLineas = Model.Lineas.Select(l => (l.Sociedad ?? "").Trim().ToUpperInvariant()).Where(v.Bloqueadas.Contains).Distinct().ToList();
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(c.Cliente, "asientos"))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Asientos de ajuste</h1>
+                <p>Vista de la plantilla EPM (UX-14): asientos de ajuste de consolidación con líneas de sociedad, cuenta, intercompañía, débito, crédito y observación.</p>
+            </div>
+            <div class="row"><span class="pill neu">Modelo CONSOLIDACION</span></div>
+        </div>
+
+        <nav class="tabs hojas" aria-label="Hojas">
+            <a class="tab" href="@Formato.Cierre(id)?periodo=@c.Periodo">C04 Estado del cierre</a>
+            <a class="tab" href="@Formato.Participaciones(id)?periodo=@c.Periodo">C02 Participaciones</a>
+            <a class="tab" href="@Formato.Asientos(id)?periodo=@c.Periodo" aria-current="page">Asientos</a>
+        </nav>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (v.Error is not null || Model.Error is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>No se pudo conectar a BPC; revisa la conexión de EPM.</b><br>El sistema respondió: «@(Model.Error ?? v.Error)»</div></div>
+        }
+        else if (Model.Intentado && !a.Guardable)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div>
+                @if (!a.Cuadra)
+                {
+                    <b>@ReglasAsientos.NoCuadra</b>
+                }
+                @foreach (var soc in bloqueadasEnLineas)
+                {
+                    <br><span>@ReglasCierreMensual.MensajeBloqueada(soc, c.Periodo, "sus líneas no se aceptan")</span>
+                }
+                @foreach (var x in a.Errores.Where(x => !x.Motivo.Contains("bloqueada", StringComparison.Ordinal)))
+                {
+                    <br><span>Línea @x.Linea: @x.Motivo.</span>
+                }
+            </div></div>
+        }
+
+        <form method="get" class="row filtros" data-carga="Consultando los asientos del periodo…" data-auto>
+            <div class="fld">
+                <label for="grupo">Grupo</label>
+                <input id="grupo" type="text" value="@c.Grupo" readonly>
+            </div>
+            <div class="fld">
+                <label for="periodo">Periodo</label>
+                <select id="periodo" name="periodo">
+                    @foreach (var p in c.Periodos)
+                    {
+                        <option value="@p" selected="@(p == c.Periodo)">@p</option>
+                    }
+                </select>
+            </div>
+            <div class="fld">
+                <label for="moneda">Moneda</label>
+                <select id="moneda" name="moneda">
+                    @foreach (var m in c.Monedas)
+                    {
+                        <option value="@m" selected="@(m == v.Moneda)">@m</option>
+                    }
+                </select>
+            </div>
+            <button class="btn btn-s" type="submit">Actualizar</button>
+        </form>
+
+        @if (v.Bloqueadas.Count > 0)
+        {
+            <div class="note w" role="status">@Iconos.Aviso<div>@Textos.Lista(v.Bloqueadas.Order(StringComparer.Ordinal).ToList()) @(v.Bloqueadas.Count == 1 ? "está bloqueada" : "están bloqueadas") en @c.Periodo: sus líneas no se aceptan (RN-17).</div></div>
+        }
+
+        <form method="post" class="col" data-ocupado="Guardando…" data-asiento>
+            <input type="hidden" name="periodo" value="@c.Periodo">
+            <input type="hidden" name="moneda" value="@v.Moneda">
+            <div class="fld">
+                <label for="descripcion">Descripción del asiento</label>
+                <input id="descripcion" class="ent" name="descripcion" value="@Model.Descripcion" maxlength="120">
+            </div>
+            <datalist id="cuentas">
+                @foreach (var cu in v.Cuentas)
+                {
+                    <option value="@cu.Id">@cu.Descripcion</option>
+                }
+            </datalist>
+            <div class="tblw">
+                <table class="tbl cards edit asiento">
+                    <caption class="sr">Líneas del asiento de @c.Grupo en @c.Periodo, en @v.Moneda</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Sociedad</th><th scope="col">Cuenta</th><th scope="col">Intercompañía</th>
+                            <th scope="col" class="num">Débito</th><th scope="col" class="num">Crédito</th><th scope="col">Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.Lineas.Count; i++)
+                        {
+                            var l = Model.Lineas[i];
+                            var n = i + 1;
+                            var soc = (l.Sociedad ?? "").Trim().ToUpperInvariant();
+                            var intco = string.IsNullOrWhiteSpace(l.Intco) ? "I_NONE" : l.Intco.Trim().ToUpperInvariant();
+                            string Inv(string dato) => Model.ConError(n, dato) ? "true" : "false";
+                            <tr class="@(Model.Intentado && a.Errores.Any(e => e.Linea == n) ? "fila-err" : null)">
+                                <td data-l="Sociedad">
+                                    <select class="ent" name="lineas[@i].Sociedad" aria-label="Sociedad de la línea @n" aria-invalid="@Inv(ReglasAsientos.Sociedad)">
+                                        <option value="" selected="@(soc.Length == 0)">—</option>
+                                        @foreach (var s in v.Sociedades)
+                                        {
+                                            <option value="@s.Codigo" selected="@(soc == s.Codigo)">@s.Codigo @s.Nombre@(v.Bloqueadas.Contains(s.Codigo) ? " (bloqueada)" : "")</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td data-l="Cuenta"><input class="ent mono" name="lineas[@i].Cuenta" value="@l.Cuenta" list="cuentas" aria-label="Cuenta de la línea @n" aria-invalid="@Inv(ReglasAsientos.Cuenta)"></td>
+                                <td data-l="Intercompañía">
+                                    <select class="ent" name="lineas[@i].Intco" aria-label="Intercompañía de la línea @n" aria-invalid="@Inv(ReglasAsientos.Intco)">
+                                        <option value="I_NONE" selected="@(intco == "I_NONE")">I_NONE</option>
+                                        @foreach (var s in v.Sociedades)
+                                        {
+                                            <option value="I_@s.Codigo" selected="@(intco == "I_" + s.Codigo)">I_@s.Codigo</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td data-l="Débito" class="num"><input class="ent num celda-epm" name="lineas[@i].Debito" value="@l.Debito" inputmode="decimal" aria-label="Débito de la línea @n" aria-invalid="@Inv(ReglasAsientos.Debito)" data-debito></td>
+                                <td data-l="Crédito" class="num"><input class="ent num celda-epm" name="lineas[@i].Credito" value="@l.Credito" inputmode="decimal" aria-label="Crédito de la línea @n" aria-invalid="@Inv(ReglasAsientos.Credito)" data-credito></td>
+                                <td data-l="Observación"><input class="ent" name="lineas[@i].Observacion" value="@l.Observacion" maxlength="120" aria-label="Observación de la línea @n"></td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="tot">
+                            <th scope="row" colspan="3">Totales</th>
+                            <td data-l="Débitos" class="num mono" data-total-debito>@ReglaCuadre.Formato(a.Debitos)</td>
+                            <td data-l="Créditos" class="num mono" data-total-credito>@ReglaCuadre.Formato(a.Creditos)</td>
+                            <td data-l="Estado" data-indicador aria-live="polite">
+                                @if (a.LineasEscritas == 0)
+                                {
+                                    <span class="muted">@ReglasAsientos.Vacio</span>
+                                }
+                                else if (a.Diferencia == 0m)
+                                {
+                                    <span class="pill ok">@Iconos.Ok @ReglasAsientos.Indicador(a)</span>
+                                }
+                                else
+                                {
+                                    <span class="pill err">@Iconos.Error @ReglasAsientos.Indicador(a)</span>
+                                }
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <p class="rn sin-margen">Guardar asiento se habilita solo si los débitos son iguales a los créditos. RN-15 · No se aceptan líneas de una sociedad bloqueada en el periodo. RN-17 · Cada asiento queda con número, usuario y fecha. RNF-Aud-02</p>
+            <div class="row fin">
+                <button class="btn btn-s" type="submit" name="accion" value="agregar">@Iconos.Mas Agregar línea</button>
+                <button class="btn btn-s" type="submit" name="accion" value="calcular">Calcular totales</button>
+                <button class="btn btn-p" type="submit" name="accion" value="guardar" disabled="@(!a.Cuadra)" data-guardar>Guardar asiento</button>
+            </div>
+        </form>
+
+        <section class="card col" aria-labelledby="titulo-asientos">
+            <h2 id="titulo-asientos">Asientos del periodo @c.Periodo</h2>
+            @if (v.Asientos.Count == 0)
+            {
+                <p class="muted sin-margen">Aún no hay asientos en el periodo.</p>
+            }
+            else
+            {
+                <div class="tblw sin-borde">
+                    <table class="tbl cards">
+                        <caption class="sr">Asientos de ajuste del periodo con número, usuario, fecha, valor y estado</caption>
+                        <thead><tr><th scope="col">Asiento</th><th scope="col">Descripción</th><th scope="col">Usuario</th><th scope="col">Fecha</th><th scope="col">Moneda</th><th scope="col" class="num">Valor</th><th scope="col">Estado</th></tr></thead>
+                        <tbody>
+                            @foreach (var x in v.Asientos)
+                            {
+                                <tr>
+                                    <td data-l="Asiento" class="mono">@x.Numero</td>
+                                    <td data-l="Descripción">@(x.Descripcion.Length == 0 ? "—" : x.Descripcion)</td>
+                                    <td data-l="Usuario">@x.Usuario</td>
+                                    <td data-l="Fecha" class="mono nw">@Formato.FechaHora(x.Fecha)</td>
+                                    <td data-l="Moneda" class="mono">@x.Moneda</td>
+                                    <td data-l="Valor" class="num mono">@ReglaCuadre.Formato(x.Valor)</td>
+                                    <td data-l="Estado">@x.Estado</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </main>
+</div>

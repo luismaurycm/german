@@ -16,6 +16,11 @@ public static class FuncionesBpc
     public const string EjecutarPaquete = "Z_ACC_BPC_EJECUTAR_PAQUETE";
     public const string EjecutarLogica = "Z_ACC_BPC_EJECUTAR_LOGICA";
     public const string ValidarCuadre = "Z_ACC_VALIDAR_CUADRE";
+    public const string EstadoTrabajo = "Z_ACC_BPC_ESTADO_TRABAJO";
+    public const string ConfigurarEstados = "Z_ACC_BPC_CONFIGURAR_ESTADOS";
+    public const string ConfigurarAsientos = "Z_ACC_BPC_CONFIGURAR_ASIENTOS";
+    public const string GuardarAsiento = "Z_ACC_BPC_GUARDAR_ASIENTO";
+    public const string SubirPlantilla = "Z_ACC_BPC_SUBIR_PLANTILLA";
 }
 
 /// <summary>

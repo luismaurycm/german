@@ -11,6 +11,7 @@ Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). S
 | 5 | HU-21, HU-22, HU-23, HU-24, HU-26 | Datos maestros (planes, CeCo y CeBe, monedas y tasas, jerarquía) y modelo de consolidación en BPC |
 | 6 | HU-27, HU-28, HU-29, HU-30, HU-31, HU-36 | Validación de cuadre, importación a BPC, scripts, conversión con diferencia en conversión y eliminación intercompañía |
 | 7 | HU-32, HU-33, HU-34, HU-35 | Modelo de propiedad y plantilla C02, eliminación de inversión e interés minoritario, método de participación, UX-13 Participaciones y métodos |
+| 8 | HU-37, HU-38, HU-39, HU-40, HU-41 | UX-11 C01 Conciliación intercompañía y C03 Validación de cuadre, UX-14 Asientos de ajuste, UX-15 C04 Estado del cierre con bloqueo por sociedad |
 
 Coberturas por sprint: `tests/COBERTURA-Sprint-N.md`.
 
@@ -148,6 +149,14 @@ matriz e integración global. La matriz 1000 tiene inversiones en 2000 (80 %) y 
 plantilla que sube el plan (`Z_ACC_BPC_SUBIR_PLANTILLA`, en base64). C02 lleva las fórmulas `EPMRetrieveData` contra el
 modelo de propiedad y una lista de métodos. UX-13 (`/clientes/{id}/participaciones`) lee y escribe el mismo modelo con
 `Z_ACC_BPC_GUARDAR_PARTICIPACIONES`; la auditoría (usuario, fecha, valor anterior y nuevo) la guarda BPC.
+
+## Cierre mensual (UX-11, UX-14, UX-15)
+
+`Acelerador.Core/Servicios/ServiciosCierre.cs`: `ServicioControles` (C01 y C03), `ServicioCierre` (C04 y estados de trabajo)
+y `ServicioAsientos`. Leen BPC con `LecturaBpc` y escriben con `Z_ACC_BPC_ESTADO_TRABAJO` y `Z_ACC_BPC_GUARDAR_ASIENTO`.
+Las reglas están en `ReglasConciliacion` (umbral provisional 1.000,00), `ReglasAsientos` (RN-15) y `ReglasCierreMensual`
+(RN-17 y la matriz de C04). El simulador guarda asientos y bloqueos en `IAlmacenSimulado`; `Simulador:AjustesSaldo` acepta un
+cuarto dato con la sociedad socia para crear diferencias intercompañía («2000:22050501:5000000:1000»).
 
 ## Sociedades no SAP (UX-07)
 

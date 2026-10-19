@@ -22,6 +22,7 @@ public static class MotorConsolidacion
     public const string OrigenEliminacionIc = "ELIM_IC";
     public const string OrigenEliminacionInversion = "ELIM_INV";
     public const string OrigenParticipacion = "PARTICIPACION";
+    public const string OrigenAjuste = "AJUSTE";
     public const string IntcoNinguno = "I_NONE";
 
     /// <summary>Periodo en BPC (TIME): «2026-09» → «2026.09».</summary>

@@ -65,7 +65,7 @@ public class PropiedadTests
         var (e, _, _) = await ConsolidarAsync();
         await using var _e = e;
 
-        var subida = e.Sap.Objetos.Single(o => o.Operacion.TipoObjeto == "PLANTILLA");
+        var subida = e.Sap.Objetos.Single(o => o.Operacion.TipoObjeto == "PLANTILLA" && o.Operacion.NombreTecnico == GeneradorPropiedad.Plantilla);
         var contenido = Convert.FromBase64String(JsonDocument.Parse(subida.Operacion.Definicion).RootElement.GetProperty("contenido").GetString()!);
         using var doc = SpreadsheetDocument.Open(new MemoryStream(contenido), false);
         var hoja = doc.WorkbookPart!.Workbook.Sheets!.Elements<Sheet>().Single();

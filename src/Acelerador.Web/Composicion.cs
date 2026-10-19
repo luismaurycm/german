@@ -81,6 +81,10 @@ public static class Composicion
         services.AddScoped<ServicioEjecucion>();
         services.AddScoped<ServicioNoSap>();
         services.AddScoped<ServicioParticipaciones>();
+        services.AddScoped<ContextoCierreLector>();
+        services.AddScoped<ServicioControles>();
+        services.AddScoped<ServicioCierre>();
+        services.AddScoped<ServicioAsientos>();
         return services;
     }
 

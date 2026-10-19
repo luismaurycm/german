@@ -12,6 +12,7 @@ public sealed class ProveedorPlantillas : IProveedorPlantillas
         return plantilla switch
         {
             "C02" => PlantillaC02.Generar(doc.RootElement),
+            "C01" or "C03" or "C04" or "AJ" => PlantillasCierre.Generar(plantilla, doc.RootElement),
             _ => throw new ArgumentOutOfRangeException(nameof(plantilla), plantilla, "Plantilla desconocida."),
         };
     }
@@ -68,5 +69,88 @@ public static class PlantillaC02
         h.Poner($"A{fila + 2}", "Fuente: Modelo BPC PROPIEDAD.", EstiloCelda.Nota);
 
         return LibroExcel.Escribir([h], new Dictionary<string, string> { ["EPM_CONEXION"] = $"C02!$B$3" });
+    }
+}
+
+/// <summary>
+/// Plantillas del cierre (UX-11, UX-14, UX-15): C01 Conciliación intercompañía, C03 Validación de cuadre, C04 Estado del
+/// cierre y Asientos de ajuste. Todas leen el modelo de consolidación de BPC por la conexión EPM con el grupo y el periodo.
+/// </summary>
+public static class PlantillasCierre
+{
+    public static byte[] Generar(string id, JsonElement p)
+    {
+        var conexion = p.GetProperty("conexion").GetString()!;
+        var grupo = p.GetProperty("grupo").GetString()!;
+        var periodo = p.GetProperty("periodo").GetString()!;
+        var monedas = p.GetProperty("monedas").EnumerateArray().Select(m => m.GetString()!).ToList();
+        var umbral = p.GetProperty("umbral").GetDecimal();
+        var sociedades = p.GetProperty("sociedades").EnumerateArray().Select(s => (Codigo: s.GetProperty("codigo").GetString()!, Nombre: s.GetProperty("nombre").GetString()!)).ToList();
+
+        var (titulo, columnas, nota) = id switch
+        {
+            "C01" => ("C01 Conciliación intercompañía", new[] { "Sociedad", "Contraparte", "Cuentas", "Registra la sociedad", "Registra la contraparte", "Diferencia", "Estado" },
+                $"Umbral {umbral.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("es-CO"))} (DAF, pregunta 14). Solo sociedades del grupo (RN-07). Se puede consultar antes de la consolidación."),
+            "C03" => ("C03 Validación de cuadre", new[] { "Sociedad", "Nombre", "Activo − (pasivo + patrimonio)", "Utilidad EERR − resultado balance", "Cuentas mapeadas", "Resultado" },
+                "Una sociedad solo se importa si cuadra y tiene todas sus cuentas con saldo mapeadas (RN-16)."),
+            "C04" => ("C04 Estado del cierre", new[] { "Sociedad", "Carga", "Cuadre", "Conciliación IC", "Conversión", "Consolidación", "Reportes", "Bloqueo" },
+                "Bloquear una sociedad impide cargas, asientos y reprocesos del periodo (RN-17). Cada bloqueo queda en la auditoría de BPC (RNF-Aud-02)."),
+            _ => ("Asientos de ajuste", new[] { "Sociedad", "Cuenta", "Intercompañía", "Débito", "Crédito", "Observación" },
+                "Guardar asiento solo si los débitos son iguales a los créditos (RN-15). No se aceptan líneas de sociedades bloqueadas (RN-17)."),
+        };
+
+        var h = new HojaExcel(id);
+        h.Anchos[1] = 14;
+        for (var c = 2; c <= columnas.Length; c++)
+        {
+            h.Anchos[c] = 20;
+        }
+
+        h.Poner("A1", "[Logo del cliente]", EstiloCelda.Nota)
+            .Poner("B1", titulo, EstiloCelda.Titulo)
+            .Poner("A2", $"ID: {id} · Modelo de consolidación ({conexion})", EstiloCelda.Nota)
+            .Poner("A3", "Grupo", EstiloCelda.Encabezado).Poner("B3", grupo, EstiloCelda.Parametro)
+            .Poner("A4", "Periodo", EstiloCelda.Encabezado).Poner("B4", periodo, EstiloCelda.Parametro);
+        if (id is "C01" or "AJ")
+        {
+            h.Poner("C3", "Moneda", EstiloCelda.Encabezado).Poner("D3", monedas.FirstOrDefault() ?? "", EstiloCelda.Parametro);
+            h.Listas.Add(new ListaValidacion("D3", monedas));
+        }
+
+        for (var c = 0; c < columnas.Length; c++)
+        {
+            h.Poner($"{(char)('A' + c)}6", columnas[c], EstiloCelda.Encabezado);
+        }
+
+        var fila = 7;
+        if (id is "C03" or "C04")
+        {
+            foreach (var (codigo, nombre) in sociedades)
+            {
+                h.Poner($"A{fila}", codigo);
+                for (var c = 1; c < columnas.Length; c++)
+                {
+                    var col = (char)('A' + c);
+                    h.Poner($"{col}{fila}", c == 1 && id == "C03" ? nombre : null, EstiloCelda.Normal,
+                        c == 1 && id == "C03" ? null : $"EPMRetrieveData(\"{conexion}\",\"{id}_{columnas[c]}\",$B$3,$B$4,$A{fila})");
+                }
+
+                fila++;
+            }
+        }
+        else
+        {
+            for (var c = 0; c < columnas.Length; c++)
+            {
+                h.Poner($"{(char)('A' + c)}{fila}", null, id == "AJ" ? EstiloCelda.Editable : EstiloCelda.Normal,
+                    id == "AJ" ? null : $"EPMRetrieveData(\"{conexion}\",\"{id}_{columnas[c]}\",$B$3,$B$4,$D$3)");
+            }
+
+            fila++;
+        }
+
+        h.Poner($"A{fila + 1}", nota, EstiloCelda.Nota);
+        h.Poner($"A{fila + 2}", $"Fuente: Modelo BPC {conexion}.", EstiloCelda.Nota);
+        return LibroExcel.Escribir([h], new Dictionary<string, string> { ["EPM_CONEXION"] = $"{id}!$B$3" });
     }
 }

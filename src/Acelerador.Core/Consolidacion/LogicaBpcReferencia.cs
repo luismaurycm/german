@@ -26,6 +26,8 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
             "PARTICIPACIONES" => GuardarParticipaciones(d, almacen),
             "INVERSION" => EliminarInversion(d, almacen),
             "PARTICIPACION" => AplicarParticipacion(d, almacen),
+            "ASIENTO" => Contabilizar(d, almacen),
+            "BLOQUEO" => CambiarEstado(d, almacen),
             _ => null,
         };
     }
@@ -121,10 +123,22 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
         return d.GetProperty("enSap").GetBoolean() ? almacen.SaldosErp(sociedad) : almacen.DatosNoSap(sociedad, d.GetProperty("periodo").GetString()!);
     }
 
+    /// <summary>RN-17: lo que BPC responde cuando el estado de trabajo de la sociedad no admite reprocesos.</summary>
+    private static ResultadoOperacionSap? Bloqueada(IAlmacenSimulado almacen, string sociedad, string periodo, string accion) =>
+        almacen.Bloqueada(sociedad, periodo)
+            ? new ResultadoOperacionSap(true, $"{sociedad}: bloqueada en {periodo}.", ResultadoEscritura.Existente, Cantidad: 0,
+                Aviso: $"{sociedad} está bloqueada en {periodo}: no se {accion}; se conservan sus datos (RN-17).")
+            : null;
+
     private static ResultadoOperacionSap ValidarCuadre(JsonElement d, IAlmacenSimulado almacen)
     {
         var sociedad = d.GetProperty("sociedad").GetString()!;
         var periodo = d.GetProperty("periodo").GetString()!;
+        if (Bloqueada(almacen, sociedad, periodo, "vuelve a validar") is { } bloqueada)
+        {
+            return bloqueada;
+        }
+
         var tolerancia = d.GetProperty("tolerancia").GetDecimal();
         var mapeo = d.GetProperty("mapeo").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()!);
         var v = ReglaCuadre.Validar(sociedad, periodo, Datos(d, almacen), mapeo, tolerancia);
@@ -138,6 +152,11 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
     {
         var sociedad = d.GetProperty("sociedad").GetString()!;
         var periodo = d.GetProperty("periodo").GetString()!;
+        if (Bloqueada(almacen, sociedad, periodo, "reimporta") is { } bloqueada)
+        {
+            return bloqueada;
+        }
+
         var validacion = almacen.Validaciones.FirstOrDefault(v => v.Sociedad == sociedad && v.Periodo == periodo);
         if (validacion is not { Importable: true })
         {
@@ -165,7 +184,9 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
 
         var nuevos = new List<RegistroBpc>();
         var cta = new List<string>();
-        foreach (var (sociedad, moneda) in monedas)
+        // RN-17: una sociedad bloqueada en el periodo conserva su conversión.
+        var bloqueadas = monedas.Keys.Where(s => almacen.Bloqueada(s, periodo)).ToHashSet();
+        foreach (var (sociedad, moneda) in monedas.Where(m => !bloqueadas.Contains(m.Key)))
         {
             var locales = almacen.Registros.Where(r => r.Entidad == sociedad && r.Periodo == periodoBpc && r.Moneda == MotorConsolidacion.MonedaLocal).ToList();
             foreach (var destino in presentacion)
@@ -186,10 +207,11 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
             }
         }
 
-        almacen.Reemplazar(r => r.Periodo == periodoBpc && presentacion.Contains(r.Moneda) && monedas.ContainsKey(r.Entidad) && r.Grupo.Length == 0, nuevos);
+        almacen.Reemplazar(r => r.Periodo == periodoBpc && presentacion.Contains(r.Moneda) && monedas.ContainsKey(r.Entidad) && !bloqueadas.Contains(r.Entidad) && r.Grupo.Length == 0, nuevos);
         return new ResultadoOperacionSap(true,
             $"{nuevos.Count} registros convertidos a {string.Join(" y ", presentacion)}; diferencia en conversión en {ReglasRubros.CuentaDiferenciaConversion.Id}: {(cta.Count == 0 ? "sin diferencia" : string.Join(" · ", cta))}.",
-            ResultadoEscritura.Creado, Cantidad: nuevos.Count);
+            ResultadoEscritura.Creado, Cantidad: nuevos.Count,
+            Aviso: bloqueadas.Count == 0 ? null : $"{string.Join(", ", bloqueadas.Order())} {(bloqueadas.Count == 1 ? "está bloqueada" : "están bloqueadas")} en {periodo}: no se vuelve a convertir; se conservan sus datos (RN-17).");
     }
 
     private static ResultadoOperacionSap EliminarIntercompania(JsonElement d, IAlmacenSimulado almacen)
@@ -210,4 +232,55 @@ public sealed class LogicaBpcReferencia : ILogicaSimulada
         return new ResultadoOperacionSap(true, $"Eliminaciones intercompañía de {grupo}: {eliminaciones.Count} registros en {parejas} partidas entre sociedades del grupo.",
             ResultadoEscritura.Creado, Cantidad: eliminaciones.Count);
     }
+
+    /// <summary>
+    /// Contabiliza un asiento de ajuste (RF-35) como lo hace BPC: rechaza el asiento que no cuadra (RN-15) o con líneas de una
+    /// sociedad bloqueada (RN-17); si no, le da número y escribe sus líneas en el modelo de consolidación a nivel de grupo.
+    /// </summary>
+    private static ResultadoOperacionSap Contabilizar(JsonElement d, IAlmacenSimulado almacen)
+    {
+        var grupo = d.GetProperty("grupo").GetString()!;
+        var periodo = d.GetProperty("periodo").GetString()!;
+        var moneda = d.GetProperty("moneda").GetString()!;
+        var lineas = d.GetProperty("lineas").EnumerateArray().Select(l => new LineaAsiento(
+            l.GetProperty("sociedad").GetString()!, l.GetProperty("cuenta").GetString()!, l.GetProperty("intco").GetString()!,
+            l.GetProperty("debito").GetDecimal(), l.GetProperty("credito").GetDecimal(), l.GetProperty("observacion").GetString() ?? "")).ToList();
+        var diferencia = lineas.Sum(l => l.Debito) - lineas.Sum(l => l.Credito);
+        if (lineas.Count == 0 || diferencia != 0m)
+        {
+            return new ResultadoOperacionSap(false, $"UJJ: el asiento no cuadra (diferencia {ReglaCuadre.Formato(diferencia)}).");
+        }
+
+        var bloqueadas = lineas.Select(l => l.Sociedad).Distinct().Where(s => almacen.Bloqueada(s, periodo)).ToList();
+        if (bloqueadas.Count > 0)
+        {
+            return new ResultadoOperacionSap(false, $"UJJ: {string.Join(", ", bloqueadas)} está bloqueada en {periodo} (estado de trabajo); el asiento no se contabiliza.");
+        }
+
+        var periodoBpc = MotorConsolidacion.PeriodoBpc(periodo);
+        var asiento = almacen.Contabilizar(numero => new AsientoBpc(numero, grupo, periodo, moneda, d.GetProperty("descripcion").GetString() ?? "",
+            d.GetProperty("usuario").GetString()!, d.GetProperty("fecha").GetDateTimeOffset(), lineas));
+        almacen.Reemplazar(_ => false, lineas.Select(l => new RegistroBpc(MotorConsolidacion.Modelo, l.Sociedad, l.Cuenta, l.Intco, periodoBpc, moneda,
+            MotorConsolidacion.FlujoCierre, MotorConsolidacion.OrigenAjuste, l.Debito - l.Credito, grupo)));
+        return new ResultadoOperacionSap(true, $"Asiento {asiento.Numero} contabilizado en {periodo} por {ReglaCuadre.Formato(asiento.Valor)} {moneda}.",
+            ResultadoEscritura.Creado, Cantidad: lineas.Count, Clave: asiento.Numero);
+    }
+
+    /// <summary>Estado de trabajo (RF-37): bloquea o abre una sociedad en el periodo y lo deja en la auditoría (RNF-Aud-02).</summary>
+    private static ResultadoOperacionSap CambiarEstado(JsonElement d, IAlmacenSimulado almacen)
+    {
+        var sociedad = d.GetProperty("sociedad").GetString()!;
+        var periodo = d.GetProperty("periodo").GetString()!;
+        var bloquear = d.GetProperty("bloquear").GetBoolean();
+        var usuario = d.GetProperty("usuario").GetString()!;
+        var fecha = d.GetProperty("fecha").GetDateTimeOffset();
+        var antes = almacen.Bloqueada(sociedad, periodo);
+        almacen.GuardarBloqueo(new BloqueoBpc(sociedad, periodo, bloquear, usuario, fecha));
+        almacen.Auditar([new AuditoriaBpc(fecha, usuario, EstadosTrabajo, sociedad, MotorConsolidacion.PeriodoBpc(periodo), "Estado de trabajo", Estado(antes), Estado(bloquear))]);
+        return new ResultadoOperacionSap(true, $"{sociedad} {(bloquear ? "bloqueada" : "desbloqueada")} en {periodo}.", ResultadoEscritura.Modificado);
+    }
+
+    public const string EstadosTrabajo = "ESTADOS_TRABAJO";
+
+    public static string Estado(bool bloqueada) => bloqueada ? "Bloqueada" : "Abierta";
 }

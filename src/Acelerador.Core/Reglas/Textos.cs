@@ -65,4 +65,8 @@ public static class Textos
 
     /// <summary>«1 objeto», «3 objetos»: cantidad con el sustantivo en singular o plural.</summary>
     public static string Cantidad(int n, string singular, string plural) => $"{n} {(n == 1 ? singular : plural)}";
+
+    /// <summary>«3000», «3000 y 9000», «1000, 3000 y 9000».</summary>
+    public static string Lista(IReadOnlyList<string> elementos) =>
+        elementos.Count <= 1 ? string.Join("", elementos) : $"{string.Join(", ", elementos.Take(elementos.Count - 1))} y {elementos[^1]}";
 }

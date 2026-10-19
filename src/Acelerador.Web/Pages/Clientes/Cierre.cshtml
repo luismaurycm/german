@@ -1,0 +1,130 @@
+@page "/clientes/{id:guid}/cierre"
+@model Acelerador.Web.Pages.Clientes.CierreModel
+@{
+    ViewData["Title"] = "C04 Estado del cierre";
+    var v = Model.Vista;
+    var c = v.Contexto;
+    var id = c.Cliente.Id;
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(c.Cliente, "C04"))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>C04 Estado del cierre</h1>
+                <p>Vista de la plantilla EPM (UX-15): por sociedad, el estado de cada paso del cierre en orden y el bloqueo del periodo.</p>
+            </div>
+            <div class="row"><span class="pill neu">Modelo CONSOLIDACION</span></div>
+        </div>
+
+        <nav class="tabs hojas" aria-label="Hojas">
+            <a class="tab" href="@Formato.Cierre(id)?periodo=@c.Periodo" aria-current="page">C04 Estado del cierre</a>
+            <a class="tab" href="@Formato.Participaciones(id)?periodo=@c.Periodo">C02 Participaciones</a>
+            <a class="tab" href="@Formato.Asientos(id)?periodo=@c.Periodo">Asientos</a>
+        </nav>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (Model.Fallo is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>No se cambió el estado de trabajo.</b><br>El sistema respondió: «@Model.Fallo»</div></div>
+        }
+
+        <form method="get" class="row filtros" data-carga="Consultando el estado del cierre…" data-auto>
+            <div class="fld">
+                <label for="grupo">Grupo</label>
+                <input id="grupo" type="text" value="@c.Grupo" readonly>
+            </div>
+            <div class="fld">
+                <label for="periodo">Periodo</label>
+                <select id="periodo" name="periodo">
+                    @foreach (var p in c.Periodos)
+                    {
+                        <option value="@p" selected="@(p == c.Periodo)">@p</option>
+                    }
+                </select>
+            </div>
+            <button class="btn btn-s" type="submit">Actualizar</button>
+        </form>
+
+        @if (v.Error is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>No se pudo conectar a BPC; revisa la conexión de EPM.</b><br>El sistema respondió: «@v.Error»</div></div>
+        }
+        else if (!v.Iniciado)
+        {
+            <div class="empty compacto" role="status">@Iconos.Vacio<p>@ReglasCierreMensual.NoIniciado(c.Periodo)</p></div>
+        }
+        else
+        {
+            @if (v.Aviso is not null)
+            {
+                <div class="note e" role="alert">@Iconos.Error<div>@v.Aviso <a href="@Formato.Reporte(id, ReglasCierreMensual.HojaC03)?periodo=@c.Periodo">Abrir C03</a></div></div>
+            }
+            <div class="tblw">
+                <table class="tbl cards c04">
+                    <caption class="sr">Estado del cierre de @c.Periodo por sociedad y paso</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Sociedad</th>
+                            @foreach (var paso in ReglasCierreMensual.Pasos)
+                            {
+                                <th scope="col">@paso</th>
+                            }
+                            <th scope="col">Bloqueo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in v.Filas)
+                        {
+                            <tr>
+                                <th scope="row" data-l="Sociedad"><span class="mono">@f.Sociedad.Codigo</span> @f.Sociedad.Nombre</th>
+                                @for (var i = 0; i < f.Pasos.Count; i++)
+                                {
+                                    var celda = f.Pasos[i];
+                                    <td data-l="@ReglasCierreMensual.Pasos[i]">
+                                        @switch (celda.Estado)
+                                        {
+                                            case EstadoCierre.Completo:
+                                                <span class="pill ok">@Iconos.Ok Completo</span>
+                                                break;
+                                            case EstadoCierre.ConError:
+                                                <a class="pill err" href="@Formato.Causa(id, celda.Causa!, c.Periodo)">@Iconos.Error Con error<span class="sr"> en @ReglasCierreMensual.Pasos[i] de @f.Sociedad.Codigo: ver @(celda.Causa == ReglasCierreMensual.Ejecucion ? "la ejecución" : celda.Causa)</span></a>
+                                                break;
+                                            case EstadoCierre.NoAplica:
+                                                <span class="muted">No aplica</span>
+                                                break;
+                                            default:
+                                                <span class="pill neu">@Iconos.Pendiente Pendiente</span>
+                                                break;
+                                        }
+                                    </td>
+                                }
+                                <td data-l="Bloqueo">
+                                    <form method="post" asp-page-handler="Bloqueo" data-ocupado="@(f.Bloqueada ? "Desbloqueando…" : "Bloqueando…")">
+                                        <input type="hidden" name="periodo" value="@c.Periodo">
+                                        <input type="hidden" name="sociedad" value="@f.Sociedad.Codigo">
+                                        <input type="hidden" name="bloquear" value="@(f.Bloqueada ? "false" : "true")">
+                                        @if (f.Bloqueada)
+                                        {
+                                            <span class="pill warn">Bloqueada</span>
+                                            <button class="btn btn-s" type="submit" aria-label="Desbloquear @f.Sociedad.Codigo en @c.Periodo">Desbloquear</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-s" type="submit" aria-label="Bloquear @f.Sociedad.Codigo en @c.Periodo">Bloquear</button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        <p class="rn sin-margen">Pasos del flujo de cierre en orden. RF-38 · Bloquear una sociedad impide cargas, asientos y reprocesos del periodo, sin afectar a las demás. RN-17 · Cada bloqueo y desbloqueo queda en la auditoría de BPC con usuario y fecha. RNF-Aud-02</p>
+    </main>
+</div>
