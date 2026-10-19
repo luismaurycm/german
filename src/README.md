@@ -9,6 +9,7 @@ Monolito modular .NET 8 que corre en el equipo del consultor (ADR-01, ADR-02). S
 | 3 | HU-13, HU-14, HU-15, HU-17 | UX-08 Plan de generación, UX-09 Ejecución (pasos, reintento), bodega BW 7.5 y campos Z |
 | 4 | HU-16, HU-18, HU-19, HU-20, HU-25 | Variante BW/4HANA (aDSO, ODP), cadenas full y delta, activos fijos y deterioros en BW, UX-07 Sociedades no SAP |
 | 5 | HU-21, HU-22, HU-23, HU-24, HU-26 | Datos maestros (planes, CeCo y CeBe, monedas y tasas, jerarquía) y modelo de consolidación en BPC |
+| 6 | HU-27, HU-28, HU-29, HU-30, HU-31, HU-36 | Validación de cuadre, importación a BPC, scripts, conversión con diferencia en conversión y eliminación intercompañía |
 
 Coberturas por sprint: `tests/COBERTURA-Sprint-N.md`.
 
@@ -123,6 +124,15 @@ caracteres fuera de letras, números, guion, punto y guion bajo (hasta 32).
 Convenciones del simulador para la ejecución: `Simulador:FallaEscritura` (sistemas sin permiso de escritura),
 `Simulador:FallaObjetos` (objetos que fallan), `Simulador:LatenciaEscrituraMs` y el usuario técnico `rfc_lectura`, que
 no tiene permiso de escritura.
+
+## Motor de referencia de la consolidación
+
+`Acelerador.Core/Consolidacion`: `MotorConsolidacion` (importación, conversión con RN-11 y RN-18, eliminación
+intercompañía) y `LogicaBpcReferencia`, que el simulador usa para ejecutar lo que en SAP real hace BPC con el paquete
+y los scripts generados. Así el simulador tiene datos consolidados para los reportes. Convenciones:
+`Simulador:AjustesSaldo` («2000:11050501:5000000» descuadra una sociedad), `Simulador:FallaLogica` (nombre técnico de
+una ejecución de lógica que falla). El paisaje de ejemplo cuadra (RN-16) y tiene partidas intercompañía entre 1000, 2000
+y 3000; las tasas COP/USD son 4.000 de cierre, 3.950 promedio y 3.800 histórica.
 
 ## Sociedades no SAP (UX-07)
 

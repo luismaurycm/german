@@ -48,7 +48,7 @@ public sealed class Entorno : IAsyncDisposable
         Clientes = new SqliteClienteRepository(Base);
         Conexiones = new SqliteConexionRepository(Base);
         Registro = new SqliteRegistroEjecuciones(Base);
-        Sap = new SimulatedSapGateway(() => Opciones);
+        Sap = new SimulatedSapGateway(() => Opciones, new Acelerador.Core.Consolidacion.LogicaBpcReferencia());
         ServicioClientes = new ServicioClientes(Clientes, Registro, Usuario, Reloj);
         ServicioConexiones = new ServicioConexiones(Clientes, Conexiones, Credenciales, Registro, Sap, CatalogoVariantes.VersionUno, Usuario, Reloj);
         ServicioModulos = new ServicioModulos(Clientes);
@@ -205,6 +205,47 @@ public sealed class Entorno : IAsyncDisposable
         Assert.NotNull(await ServicioMapeo.ContinuarAsync(c.Id));
         return (await Clientes.ObtenerAsync(c.Id))!;
     }
+
+    /// <summary>Rubro de cada nodo del paisaje de ejemplo, para mapear todas las cuentas (RN-16 exige todas las cuentas con saldo).</summary>
+    public static readonly IReadOnlyDictionary<string, string> RubroPorNodo = new Dictionary<string, string>
+    {
+        ["Disponible"] = "F-00-101",
+        ["Deudores"] = "F-00-102",
+        ["Propiedad, planta y equipo"] = "F-00-103",
+        ["Proveedores"] = "F-00-201",
+        ["Cuentas por pagar"] = "F-00-201",
+        ["Obligaciones financieras"] = "F-00-202",
+        ["Obligaciones laborales"] = "F-00-203",
+        ["Patrimonio"] = "F-00-301",
+        ["Ingresos operacionales"] = "F-00-401",
+        ["Gastos de administración"] = "F-00-501",
+        ["Gastos de ventas"] = "F-00-502",
+        ["Gastos no operacionales"] = "F-00-503",
+    };
+
+    /// <summary>Mapea todas las cuentas de PCCO y PCPA a su rubro; la utilidad del ejercicio, al resultado del ejercicio.</summary>
+    public async Task MapearTodoAsync(Guid clienteId)
+    {
+        foreach (var plan in new[] { "PCCO", "PCPA" })
+        {
+            foreach (var g in SimulatedSapGateway.Cuentas.Where(c => c.Plan == plan)
+                         .GroupBy(c => c.Descripcion.StartsWith("Utilidad del ejercicio", StringComparison.Ordinal) ? "F-00-302" : RubroPorNodo[c.Nodo]))
+            {
+                await Mapeos.GuardarAsync(clienteId, plan, g.Select(c => c.Numero).ToList(), g.Key);
+            }
+        }
+    }
+
+    /// <summary>Lleva un cliente hasta el plan con todas las cuentas mapeadas, listo para consolidar.</summary>
+    public async Task<Cliente> ClienteListoParaConsolidarAsync(List<FilaSociedad>? filas = null)
+    {
+        var c = await ClienteEnPlanAsync(filas: filas);
+        await MapearTodoAsync(c.Id);
+        return c;
+    }
+
+    /// <summary>Registros del modelo de consolidación en el simulador.</summary>
+    public IReadOnlyList<RegistroBpc> Bpc => Sap.Almacen.Registros;
 
     /// <summary>Genera y ejecuta lo que haya en la cola (lo que en la aplicación hace la cola en segundo plano).</summary>
     public async Task<EjecucionPlan> GenerarAsync(Guid clienteId)

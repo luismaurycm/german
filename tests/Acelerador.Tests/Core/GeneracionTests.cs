@@ -185,8 +185,8 @@ public class PlanGeneracionTests
         var plan = (await servicio.ObtenerAsync(c.Id))!.Plan;
 
         Assert.Equal(PasosGeneracion.ObjetosBw, plan.Pasos[0].Id);
-        Assert.Equal(PasosGeneracion.Conversion, plan.Pasos[^1].Id);
-        Assert.Equal("ZPRUEBA", Assert.Single(plan.Pasos[^1].Objetos).NombreTecnico);
+        Assert.Contains(plan.Pasos.Single(p => p.Id == PasosGeneracion.Conversion).Objetos, o => o.NombreTecnico == "ZPRUEBA");
+        Assert.Equal(plan.Pasos.Select(p => PasosGeneracion.Orden(p.Id)).Order(), plan.Pasos.Select(p => PasosGeneracion.Orden(p.Id)));
     }
 
     private sealed class GeneradorDePrueba : IGeneradorObjetos

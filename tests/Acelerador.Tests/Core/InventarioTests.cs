@@ -226,23 +226,9 @@ public class ServicioDiagnosticoTests
     }
 
     /// <summary>Simula un sistema que devuelve la clave dentro del mensaje de error del inventario.</summary>
-    private sealed class GatewayQueEcoaLaClave(ISapGateway interno) : ISapGateway
+    private sealed class GatewayQueEcoaLaClave(ISapGateway interno) : GatewayDelegado(interno)
     {
-        public Task<ResultadoPrueba> ProbarConexionAsync(DestinoSap destino, CancellationToken ct = default) => interno.ProbarConexionAsync(destino, ct);
-
-        public Task<ResultadoValidacionErpBw> ValidarConexionErpBwAsync(DestinoSap erp, DestinoSap bw, CancellationToken ct = default) =>
-            interno.ValidarConexionErpBwAsync(erp, bw, ct);
-
-        public Task<ResultadoDeteccion> DetectarPaisajeAsync(DestinoSap erp, DestinoSap bw, DestinoSap bpc, CancellationToken ct = default) =>
-            interno.DetectarPaisajeAsync(erp, bw, bpc, ct);
-
-        public Task<ResultadoInventario> LeerInventarioAsync(DestinoSap destino, TipoInventario tipo, CancellationToken ct = default) =>
+        public override Task<ResultadoInventario> LeerInventarioAsync(DestinoSap destino, TipoInventario tipo, CancellationToken ct = default) =>
             Task.FromResult(new ResultadoInventario(false, $"logon failed for {destino.Parametros.UsuarioTecnico} with {destino.Credencial.Revelar()}", []));
-
-        public Task<ResultadoSociedades> LeerSociedadesAsync(DestinoSap erp, CancellationToken ct = default) => interno.LeerSociedadesAsync(erp, ct);
-
-        public Task<ResultadoCuentas> LeerCuentasAsync(DestinoSap erp, string sociedad, CancellationToken ct = default) => interno.LeerCuentasAsync(erp, sociedad, ct);
-
-        public Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap destino, OperacionSap operacion, CancellationToken ct = default) => interno.EjecutarAsync(destino, operacion, ct);
     }
 }

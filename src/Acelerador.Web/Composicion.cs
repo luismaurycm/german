@@ -1,3 +1,4 @@
+using Acelerador.Core.Consolidacion;
 using Acelerador.Core.Generacion;
 using Acelerador.Core.Puertos;
 using Acelerador.Core.Reglas;
@@ -65,7 +66,7 @@ public static class Composicion
         var modoSap = config["Sap:Modo"] ?? "Simulado";
         services.AddSingleton<ISapGateway>(sp => string.Equals(modoSap, "Nco", StringComparison.OrdinalIgnoreCase)
             ? new NcoSapGateway()
-            : new SimulatedSapGateway(() => sp.GetRequiredService<IOptionsMonitor<OpcionesSimulador>>().CurrentValue));
+            : new SimulatedSapGateway(() => sp.GetRequiredService<IOptionsMonitor<OpcionesSimulador>>().CurrentValue, new LogicaBpcReferencia()));
 
         services.AddScoped<ServicioClientes>();
         services.AddScoped<ServicioConexiones>();

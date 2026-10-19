@@ -114,9 +114,11 @@ public static class PasosGeneracion
         (Cuadre, "Validación de cuadre"),
         (Importacion, "Importación a BPC"),
         (Presupuesto, "Modelo de presupuesto"),
+
+        // BPC convierte antes de eliminar: las eliminaciones se calculan en cada moneda de presentación (RN-06).
+        (Conversion, "Conversión a dólares y diferencia en conversión"),
         (Consolidacion, "Consolidación"),
         (Inversion, "Eliminación de inversión e interés minoritario"),
-        (Conversion, "Conversión a dólares y diferencia en conversión"),
     ];
 
     public static string Nombre(string id) => Todos.First(p => p.Id == id).Nombre;

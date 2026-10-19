@@ -73,7 +73,7 @@ public class ServicioMapeoTests
         Assert.All(colombia.Cuentas, x => Assert.Equal(8, x.Cuenta.Numero.Length));
         Assert.Equal(SimulatedSapGateway.Cuentas.Count(x => x.Plan == "PCCO"), colombia.TotalCuentas);
         Assert.Equal("COP", colombia.Moneda);
-        Assert.Equal(["1010", "1020", "1200", "1500", "2000", "2100", "3000", "4000", "5000"], panama.Cuentas.Select(x => x.Cuenta.Numero));
+        Assert.Equal(["1010", "1020", "1200", "1500", "2000", "2100", "3000", "3100", "4000", "5000"], panama.Cuentas.Select(x => x.Cuenta.Numero));
         Assert.Equal("USD", panama.Moneda);
         Assert.Contains(e.Sap.Llamadas, l => l.Operacion == "BAPI_GL_ACC_GETLIST" && l.Sistema == SistemaSap.Erp);
         Assert.DoesNotContain(e.Sap.Llamadas, l => l.EsEscritura);

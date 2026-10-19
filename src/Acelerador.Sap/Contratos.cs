@@ -155,3 +155,34 @@ public sealed record ResultadoOperacionSap(
     bool ErrorDeComunicacion = false,
     int? Cantidad = null,
     string? Aviso = null);
+
+/// <summary>
+/// Un registro del modelo BPC: sociedad, cuenta, intercompañía, periodo, moneda de presentación (LC, USD o la moneda
+/// local del grupo), flujo, origen (carga, eliminaciones, conversión…) e importe. Grupo vacío = dato de la sociedad.
+/// </summary>
+public sealed record RegistroBpc(
+    string Modelo,
+    string Entidad,
+    string Cuenta,
+    string Intco,
+    string Periodo,
+    string Moneda,
+    string Flujo,
+    string Origen,
+    decimal Importe,
+    string Grupo = "");
+
+/// <summary>Resultado de la validación de cuadre de una sociedad y periodo antes de importar (RN-16, HU-36, C03).</summary>
+public sealed record ValidacionCuadre(
+    string Sociedad,
+    string Periodo,
+    bool Importable,
+    decimal DiferenciaBalance,
+    decimal DiferenciaResultado,
+    IReadOnlyList<string> CuentasSinMapear,
+    bool Importada = false);
+
+/// <summary>Consulta al modelo BPC (lo que harían EPM o los reportes C01 a C04). Null en un filtro = todos.</summary>
+public sealed record ConsultaBpc(string Modelo, string? Periodo = null, string? Moneda = null, string? Origen = null, string? Entidad = null);
+
+public sealed record ResultadoConsultaBpc(bool Exitosa, string Mensaje, IReadOnlyList<RegistroBpc> Registros, IReadOnlyList<ValidacionCuadre> Validaciones);

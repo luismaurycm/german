@@ -83,6 +83,24 @@ public sealed class EjecucionPlan
 
     public PasoEjecucion? PasoConError => Pasos.FirstOrDefault(p => p.Estado == EstadoPaso.Error);
 
+    /// <summary>
+    /// Sociedades que llegaron a BPC (importadas sin aviso de cuadre) cuando la ejecución consolidó y convirtió; null si
+    /// la ejecución no incluye la consolidación.
+    /// </summary>
+    public int? SociedadesConsolidadas
+    {
+        get
+        {
+            var importacion = Pasos.FirstOrDefault(p => p.Id == PasosGeneracion.Importacion);
+            if (importacion is null || !Pasos.Any(p => p.Id == PasosGeneracion.Conversion) || !Pasos.Any(p => p.Id == PasosGeneracion.Consolidacion))
+            {
+                return null;
+            }
+
+            return importacion.Objetos.Count(o => o.Operacion.TipoObjeto == "IMPORTACION") - importacion.Avisos.Count;
+        }
+    }
+
     /// <summary>Número (desde 1) del paso en curso o del siguiente pendiente.</summary>
     public int PasoActual => Pasos.FindIndex(p => !p.Terminado) + 1;
 }

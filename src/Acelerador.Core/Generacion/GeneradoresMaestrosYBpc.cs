@@ -130,6 +130,8 @@ public sealed class GeneradorModeloBpc : IGeneradorObjetos
             cuentas.Add(new MiembroBpc(IdCuenta(a.PlanCuentas, a.Cuenta), $"Cuenta {a.Cuenta} del plan {a.PlanCuentas}", a.Rubro));
         }
 
+        cuentas.AddRange(ReglasRubros.CuentasTecnicas.Select(t => new MiembroBpc(t.Id, t.Descripcion, t.Rubro)));
+
         var anio = c.Fecha.Year;
         var periodos = Enumerable.Range(1, 12).Select(m => new MiembroBpc($"{anio}.{m:00}", $"{anio}-{m:00}", $"{anio}.TOTAL"))
             .Prepend(new MiembroBpc($"{anio}.TOTAL", $"Año {anio}", null)).ToList();
@@ -143,7 +145,7 @@ public sealed class GeneradorModeloBpc : IGeneradorObjetos
             ("TERCERO", [new MiembroBpc("T_NONE", "Sin tercero", null)]),
             ("TIME", periodos),
             ("CATEGORY", [new MiembroBpc("ACTUAL", "Real", null)]),
-            ("RPTCURRENCY", [new MiembroBpc("LC", "Moneda local", null), new MiembroBpc(ReglasMonedas.Dolar, "Dólares", null)]),
+            ("RPTCURRENCY", [new MiembroBpc("LC", "Moneda local de cada sociedad", null), .. ReglasCierre.MonedasPresentacion(c.Sociedades).Select(m => new MiembroBpc(m, m == ReglasMonedas.Dolar ? "Dólares" : $"Moneda local del grupo ({m})", null))]),
             ("FLOW", [new MiembroBpc("F_OPE", "Apertura", null), new MiembroBpc("F_MOV", "Movimiento", null), new MiembroBpc("F_CTA", "Diferencia en conversión", null), new MiembroBpc("F_CLO", "Cierre", null)]),
             ("AUDITTRAIL", [new MiembroBpc("INPUT", "Carga", null), new MiembroBpc("ELIM_IC", "Eliminación intercompañía", null), new MiembroBpc("ELIM_INV", "Eliminación de inversión", null), new MiembroBpc("AJUSTE", "Asientos de ajuste", null), new MiembroBpc("CONVERSION", "Conversión", null)]),
             ("GROUP", [new MiembroBpc($"G_{matriz}", $"Grupo consolidado {matriz}", null, ReglasMonedas.Dolar)]),
