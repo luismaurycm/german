@@ -9,7 +9,7 @@ namespace Acelerador.Sap;
 /// Los errores de SAP no se lanzan como excepción: vuelven en el resultado con el mensaje del
 /// sistema, porque la pantalla los muestra tal cual (HU-03 CA2). El llamador sanitiza el mensaje
 /// antes de mostrarlo o registrarlo (HU-04 CA4).
-/// Todas las operaciones de los sprints 1 y 2 son de solo lectura: no crean objetos en el cliente.
+/// Las operaciones de lectura no crean nada en el cliente; las escrituras van todas por <see cref="EjecutarAsync"/>.
 /// </remarks>
 public interface ISapGateway
 {
@@ -33,4 +33,7 @@ public interface ISapGateway
 
     /// <summary>Cuentas del plan de cuentas de una sociedad, con nodo y saldo (HU-11, RN-05, RN-10).</summary>
     Task<ResultadoCuentas> LeerCuentasAsync(DestinoSap erp, string sociedad, CancellationToken ct = default);
+
+    /// <summary>Crea, activa o modifica un objeto en el cliente por el paquete Z (HU-14 en adelante). Idempotente (RN-03).</summary>
+    Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap destino, OperacionSap operacion, CancellationToken ct = default);
 }

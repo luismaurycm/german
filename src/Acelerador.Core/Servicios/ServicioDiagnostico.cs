@@ -106,7 +106,9 @@ public sealed class ServicioDiagnostico(
             return new ResultadoOperacion(false, bloqueo!);
         }
 
-        inventario.CamposZIncorporados = ReglasInventario.ConservarSeleccion(campos, inventario.Lista(TipoInventario.CamposZ));
+        // HU-17 CA3: un campo Z con tipo de dato incompatible no se incorpora aunque venga marcado.
+        var compatibles = inventario.Lista(TipoInventario.CamposZ).Where(z => ReglasCamposZ.Compatible(z.TipoDato));
+        inventario.CamposZIncorporados = ReglasInventario.ConservarSeleccion(campos, compatibles);
         await inventarios.GuardarAsync(inventario, ct);
 
         if (!continuar)

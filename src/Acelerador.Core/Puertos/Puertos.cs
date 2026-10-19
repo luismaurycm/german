@@ -88,3 +88,22 @@ public interface IMapeoRepository
     /// <summary>Asigna las cuentas al rubro, o las quita de su rubro si <paramref name="rubro"/> es null. Todo o nada.</summary>
     Task GuardarAsync(Guid clienteId, string planCuentas, IReadOnlyList<string> cuentas, string? rubro, CancellationToken ct = default);
 }
+
+/// <summary>Ejecuciones del plan de generación (HU-14).</summary>
+public interface IEjecucionPlanRepository
+{
+    Task<EjecucionPlan?> ObtenerUltimaAsync(Guid clienteId, CancellationToken ct = default);
+
+    Task<EjecucionPlan?> ObtenerAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>Ejecuciones sin terminar (sin fecha de fin), para marcarlas como interrumpidas al arrancar.</summary>
+    Task<IReadOnlyList<EjecucionPlan>> ListarAbiertasAsync(CancellationToken ct = default);
+
+    Task GuardarAsync(EjecucionPlan ejecucion, CancellationToken ct = default);
+}
+
+/// <summary>Cola que ejecuta el plan en segundo plano para que UX-09 muestre el avance (HU-14).</summary>
+public interface IColaEjecuciones
+{
+    void Encolar(Guid clienteId, Guid ejecucionId);
+}

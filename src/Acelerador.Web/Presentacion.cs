@@ -41,6 +41,8 @@ public static class Formato
         Pasos.Modulos => $"/clientes/{clienteId}/modulos",
         Pasos.Sociedades => $"/clientes/{clienteId}/sociedades",
         Pasos.Mapeo => $"/clientes/{clienteId}/mapeo",
+        Pasos.Plan => $"/clientes/{clienteId}/plan",
+        Pasos.Ejecucion => $"/clientes/{clienteId}/ejecucion",
         _ => $"/clientes/{clienteId}/paso/{paso}",
     };
 
@@ -51,6 +53,7 @@ public static class Formato
     {
         Pasos.Sociedades => "Cargando sociedades…",
         Pasos.Mapeo => "Cargando cuentas…",
+        Pasos.Plan => "Calculando el plan…",
         _ => null,
     };
 

@@ -20,16 +20,16 @@ namespace Acelerador.Tests.Web;
 [Collection("Web")]
 public class PantallasSprint2Tests
 {
-    private const string Clave = "Cl4ve-Sprint2-Única-777";
+    internal const string Clave = "Cl4ve-Sprint2-Única-777";
 
     private static readonly Dictionary<string, string?> Vacio = [];
 
     // ---------- Ayudas del recorrido ----------
 
-    private static OpcionesSimulador Simulador(FabricaWeb app) =>
+    internal static OpcionesSimulador Simulador(FabricaWeb app) =>
         app.Services.GetRequiredService<IOptionsMonitor<OpcionesSimulador>>().CurrentValue;
 
-    private static async Task<string> CrearClienteAsync(Navegador nav, string nombre = "Grupo Ejemplo Andino")
+    internal static async Task<string> CrearClienteAsync(Navegador nav, string nombre = "Grupo Ejemplo Andino")
     {
         await nav.GetAsync("/?nuevo=true");
         var r = await nav.PostAsync("/?handler=Crear", new Dictionary<string, string?> { ["Nombre"] = nombre }, seguir: false);
@@ -38,7 +38,7 @@ public class PantallasSprint2Tests
         return destino.Replace("/conexiones", "", StringComparison.Ordinal);
     }
 
-    private static async Task ProbarAsync(Navegador nav, string cliente, SistemaSap s, string host, string mandante)
+    internal static async Task ProbarAsync(Navegador nav, string cliente, SistemaSap s, string host, string mandante)
     {
         await nav.GetAsync($"{cliente}/conexiones");
         await nav.PostAsync($"{cliente}/conexiones?handler=Probar&sistema={s}", new Dictionary<string, string?>
@@ -51,7 +51,7 @@ public class PantallasSprint2Tests
     }
 
     /// <summary>UX-01 → UX-02 → UX-03: crea el cliente, prueba y valida las conexiones y entra al diagnóstico.</summary>
-    private static async Task<string> LlegarADiagnosticoAsync(Navegador nav, string bw = "bw-ejemplo.local", string bpc = "bw-ejemplo.local")
+    internal static async Task<string> LlegarADiagnosticoAsync(Navegador nav, string bw = "bw-ejemplo.local", string bpc = "bw-ejemplo.local")
     {
         var cliente = await CrearClienteAsync(nav);
         await ProbarAsync(nav, cliente, SistemaSap.Erp, "erp-ejemplo.local", "300");
@@ -63,7 +63,7 @@ public class PantallasSprint2Tests
         return cliente;
     }
 
-    private static async Task<string> LlegarAModulosAsync(Navegador nav)
+    internal static async Task<string> LlegarAModulosAsync(Navegador nav)
     {
         var cliente = await LlegarADiagnosticoAsync(nav);
         await nav.PostAsync($"{cliente}/diagnostico?handler=Escanear", Vacio);
@@ -72,7 +72,7 @@ public class PantallasSprint2Tests
         return cliente;
     }
 
-    private static async Task<string> LlegarASociedadesAsync(Navegador nav)
+    internal static async Task<string> LlegarASociedadesAsync(Navegador nav)
     {
         var cliente = await LlegarAModulosAsync(nav);
         await nav.PostAsync($"{cliente}/modulos", new Dictionary<string, string?> { ["modulos"] = "Consolidacion", ["accion"] = "continuar" });
@@ -80,7 +80,7 @@ public class PantallasSprint2Tests
         return cliente;
     }
 
-    private static Dictionary<string, string?> FormularioSociedades(IEnumerable<FilaSociedad> filas, string accion)
+    internal static Dictionary<string, string?> FormularioSociedades(IEnumerable<FilaSociedad> filas, string accion)
     {
         var d = new Dictionary<string, string?> { ["accion"] = accion };
         var i = 0;
@@ -100,7 +100,7 @@ public class PantallasSprint2Tests
         return d;
     }
 
-    private static async Task<string> LlegarAMapeoAsync(Navegador nav, IEnumerable<FilaSociedad>? filas = null)
+    internal static async Task<string> LlegarAMapeoAsync(Navegador nav, IEnumerable<FilaSociedad>? filas = null)
     {
         var cliente = await LlegarASociedadesAsync(nav);
         await nav.PostAsync($"{cliente}/sociedades", FormularioSociedades(filas ?? Entorno.FilasPrototipo(), "continuar"));
@@ -155,7 +155,7 @@ public class PantallasSprint2Tests
         Assert.Contains("role=\"tablist\"", nav.Html, StringComparison.Ordinal);
         Assert.Equal(4, Regex.Count(nav.Html, "role=\"tab\""));
         Assert.Equal(4, Regex.Count(nav.Html, "role=\"tabpanel\""));
-        foreach (var t in new[] { "Extractores activos (4)", "InfoProviders (InfoCubos) (2)", "Modelos BPC (1)", "Campos Z (2)" })
+        foreach (var t in new[] { "Extractores activos (4)", "InfoProviders (InfoCubos) (2)", "Modelos BPC (1)", "Campos Z (3)" })
         {
             Assert.Contains(t, nav.Texto, StringComparison.Ordinal);
         }
@@ -238,7 +238,7 @@ public class PantallasSprint2Tests
 
         Assert.Contains($"Último escaneo: {Presentacion(reloj.Ahora)}", nav.Texto, StringComparison.Ordinal);
         Assert.Contains("ZZNUEVO", nav.Texto, StringComparison.Ordinal);
-        Assert.Contains("Campos Z (3)", nav.Texto, StringComparison.Ordinal);
+        Assert.Contains("Campos Z (4)", nav.Texto, StringComparison.Ordinal);
     }
 
     private static string Presentacion(DateTimeOffset f) => Acelerador.Web.Formato.Fecha(f);

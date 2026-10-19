@@ -29,7 +29,8 @@ public enum PerfilSimulado
 /// <item>host de BW que contiene «sinfuente» → la validación ERP–BW falla;</item>
 /// <item>host de BW que contiene «bodega» → BW ya tiene la bodega financiera (RN-03);</item>
 /// <item>host de BPC que contiene «sinpermiso» → el escaneo falla al leer los modelos BPC;</item>
-/// <item>host del ERP que contiene «vacio» → inventario sin objetos (estado vacío de UX-03).</item>
+/// <item>host del ERP que contiene «vacio» → inventario sin objetos (estado vacío de UX-03);</item>
+/// <item>usuario técnico «rfc_lectura» → toda escritura falla por falta de permiso (UX-09 con error).</item>
 /// </list>
 /// </summary>
 public sealed class OpcionesSimulador
@@ -74,6 +75,15 @@ public sealed class OpcionesSimulador
 
     /// <summary>Cuentas creadas en el ERP además de las del paisaje de ejemplo.</summary>
     public List<CuentaSimulada> CuentasAdicionales { get; set; } = [];
+
+    /// <summary>Sistemas en los que toda escritura falla por falta de permiso (HU-14 CA2).</summary>
+    public List<SistemaSap> FallaEscritura { get; set; } = [];
+
+    /// <summary>Demora adicional de cada escritura, para probar el tiempo de espera de 120 s por llamada RFC.</summary>
+    public int LatenciaEscrituraMs { get; set; }
+
+    /// <summary>Nombres técnicos de objetos cuya creación falla.</summary>
+    public List<string> FallaObjetos { get; set; } = [];
 }
 
 /// <summary>Cuenta adicional del simulador: plan de cuentas, número, descripción, nodo y saldo.</summary>

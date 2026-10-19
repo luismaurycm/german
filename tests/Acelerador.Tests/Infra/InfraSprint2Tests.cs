@@ -8,7 +8,7 @@ namespace Acelerador.Tests.Infra;
 
 public class EsquemaSprint2Tests
 {
-    [Fact(DisplayName = "ADR-04: una base del Sprint 1 (esquema 1) se migra al esquema 2 sin perder clientes")]
+    [Fact(DisplayName = "ADR-04: una base del Sprint 1 (esquema 1) se migra al esquema actual sin perder clientes")]
     public async Task MigraEsquema1()
     {
         var carpeta = Path.Combine(Path.GetTempPath(), "acelerador-pruebas", Guid.NewGuid().ToString("N"));
@@ -46,7 +46,7 @@ public class EsquemaSprint2Tests
             await using var cn2 = await db.AbrirAsync();
             await using var v = cn2.CreateCommand();
             v.CommandText = "SELECT version FROM esquema";
-            Assert.Equal(2L, await v.ExecuteScalarAsync());
+            Assert.Equal((long)BaseLocal.VersionEsquema, await v.ExecuteScalarAsync());
         }
         finally
         {

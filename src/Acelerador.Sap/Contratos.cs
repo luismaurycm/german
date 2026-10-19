@@ -97,8 +97,15 @@ public enum TipoInventario
 /// Un objeto que ya existe en el cliente. Solo metadatos: el escáner nunca lee datos financieros ni de terceros.
 /// <see cref="Detalle"/> es el tipo de InfoProvider (InfoCubo o aDSO), el ambiente del modelo BPC o la tabla del campo Z.
 /// <see cref="EsBodegaFinanciera"/> marca los InfoProviders de la bodega financiera (RN-03).
+/// <see cref="TipoDato"/> es el tipo ABAP del campo Z (p. ej. «CHAR 4», «STRG»), para decidir si se puede incorporar (HU-17).
 /// </summary>
-public sealed record ObjetoInventario(string NombreTecnico, string Descripcion, bool Activo, string? Detalle = null, bool EsBodegaFinanciera = false);
+public sealed record ObjetoInventario(
+    string NombreTecnico,
+    string Descripcion,
+    bool Activo,
+    string? Detalle = null,
+    bool EsBodegaFinanciera = false,
+    string? TipoDato = null);
 
 public sealed record ResultadoInventario(bool Exitosa, string Mensaje, IReadOnlyList<ObjetoInventario> Objetos);
 
@@ -121,3 +128,23 @@ public sealed record ResultadoCuentas(
     string Moneda,
     string Periodo,
     IReadOnlyList<CuentaErp> Cuentas);
+
+/// <summary>Qué hizo el paquete Z con un objeto: lo creó, ya existía (no lo toca, RN-03) o lo modificó.</summary>
+public enum ResultadoEscritura
+{
+    Creado,
+    Existente,
+    Modificado,
+}
+
+/// <summary>
+/// Una escritura en el cliente por el paquete Z (INT-02, INT-03): función RFC, tipo y nombre técnico del objeto y su
+/// definición en JSON. El paquete Z es idempotente: si el objeto existe responde EXISTE y no lo modifica (RN-03).
+/// </summary>
+public sealed record OperacionSap(string Funcion, string TipoObjeto, string NombreTecnico, string Definicion);
+
+/// <summary>
+/// Resultado de una escritura. <see cref="ErrorDeComunicacion"/> distingue la falla de red o el tiempo agotado (se reintenta
+/// una vez) de un error de negocio de SAP (no se reintenta), como pide la arquitectura (sección 8.3).
+/// </summary>
+public sealed record ResultadoOperacionSap(bool Exitosa, string Mensaje, ResultadoEscritura? Resultado = null, bool ErrorDeComunicacion = false);

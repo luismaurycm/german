@@ -5,6 +5,9 @@ namespace Acelerador.Sap.Simulador;
 /// <summary>Una llamada recibida por el simulador. Sirve para comprobar que nada escribe en el cliente (RN-19).</summary>
 public sealed record LlamadaSimulada(string Operacion, SistemaSap Sistema, bool EsEscritura);
 
+/// <summary>Un objeto que el simulador creó en el cliente.</summary>
+public sealed record ObjetoSimulado(SistemaSap Sistema, string Host, OperacionSap Operacion);
+
 /// <summary>
 /// Implementación de <see cref="ISapGateway"/> sin SAP: imita los paisajes de <see cref="PerfilSimulado"/>,
 /// los fallos de conexión y los mensajes que devuelve SAP. Se usa en las pruebas unitarias y en
@@ -31,6 +34,15 @@ public sealed class SimulatedSapGateway : ISapGateway
 
     private readonly Func<OpcionesSimulador> _opciones;
     private readonly ConcurrentQueue<LlamadaSimulada> _llamadas = new();
+    private readonly ConcurrentDictionary<string, ObjetoSimulado> _objetos = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Nombres técnicos de la bodega financiera que ya existe cuando BW la tiene (RN-03).</summary>
+    public static readonly IReadOnlyList<string> ObjetosBodegaBw75 = ["ZACC_O01", "ZACC_C01", "ZACC_C02"];
+
+    public static readonly IReadOnlyList<string> ObjetosBodegaBw4 = ["ZACC_D01", "ZACC_D02"];
+
+    public static string MensajeSinEscritura(OperacionSap op, SistemaSap sistema) =>
+        $"{op.Funcion}: el usuario técnico no tiene permiso de escritura en {NombreSistema(sistema)} (Z_ACC_PASO = CREAR).";
 
     public SimulatedSapGateway(OpcionesSimulador opciones)
         : this(() => opciones)
@@ -44,6 +56,38 @@ public sealed class SimulatedSapGateway : ISapGateway
     }
 
     public IReadOnlyCollection<LlamadaSimulada> Llamadas => _llamadas.ToArray();
+
+    /// <summary>Objetos creados en el cliente simulado, en el orden en que se crearon.</summary>
+    public IReadOnlyList<ObjetoSimulado> Objetos => [.. _objetos.Values];
+
+    public async Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap destino, OperacionSap operacion, CancellationToken ct = default)
+    {
+        var o = _opciones();
+        _llamadas.Enqueue(new LlamadaSimulada($"{operacion.Funcion} {operacion.NombreTecnico}", destino.Sistema, EsEscritura: true));
+        await Esperar(o, ct);
+        if (o.LatenciaEscrituraMs > 0)
+        {
+            await Task.Delay(o.LatenciaEscrituraMs, ct);
+        }
+
+        if (o.FallaEscritura.Contains(destino.Sistema)
+            || o.FallaObjetos.Contains(operacion.NombreTecnico, StringComparer.OrdinalIgnoreCase)
+            || string.Equals(destino.Parametros.UsuarioTecnico, "RFC_LECTURA", StringComparison.OrdinalIgnoreCase))
+        {
+            return new ResultadoOperacionSap(false, MensajeSinEscritura(operacion, destino.Sistema));
+        }
+
+        var bodega = o.BodegaExistente || Contiene(destino.Parametros.Host, "bodega");
+        var preexistente = destino.Sistema == SistemaSap.Bw && bodega
+            && (ObjetosBodegaBw75.Contains(operacion.NombreTecnico) || ObjetosBodegaBw4.Contains(operacion.NombreTecnico));
+        var clave = $"{destino.Sistema}|{destino.Parametros.Host}|{operacion.TipoObjeto}|{operacion.NombreTecnico}";
+        if (preexistente || !_objetos.TryAdd(clave, new ObjetoSimulado(destino.Sistema, destino.Parametros.Host, operacion)))
+        {
+            return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico}: EXISTE, no se modifica.", ResultadoEscritura.Existente);
+        }
+
+        return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico} creado.", ResultadoEscritura.Creado);
+    }
 
     public async Task<ResultadoPrueba> ProbarConexionAsync(DestinoSap destino, CancellationToken ct = default)
     {
@@ -141,9 +185,10 @@ public sealed class SimulatedSapGateway : ISapGateway
             ],
             _ =>
             [
-                new("ZZREGION", "Región comercial (ejemplo)", true, s4 ? "ACDOCA" : "BSEG"),
-                new("ZZLINEA", "Línea de negocio (ejemplo)", true, s4 ? "ACDOCA" : "BSEG"),
-                .. o.CamposZAdicionales.Select(c => new ObjetoInventario(c, "Campo agregado por el cliente", true, s4 ? "ACDOCA" : "BSEG")),
+                new("ZZREGION", "Región comercial (ejemplo)", true, s4 ? "ACDOCA" : "BSEG", TipoDato: "CHAR 4"),
+                new("ZZLINEA", "Línea de negocio (ejemplo)", true, s4 ? "ACDOCA" : "BSEG", TipoDato: "CHAR 10"),
+                new("ZZNOTAS", "Notas libres del asiento (ejemplo)", true, s4 ? "ACDOCA" : "BSEG", TipoDato: "STRG"),
+                .. o.CamposZAdicionales.Select(c => new ObjetoInventario(c, "Campo agregado por el cliente", true, s4 ? "ACDOCA" : "BSEG", TipoDato: "CHAR 10")),
             ],
         };
         return new ResultadoInventario(true, $"{objetos.Count} objetos leídos.", objetos);
@@ -246,10 +291,16 @@ public sealed class SimulatedSapGateway : ISapGateway
             new(bw4 ? "ZSD_D01" : "ZSD_C01", "Ventas por cliente y material (ejemplo)", true, tipo),
             new(bw4 ? "ZCO_D01" : "ZCO_C01", "Costos por centro de costo (ejemplo)", true, tipo),
         };
-        if (bodega)
+        if (bodega && bw4)
         {
-            lista.Add(new(bw4 ? "ZACC_D01" : "ZACC_C01", "Saldos de contabilidad general (bodega financiera)", true, tipo, EsBodegaFinanciera: true));
-            lista.Add(new(bw4 ? "ZACC_D02" : "ZACC_C02", "Partidas de contabilidad general (bodega financiera)", true, tipo, EsBodegaFinanciera: true));
+            lista.Add(new("ZACC_D01", "Partidas de contabilidad general (bodega financiera)", true, tipo, EsBodegaFinanciera: true));
+            lista.Add(new("ZACC_D02", "Saldos de contabilidad general (bodega financiera)", true, tipo, EsBodegaFinanciera: true));
+        }
+        else if (bodega)
+        {
+            lista.Add(new("ZACC_O01", "Partidas de contabilidad general (bodega financiera)", true, "DSO", EsBodegaFinanciera: true));
+            lista.Add(new("ZACC_C01", "Saldos de contabilidad general (bodega financiera)", true, tipo, EsBodegaFinanciera: true));
+            lista.Add(new("ZACC_C02", "Partidas de contabilidad general (bodega financiera)", true, tipo, EsBodegaFinanciera: true));
         }
 
         return lista;
@@ -286,6 +337,13 @@ public sealed class SimulatedSapGateway : ISapGateway
         PerfilSimulado.ABpcEmbebido => "SAP BPC 10.1 modelo embebido",
         PerfilSimulado.B => "BPC modelo embebido",
         _ => "SAP BPC 10.1 modelo estándar",
+    };
+
+    private static string NombreSistema(SistemaSap sistema) => sistema switch
+    {
+        SistemaSap.Erp => "SAP ERP",
+        SistemaSap.Bw => "SAP BW",
+        _ => "SAP BPC",
     };
 
     private void Registrar(string operacion, SistemaSap sistema) =>

@@ -1,0 +1,159 @@
+@page "/clientes/{id:guid}/plan"
+@using Acelerador.Core.Generacion
+@model Acelerador.Web.Pages.Clientes.PlanModel
+@{
+    ViewData["Title"] = "Plan de generación";
+    var v = Model.Vista;
+    var plan = v.Plan;
+    var capas = new (Capa Capa, string Titulo, string Vacio)[]
+    {
+        (Capa.Bw, "SAP BW", "No hay objetos de BW en este plan."),
+        (Capa.Bpc, "SAP BPC", "No hay objetos de BPC en este plan."),
+    };
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(v.Cliente, Pasos.Plan))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>Plan de generación</h1>
+                <p>Revisa todo lo que se va a crear en el sistema del cliente antes de ejecutar.</p>
+            </div>
+            @if (plan.Variante is not null)
+            {
+                <div class="row"><span class="pill neu">Variante @plan.Variante.Nombre</span></div>
+            }
+        </div>
+
+        @if (Model.Error is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>No se pudo iniciar la generación.</b><br>@Model.Error</div></div>
+        }
+
+        @if (!plan.Listo)
+        {
+            <div class="card empty" id="faltantes">
+                @Iconos.Vacio
+                <p class="big">Completa los pasos anteriores para ver el plan.</p>
+                <ul class="faltan">
+                    @foreach (var f in plan.Faltantes)
+                    {
+                        <li><a href="@Formato.Ruta(v.Cliente.Id, f.Pantalla)" data-carga="@Formato.Carga(f.Pantalla)">@f.Mensaje</a></li>
+                    }
+                </ul>
+                <a class="btn btn-p" href="@Formato.Ruta(v.Cliente.Id, plan.Faltantes[0].Pantalla)" data-carga="@Formato.Carga(plan.Faltantes[0].Pantalla)">Ir a @Pasos.Nombre(plan.Faltantes[0].Pantalla)</a>
+            </div>
+        }
+        else
+        {
+            var noInc = plan.Objetos.Count(o => o.Estado == EstadoObjeto.NoIncorporable);
+            <div class="row entre" id="resumen-plan">
+                <p class="sin-margen" role="status">
+                    <b>@plan.TotalNuevos @(plan.TotalNuevos == 1 ? "objeto" : "objetos") a crear</b>
+                    · @Textos.Cantidad(plan.TotalExistentes, "existente", "existentes"), no se modifican
+                    @if (noInc > 0) { <span>· @noInc no incorporables</span> }
+                </p>
+                <a class="btn btn-p" href="@Formato.Ruta(v.Cliente.Id, Pasos.Plan)?confirmar=true#confirmar">Generar</a>
+            </div>
+
+            @if (v.UltimaEjecucion is { } ult)
+            {
+                <div class="note">@Iconos.Info<div>Ya hay una ejecución del @Formato.Fecha(ult.Inicio) (@(ult.Estado switch { EstadoEjecucion.Completa => "completa", EstadoEjecucion.ConError => "con error", _ => "en curso" })). Volver a generar no recrea lo que ya existe (RN-03). <a href="@Formato.Ruta(v.Cliente.Id, Pasos.Ejecucion)">Ver ejecución</a></div></div>
+            }
+
+            @if (Model.Confirmar)
+            {
+                <section role="dialog" aria-labelledby="titulo-confirmar" aria-describedby="texto-confirmar" class="card dlg" id="confirmar">
+                    <h2 id="titulo-confirmar">¿Generar?</h2>
+                    <p class="sin-margen" id="texto-confirmar">Se crearán <b>@plan.TotalNuevos @(plan.TotalNuevos == 1 ? "objeto" : "objetos")</b> en el sistema del cliente.</p>
+                    <form method="post" asp-page-handler="Generar" class="row fin" data-ocupado="Iniciando…">
+                        <a class="btn btn-s" href="@Formato.Ruta(v.Cliente.Id, Pasos.Plan)">Cancelar</a>
+                        <button class="btn btn-p" type="submit" autofocus>Generar</button>
+                    </form>
+                </section>
+            }
+
+            @foreach (var (capa, titulo, vacio) in capas)
+            {
+                var objetos = plan.DeCapa(capa).ToList();
+                <details class="card capa" open id="capa-@capa">
+                    <summary><h2>@titulo</h2><span class="muted">@Textos.Cantidad(objetos.Count(o => o.Estado == EstadoObjeto.Nuevo), "nuevo", "nuevos") · @Textos.Cantidad(objetos.Count(o => o.Estado == EstadoObjeto.Existente), "existente", "existentes")</span></summary>
+                    @if (objetos.Count == 0)
+                    {
+                        <p class="muted">@vacio</p>
+                    }
+                    @foreach (var grupo in objetos.GroupBy(o => o.Grupo))
+                    {
+                        <h3>@grupo.Key</h3>
+                        <div class="tblw">
+                            <table class="tbl cards">
+                                <caption class="sr">@titulo: @grupo.Key</caption>
+                                <thead><tr><th scope="col">Estado</th><th scope="col">Tipo</th><th scope="col">Nombre técnico</th><th scope="col">Descripción</th><th scope="col">Sistema</th></tr></thead>
+                                <tbody>
+                                    @foreach (var o in grupo)
+                                    {
+                                        <tr>
+                                            <td data-l="Estado">
+                                                @switch (o.Estado)
+                                                {
+                                                    case EstadoObjeto.Nuevo:
+                                                        <span class="pill neu">@Iconos.Mas Nuevo</span>
+                                                        break;
+                                                    case EstadoObjeto.Existente:
+                                                        <partial name="_Pill" model="@(("ok", "Existente, no se modifica"))" />
+                                                        break;
+                                                    default:
+                                                        <partial name="_Pill" model="@(("warn", "No incorporable"))" />
+                                                        break;
+                                                }
+                                            </td>
+                                            <td data-l="Tipo">@o.Tipo</td>
+                                            <td data-l="Nombre técnico" class="mono">@o.NombreTecnico</td>
+                                            <td data-l="Descripción">@o.Descripcion@if (o.Nota is not null) { <span class="nota-obj">@o.Nota</span> }</td>
+                                            <td data-l="Sistema" class="nw">@Textos.Sistema(o.Sistema)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    @if (capa == Capa.Bw)
+                    {
+                        <p class="rn sin-margen">Los objetos existentes no se recrean ni se modifican. RN-03 · Activos fijos y deterioros se quedan en BW. RN-12</p>
+                    }
+                </details>
+            }
+
+            <details class="card capa" open id="capa-Monedas">
+                <summary><h2>Monedas y tasas</h2><span class="muted">Moneda local y dólares</span></summary>
+                <div class="grid2">
+                    <div class="tblw">
+                        <table class="tbl">
+                            <caption class="sr">Moneda local de cada sociedad</caption>
+                            <thead><tr><th scope="col">Sociedad</th><th scope="col">Moneda local</th><th scope="col">Presentación</th></tr></thead>
+                            <tbody>
+                                @foreach (var (soc, moneda) in plan.Monedas.MonedasLocales)
+                                {
+                                    <tr><td class="mono">@soc</td><td class="mono">@moneda</td><td>@moneda y @MonedasPlan.MonedaGrupo</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tblw">
+                        <table class="tbl">
+                            <caption class="sr">Tipo de tasa por tipo de cuenta</caption>
+                            <thead><tr><th scope="col">Tasa</th><th scope="col">Se aplica a</th></tr></thead>
+                            <tbody>
+                                @foreach (var (tipo, aplica) in plan.Monedas.Tasas)
+                                {
+                                    <tr><td>@tipo</td><td>@aplica</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <p class="rn sin-margen">La consolidación se presenta en moneda local y en dólares. RN-06 · Cierre para balance, promedio para resultados e histórica para patrimonio (por confirmar, pregunta 3 del DAF). RN-11</p>
+            </details>
+        }
+    </main>
+</div>

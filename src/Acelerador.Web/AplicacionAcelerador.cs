@@ -48,7 +48,10 @@ public static class AplicacionAcelerador
         return app;
     }
 
-    /// <summary>Crea o migra la base local y depura el registro de ejecuciones de más de 12 meses (RNF-Aud-01).</summary>
+    /// <summary>
+    /// Crea o migra la base local, depura el registro de más de 12 meses (RNF-Aud-01) y marca como interrumpidas las
+    /// ejecuciones que quedaron a medias.
+    /// </summary>
     public static async Task InicializarAsync(WebApplication app)
     {
         await app.Services.GetRequiredService<BaseLocal>().InicializarAsync();
@@ -57,6 +60,12 @@ public static class AplicacionAcelerador
         if (depuradas > 0)
         {
             app.Logger.LogInformation("Registro de ejecuciones: {Cantidad} entradas de más de 12 meses depuradas", depuradas);
+        }
+
+        var interrumpidas = await scope.ServiceProvider.GetRequiredService<ServicioEjecucion>().MarcarInterrumpidasAsync();
+        if (interrumpidas > 0)
+        {
+            app.Logger.LogWarning("{Cantidad} ejecuciones quedaron interrumpidas al cerrar el acelerador; se pueden reintentar", interrumpidas);
         }
     }
 

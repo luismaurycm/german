@@ -97,7 +97,7 @@
                                 <td data-l="Paso actual">@Pasos.Nombre(c.PasoActual)</td>
                                 <td data-l="Estado">
                                     <div>
-                                        <partial name="_Pill" model="@((noSoportado ? "err" : "warn", Textos.Estado(c.Estado)))" />
+                                        <partial name="_Pill" model="@((c.Estado switch { EstadoCliente.NoSoportado or EstadoCliente.ConError => "err", EstadoCliente.Completo => "ok", _ => "warn" }, Textos.Estado(c.Estado)))" />
                                         @if (noSoportado && c.MotivoEstado is not null)
                                         {
                                             <span class="motivo">@c.MotivoEstado</span>
