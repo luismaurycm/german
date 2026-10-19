@@ -9,7 +9,14 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace Acelerador.Core.Servicios;
 
 /// <summary>Todo lo que muestra UX-09: la última ejecución y las entradas recientes del registro.</summary>
-public sealed record VistaEjecucion(Cliente Cliente, EjecucionPlan? Ejecucion, IReadOnlyList<Ejecucion> Registro);
+public sealed record VistaEjecucion(Cliente Cliente, EjecucionPlan? Ejecucion, IReadOnlyList<Ejecucion> Registro)
+{
+    /// <summary>
+    /// La ejecución sigue en curso hasta que el cliente avanza: al terminar el último paso la ejecución queda completa un
+    /// momento antes de que el cliente pase a Reportes, y UX-09 debe seguir consultando hasta entonces.
+    /// </summary>
+    public bool EnCurso => Ejecucion?.Estado == EstadoEjecucion.EnCurso || (Ejecucion is not null && Cliente.Estado == EstadoCliente.EnCurso);
+}
 
 public sealed record ResultadoInicio(Guid? EjecucionId, string? Error);
 
@@ -34,6 +41,7 @@ public sealed class ServicioEjecucion(
     IUsuarioActual usuario,
     TimeProvider reloj,
     OpcionesEjecucion? opciones = null,
+    IProveedorPlantillas? plantillas = null,
     ILogger<ServicioEjecucion>? logger = null)
 {
     public const string PrefijoComunicacion = "Error de comunicación: ";
@@ -196,13 +204,14 @@ public sealed class ServicioEjecucion(
             }
             else
             {
-                resultado = await LlamarAsync(destino.Destino, objeto.Operacion, ct);
+                var operacion = ConContenido(objeto.Operacion);
+                resultado = await LlamarAsync(destino.Destino, operacion, ct);
                 if (resultado.ErrorDeComunicacion)
                 {
                     // Un solo reintento automático, y solo en errores de comunicación (arquitectura 8.3).
                     await RegistrarAsync(cliente.Id, Textos.Sistema(objeto.Sistema), paso.Nombre, objeto.NombreTecnico, ResultadoEjecucion.Fallido,
                         SanitizadorMensajes.Limpiar($"Intento 1: {resultado.Mensaje} Se reintenta una vez.", destino.Credencial), ct);
-                    resultado = await LlamarAsync(destino.Destino, objeto.Operacion, ct);
+                    resultado = await LlamarAsync(destino.Destino, operacion, ct);
                     if (!resultado.Exitosa)
                     {
                         resultado = resultado with { Mensaje = $"Intento 2: {resultado.Mensaje}" };
@@ -251,6 +260,23 @@ public sealed class ServicioEjecucion(
         paso.Fin = reloj.GetUtcNow();
         await ejecuciones.GuardarAsync(ejecucion, ct);
         return true;
+    }
+
+    /// <summary>
+    /// Las plantillas EPM (C02 y siguientes) se generan al ejecutar, con el proveedor de plantillas (Open XML), y viajan en
+    /// la definición en base64 hacia Z_ACC_BPC_SUBIR_PLANTILLA.
+    /// </summary>
+    private OperacionSap ConContenido(OperacionSap operacion)
+    {
+        if (operacion.TipoObjeto != "PLANTILLA" || plantillas is null)
+        {
+            return operacion;
+        }
+
+        var nodo = System.Text.Json.Nodes.JsonNode.Parse(operacion.Definicion)!.AsObject();
+        var bytes = plantillas.Generar(nodo["plantilla"]!.GetValue<string>(), nodo["parametros"]!.ToJsonString());
+        nodo["contenido"] = Convert.ToBase64String(bytes);
+        return operacion with { Definicion = nodo.ToJsonString() };
     }
 
     /// <summary>Una llamada RFC con su tiempo de espera; el tiempo agotado y las excepciones de red son errores de comunicación.</summary>

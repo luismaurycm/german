@@ -4,7 +4,7 @@
     ViewData["Title"] = "Ejecución y registro";
     var v = Model.Vista;
     var e = v.Ejecucion;
-    var enCurso = e?.Estado == EstadoEjecucion.EnCurso;
+    var enCurso = v.EnCurso;
     var subtitulo = e?.Estado switch
     {
         EstadoEjecucion.EnCurso => $"Ejecutando… paso {e.PasoActual} de {e.Pasos.Count}.",

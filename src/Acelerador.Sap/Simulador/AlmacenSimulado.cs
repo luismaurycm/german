@@ -23,6 +23,11 @@ public interface IAlmacenSimulado
     IReadOnlyList<ValidacionCuadre> Validaciones { get; }
 
     void GuardarValidacion(ValidacionCuadre validacion);
+
+    /// <summary>Auditoría estándar de BPC (RNF-Aud-02).</summary>
+    IReadOnlyList<AuditoriaBpc> Auditoria { get; }
+
+    void Auditar(IEnumerable<AuditoriaBpc> cambios);
 }
 
 /// <summary>
@@ -41,6 +46,26 @@ internal sealed class AlmacenSimulado(Func<OpcionesSimulador> opciones, Func<IRe
     private readonly object _candado = new();
     private List<RegistroBpc> _registros = [];
     private readonly Dictionary<(string, string), ValidacionCuadre> _validaciones = [];
+    private readonly List<AuditoriaBpc> _auditoria = [];
+
+    public IReadOnlyList<AuditoriaBpc> Auditoria
+    {
+        get
+        {
+            lock (_candado)
+            {
+                return [.. _auditoria];
+            }
+        }
+    }
+
+    public void Auditar(IEnumerable<AuditoriaBpc> cambios)
+    {
+        lock (_candado)
+        {
+            _auditoria.AddRange(cambios);
+        }
+    }
 
     public IReadOnlyList<SaldoErp> SaldosErp(string sociedad) => SimulatedSapGateway.SaldosErp(sociedad, opciones());
 

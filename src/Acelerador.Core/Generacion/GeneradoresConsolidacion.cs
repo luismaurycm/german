@@ -27,6 +27,7 @@ public sealed class GeneradorScripts : IGeneradorObjetos
     public const string Grupo = "Scripts de lógica";
     public const string ScriptConversion = "CONVERSION.LGF";
     public const string ScriptEliminacion = "ELIMINACION_IC.LGF";
+    public const string ScriptInversion = "INVERSION.LGF";
 
     public bool Aplica(ContextoPlan c) => c.Cliente.Modulos.Contains(Modulo.Consolidacion) && c.Variante.Modelo == ModeloBpc.Estandar;
 
@@ -44,7 +45,37 @@ public sealed class GeneradorScripts : IGeneradorObjetos
             new { archivo = ScriptConversion, contenido = ScriptDeConversion(c, monedas) }, nota);
         yield return Objeto("Script", ScriptEliminacion, $"Eliminación intercompañía del grupo {grupo}", FuncionesBpc.DesplegarScript, "SCRIPT",
             new { archivo = ScriptEliminacion, contenido = ScriptDeEliminacion(c, grupo) }, nota);
+        yield return Objeto("Reglas de negocio", "ELIMINACION_INVERSION", "Eliminación de inversión, interés minoritario y método de participación (RN-13)", FuncionesBpc.Reglas, "REGLAS",
+            new
+            {
+                tipo = "AJUSTES",
+                modeloPropiedad = ModeloPropiedad.Modelo,
+                interesMinoritario = ReglasRubros.CuentaInteresMinoritario.Id,
+                diferenciaInversion = ReglasRubros.CuentaDiferenciaInversion.Id,
+                participacion = ReglasRubros.CuentaParticipacionResultado.Id,
+            },
+            $"El interés minoritario va separado en {ReglasRubros.CuentaInteresMinoritario.Id}; la diferencia en {ReglasRubros.CuentaDiferenciaInversion.Id}.");
+        yield return Objeto("Script", ScriptInversion, $"Eliminación de inversión y método de participación del grupo {grupo}", FuncionesBpc.DesplegarScript, "SCRIPT",
+            new { archivo = ScriptInversion, contenido = ScriptDeInversion(c, grupo) }, nota);
     }
+
+    public static string ScriptDeInversion(ContextoPlan c, string grupo)
+    {
+        var sb = new StringBuilder(Encabezado(c, ScriptInversion));
+        sb.Append("*RUN_PROGRAM CONSOLIDATION\n");
+        sb.Append("  CATEGORY = %CATEGORY_SET%\n");
+        sb.Append($"  GROUP = {grupo}\n");
+        sb.Append("  TID_RA = %TIME_SET%\n");
+        sb.Append($"  // Propiedad: modelo {ModeloPropiedad.Modelo} (método y % por periodo, RN-13 y RN-14)\n");
+        sb.Append($"  // Matriz: {ReglasCierre.Matriz(c.Sociedades).Codigo}. Cuentas de inversión: {string.Join(",", CuentasInversion(c))}\n");
+        sb.Append($"  // Interés minoritario: {ReglasRubros.CuentaInteresMinoritario.Id}. Diferencia: {ReglasRubros.CuentaDiferenciaInversion.Id}. Participación: {ReglasRubros.CuentaParticipacionResultado.Id}\n");
+        sb.Append("*ENDRUN_PROGRAM\n");
+        return sb.ToString();
+    }
+
+    /// <summary>Cuentas mapeadas al rubro de inversiones en subsidiarias y asociadas.</summary>
+    public static IReadOnlyList<string> CuentasInversion(ContextoPlan c) =>
+        c.Asignaciones.Where(a => a.Rubro == ReglasRubros.RubroInversiones).Select(a => GeneradorModeloBpc.IdCuenta(a.PlanCuentas, a.Cuenta)).ToList();
 
     /// <summary>Encabezado común: variante y fecha, para saber qué se desplegó.</summary>
     public static string Encabezado(ContextoPlan c, string archivo) =>
@@ -155,8 +186,23 @@ public sealed class GeneradorConsolidacion : IGeneradorObjetos
                 grupo,
                 metodos = c.Sociedades.ToDictionary(s => s.Codigo, s => s.Metodo.ToString()),
                 presentacion = monedas,
+                excluir = GeneradorScripts.CuentasInversion(c),
             },
             "Solo participan las sociedades del grupo. RN-07 · Resultado en R05 Hoja de eliminaciones intercompañía.");
+
+        // HU-33 y HU-34: con los porcentajes y métodos del periodo en el modelo de propiedad (RN-13, RN-14).
+        var matriz = ReglasCierre.Matriz(c.Sociedades).Codigo;
+        var clases = ReglasRubros.ClasesPorMiembro(c.Asignaciones).ToDictionary(k => k.Key, k => k.Value.ToString());
+        var inversiones = GeneradorScripts.CuentasInversion(c);
+        yield return Objeto(PasosGeneracion.Inversion, "Eliminación de inversión", SistemaSap.Bpc, "Ejecución de lógica", $"Eliminación de inversión {grupo} {periodo}",
+            "Eliminar la inversión de la matriz contra el patrimonio de cada subsidiaria con integración global y calcular el interés minoritario",
+            FuncionesBpc.EjecutarLogica, "LOGICA",
+            new { logica = "INVERSION", script = GeneradorScripts.ScriptInversion, periodo, grupo, matriz, cuentasInversion = inversiones, clases },
+            $"Interés minoritario separado en {ReglasRubros.CuentaInteresMinoritario.Id}; diferencia entre inversión y patrimonio en {ReglasRubros.CuentaDiferenciaInversion.Id}.");
+        yield return Objeto(PasosGeneracion.Inversion, "Eliminación de inversión", SistemaSap.Bpc, "Ejecución de lógica", $"Método de participación {grupo} {periodo}",
+            "Reconocer el % del resultado de las coligadas sin integrarlas línea a línea", FuncionesBpc.EjecutarLogica, "LOGICA",
+            new { logica = "PARTICIPACION", script = GeneradorScripts.ScriptInversion, periodo, grupo, matriz, cuentaInversion = inversiones.FirstOrDefault() ?? ReglasRubros.CuentaDiferenciaInversion.Id, clases },
+            "Las transacciones con coligadas no se eliminan; las sociedades fuera del perímetro no participan. RN-13");
     }
 
     private static ObjetoPlan Objeto(string paso, string grupo, SistemaSap sistema, string tipo, string nombre, string descripcion, string funcion, string tipoObjeto, object definicion, string? nota = null) =>

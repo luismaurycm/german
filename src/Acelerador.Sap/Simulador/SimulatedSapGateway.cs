@@ -86,7 +86,15 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         ("2000", "51050501", "1000", 400_000_000m),
         ("1000", "13050501", "3000", 200_000_000m),
         ("3000", "2000", "1000", -50_000m),
+        ("1000", "12050501", "2000", 11_500_000_000m),
+        ("1000", "12050501", "3000", 19_000_000_000m),
     ];
+
+    /// <summary>Cuentas que solo tiene la matriz 1000 (la inversión en sus filiales y la reserva que la respalda).</summary>
+    public static readonly IReadOnlySet<string> SoloMatriz = new HashSet<string> { "12050501", "33050501" };
+
+    private static decimal Factor(string sociedad, string cuenta) =>
+        SoloMatriz.Contains(cuenta) && sociedad != "1000" ? 0m : sociedad == "2000" ? 0.35m : 1m;
 
     /// <summary>Saldos de una sociedad del ERP al cierre del periodo, con las partidas intercompañía separadas por socio.</summary>
     public static IReadOnlyList<SaldoErp> SaldosErp(string sociedad, OpcionesSimulador opciones)
@@ -97,11 +105,10 @@ public sealed partial class SimulatedSapGateway : ISapGateway
             return [];
         }
 
-        var factor = soc.Codigo == "2000" ? 0.35m : 1m;
         var lista = new List<SaldoErp>();
         foreach (var c in Cuentas.Where(c => c.Plan == soc.PlanCuentas).Concat(opciones.CuentasAdicionales.Where(c => c.Plan == soc.PlanCuentas)))
         {
-            var total = decimal.Round(c.Saldo * (opciones.CuentasAdicionales.Contains(c) ? 1m : factor), 2);
+            var total = decimal.Round(c.Saldo * (opciones.CuentasAdicionales.Contains(c) ? 1m : Factor(sociedad, c.Numero)), 2);
             var ic = Intercompania.Where(i => i.Sociedad == sociedad && i.Cuenta == c.Numero).ToList();
             foreach (var i in ic)
             {
@@ -147,7 +154,7 @@ public sealed partial class SimulatedSapGateway : ISapGateway
             return CargarMaestro(o, operacion);
         }
 
-        if (operacion.TipoObjeto is "VALIDACION" or "IMPORTACION" or "LOGICA")
+        if (operacion.TipoObjeto is "VALIDACION" or "IMPORTACION" or "LOGICA" or "PARTICIPACIONES")
         {
             if (o.FallaLogica.Contains(operacion.NombreTecnico, StringComparer.OrdinalIgnoreCase))
             {
@@ -157,13 +164,13 @@ public sealed partial class SimulatedSapGateway : ISapGateway
             return _logica?.Ejecutar(operacion, _almacen, o) ?? new ResultadoOperacionSap(true, $"{operacion.NombreTecnico} ejecutado.", ResultadoEscritura.Creado);
         }
 
-        if (operacion.TipoObjeto == "SCRIPT")
+        if (operacion.TipoObjeto is "SCRIPT" or "PLANTILLA")
         {
-            // Un script se reemplaza siempre (el paso respalda con UJBR antes, HU-28 CA4).
-            var claveScript = $"{destino.Sistema}|{destino.Parametros.Host}|SCRIPT|{operacion.NombreTecnico}";
+            // Un script o una plantilla se reemplazan siempre (el paso respalda con UJBR antes, HU-28 CA4).
+            var claveScript = $"{destino.Sistema}|{destino.Parametros.Host}|{operacion.TipoObjeto}|{operacion.NombreTecnico}";
             var existia = _objetos.ContainsKey(claveScript);
             _objetos[claveScript] = new ObjetoSimulado(destino.Sistema, destino.Parametros.Host, operacion);
-            return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico} {(existia ? "reemplazado" : "desplegado")} en UJFS.",
+            return new ResultadoOperacionSap(true, $"{operacion.NombreTecnico} {(existia ? "reemplazado" : "desplegado")} en {(operacion.TipoObjeto == "SCRIPT" ? "UJFS" : "la carpeta de plantillas de BPC")}.",
                 existia ? ResultadoEscritura.Modificado : ResultadoEscritura.Creado);
         }
 
@@ -283,7 +290,8 @@ public sealed partial class SimulatedSapGateway : ISapGateway
                 && (consulta.Entidad is null || r.Entidad == consulta.Entidad))
             .ToList();
         var validaciones = _almacen.Validaciones.Where(v => consulta.Periodo is null || v.Periodo.Replace('-', '.') == consulta.Periodo.Replace('-', '.')).ToList();
-        return new ResultadoConsultaBpc(true, $"{registros.Count} registros.", registros, validaciones);
+        var auditoria = _almacen.Auditoria.Where(a => a.Modelo == consulta.Modelo).ToList();
+        return new ResultadoConsultaBpc(true, $"{registros.Count} registros.", registros, validaciones, auditoria);
     }
 
     public async Task<ResultadoInventario> LeerInventarioAsync(DestinoSap destino, TipoInventario tipo, CancellationToken ct = default)
@@ -359,10 +367,9 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         }
 
         // Los saldos de la filial salen de los de la matriz con un factor, para que la vista previa cambie por sociedad.
-        var factor = soc.Codigo == "2000" ? 0.35m : 1m;
         var cuentas = Cuentas
             .Where(c => c.Plan == soc.PlanCuentas)
-            .Select(c => new CuentaErp(c.Numero, c.Descripcion, c.Nodo, decimal.Round(c.Saldo * factor, 2)))
+            .Select(c => new CuentaErp(c.Numero, c.Descripcion, c.Nodo, decimal.Round(c.Saldo * Factor(soc.Codigo, c.Numero), 2)))
             .Concat(o.CuentasAdicionales.Where(c => c.Plan == soc.PlanCuentas).Select(c => new CuentaErp(c.Numero, c.Descripcion, c.Nodo, c.Saldo)))
             .OrderBy(c => c.Numero, StringComparer.Ordinal)
             .ToList();
@@ -473,6 +480,7 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         C("PCCO", "13050501", "Clientes nacionales", "Deudores", 31_420_900_000m),
         C("PCCO", "13300501", "Anticipos a proveedores", "Deudores", 2_310_000_000m),
         C("PCCO", "13550501", "Anticipo de impuestos", "Deudores", 1_870_000_000m),
+        C("PCCO", "12050501", "Inversiones en subsidiarias", "Inversiones", 30_500_000_000m),
         C("PCCO", "15040501", "Terrenos", "Propiedad, planta y equipo", 22_000_000_000m),
         C("PCCO", "15160501", "Construcciones y edificaciones", "Propiedad, planta y equipo", 72_447_250_000m),
         C("PCCO", "15240501", "Equipo de oficina", "Propiedad, planta y equipo", 3_950_000_000m),
@@ -483,6 +491,7 @@ public sealed partial class SimulatedSapGateway : ISapGateway
         C("PCCO", "23350501", "Costos y gastos por pagar", "Cuentas por pagar", -7_000_000_000m),
         C("PCCO", "25050501", "Salarios por pagar", "Obligaciones laborales", -1_940_000_000m),
         C("PCCO", "31050501", "Capital suscrito y pagado", "Patrimonio", -40_000_000_000m),
+        C("PCCO", "33050501", "Reservas", "Patrimonio", -30_500_000_000m),
         C("PCCO", "36050501", "Utilidad del ejercicio", "Patrimonio", -13_350_000_000m),
         C("PCCO", "41200501", "Ventas de productos", "Ingresos operacionales", -36_540_000_000m),
         C("PCCO", "41750501", "Devoluciones en ventas", "Ingresos operacionales", 1_430_000_000m),

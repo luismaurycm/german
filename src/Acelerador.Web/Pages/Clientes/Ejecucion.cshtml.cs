@@ -22,7 +22,7 @@ public sealed class EjecucionModel(ServicioEjecucion servicio) : PageModel
         var e = vista?.Ejecucion;
         return new JsonResult(new
         {
-            estado = e?.Estado.ToString(),
+            estado = vista?.EnCurso == true ? nameof(EstadoEjecucion.EnCurso) : e?.Estado.ToString(),
             pasos = e?.Pasos.Select(p => p.Estado.ToString()),
         });
     }

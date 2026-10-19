@@ -158,8 +158,8 @@ public class ModeloBpcTests
 
         Assert.All(paso.Objetos, o => Assert.Equal(SistemaSap.Bpc, o.Sistema));
         Assert.Equal("Respaldo UJBR", paso.Objetos[0].Tipo);
-        var modelo = paso.Objetos.Single(o => o.Tipo == "Modelo");
-        Assert.True(paso.Objetos.ToList().IndexOf(modelo) > paso.Objetos.ToList().FindLastIndex(o => o.Tipo == "Miembros"));
+        var modelo = paso.Objetos.Single(o => o.Tipo == "Modelo" && o.NombreTecnico == GeneradorModeloBpc.Modelo);
+        Assert.True(paso.Objetos.ToList().IndexOf(modelo) > paso.Objetos.ToList().FindLastIndex(o => o.Tipo == "Miembros" && o.Grupo == GeneradorModeloBpc.Grupo));
         Assert.Contains("RN-02", modelo.Nota, StringComparison.Ordinal);
     }
 

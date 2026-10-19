@@ -34,4 +34,11 @@
     <a class="step reg" href="@Formato.Registro(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "registro" ? "page" : null)">
         <span class="t">Registro de ejecuciones</span>
     </a>
+    @if (ReglaAvance.PuedeAbrir(Model.Cliente, Pasos.Reportes))
+    {
+        <h2 class="nav-sub">Plantillas del cierre</h2>
+        <a class="step" href="@Formato.Participaciones(Model.Cliente.Id)" aria-current="@(Model.PasoVisto == "c02" ? "page" : null)" data-carga="Consultando el modelo de propiedad…">
+            <span class="t">C02 Participaciones y métodos</span>
+        </a>
+    }
 </nav>

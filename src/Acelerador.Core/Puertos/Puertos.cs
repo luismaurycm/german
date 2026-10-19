@@ -116,3 +116,12 @@ public interface ICargaNoSapRepository
     /// <summary>Reemplaza las cargas de esa sociedad en esos periodos (una carga nueva del periodo reemplaza la anterior).</summary>
     Task GuardarAsync(IReadOnlyList<CargaNoSap> cargas, CancellationToken ct = default);
 }
+
+/// <summary>
+/// Generador de plantillas y reportes EPM en Excel (ADR-08, Open XML SDK). Recibe el identificador de la plantilla
+/// (p. ej. «C02») y sus parámetros en JSON, y devuelve el .xlsx que se sube a BPC o se entrega al cliente.
+/// </summary>
+public interface IProveedorPlantillas
+{
+    byte[] Generar(string plantilla, string parametrosJson);
+}

@@ -20,6 +20,8 @@ public static class MotorConsolidacion
     public const string OrigenCarga = "INPUT";
     public const string OrigenConversion = "CONVERSION";
     public const string OrigenEliminacionIc = "ELIM_IC";
+    public const string OrigenEliminacionInversion = "ELIM_INV";
+    public const string OrigenParticipacion = "PARTICIPACION";
     public const string IntcoNinguno = "I_NONE";
 
     /// <summary>Periodo en BPC (TIME): «2026-09» → «2026.09».</summary>
@@ -90,10 +92,13 @@ public static class MotorConsolidacion
     /// lado se reversa contra la cuenta de diferencias intercompañía: si las partes concilian, esa cuenta queda en cero; si
     /// no, muestra la diferencia (C01). Las sociedades con método participación o fuera del perímetro no se eliminan (RN-13).
     /// </summary>
+    /// <param name="excluir">Cuentas que no se eliminan como intercompañía: la inversión en subsidiarias la elimina la
+    /// eliminación de inversión (HU-33), no la intercompañía.</param>
     public static IReadOnlyList<RegistroBpc> EliminarIntercompania(
         IEnumerable<RegistroBpc> convertidos,
         IReadOnlyDictionary<string, MetodoConsolidacion> metodos,
-        string grupo)
+        string grupo,
+        IReadOnlySet<string>? excluir = null)
     {
         bool Integra(string sociedad) => metodos.TryGetValue(sociedad, out var m) && m is MetodoConsolidacion.Matriz or MetodoConsolidacion.IntegracionGlobal;
 
@@ -101,7 +106,7 @@ public static class MotorConsolidacion
         foreach (var r in convertidos.Where(r => r.Intco != IntcoNinguno && r.Origen == OrigenCarga))
         {
             var socio = r.Intco[2..];
-            if (!Integra(r.Entidad) || !Integra(socio) || r.Cuenta == ReglasRubros.CuentaDiferenciaIntercompania.Id)
+            if (!Integra(r.Entidad) || !Integra(socio) || r.Cuenta == ReglasRubros.CuentaDiferenciaIntercompania.Id || excluir?.Contains(r.Cuenta) == true)
             {
                 continue;
             }
@@ -113,9 +118,119 @@ public static class MotorConsolidacion
         return lista;
     }
 
-    /// <summary>Suma por cuenta de los registros del grupo en una moneda: lo que reportaría BPC consolidado.</summary>
-    public static IReadOnlyDictionary<string, decimal> Consolidado(IEnumerable<RegistroBpc> registros, IReadOnlySet<string> sociedades, string moneda) =>
-        registros.Where(r => r.Moneda == moneda && sociedades.Contains(r.Entidad))
+    /// <summary>
+    /// RF-32 (HU-33): para cada sociedad con integración global en el periodo, elimina la inversión de la matriz contra el
+    /// 100 % del patrimonio de la subsidiaria, separa el interés minoritario (su % de patrimonio y de resultado) en
+    /// <c>ZACC_IM</c> y deja la diferencia entre inversión y patrimonio eliminado en <c>ZACC_DIF_INV</c>.
+    /// </summary>
+    public static IReadOnlyList<RegistroBpc> EliminarInversion(
+        IReadOnlyList<RegistroBpc> convertidos,
+        IReadOnlyList<Participacion> participaciones,
+        string matriz,
+        IReadOnlySet<string> cuentasInversion,
+        IReadOnlyDictionary<string, ClaseCuenta> clases,
+        string grupo)
+    {
+        var lista = new List<RegistroBpc>();
+        foreach (var moneda in convertidos.Select(r => r.Moneda).Distinct())
+        {
+            var enMoneda = convertidos.Where(r => r.Moneda == moneda && r.Grupo.Length == 0).ToList();
+            foreach (var sub in participaciones.Where(p => p.Metodo == MetodoConsolidacion.IntegracionGlobal && p.Sociedad != matriz))
+            {
+                var s = sub.Sociedad;
+                var deSub = enMoneda.Where(r => r.Entidad == s).ToList();
+                if (deSub.Count == 0)
+                {
+                    continue;
+                }
+
+                var periodo = deSub[0].Periodo;
+                var p = sub.Propiedad / 100m;
+                var inversion = enMoneda.Where(r => r.Entidad == matriz && r.Intco == $"I_{s}" && cuentasInversion.Contains(r.Cuenta)).ToList();
+                var patrimonio = deSub.Where(r => clases.GetValueOrDefault(r.Cuenta) == ClaseCuenta.Patrimonio).ToList();
+                var resultado = deSub.Where(r => clases.GetValueOrDefault(r.Cuenta) == ClaseCuenta.ResultadoEjercicio).Sum(r => r.Importe);
+                var totalPatrimonio = patrimonio.Sum(r => r.Importe);
+                var totalInversion = inversion.Sum(r => r.Importe);
+                RegistroBpc Nuevo(string entidad, string cuenta, string intco, decimal importe) =>
+                    new(Modelo, entidad, cuenta, intco, periodo, moneda, FlujoCierre, OrigenEliminacionInversion, decimal.Round(importe, 2), grupo);
+
+                lista.AddRange(inversion.Select(r => r with { Origen = OrigenEliminacionInversion, Importe = -r.Importe, Grupo = grupo }));
+                lista.AddRange(patrimonio.Select(r => r with { Origen = OrigenEliminacionInversion, Importe = -r.Importe, Grupo = grupo }));
+                lista.Add(Nuevo(s, ReglasRubros.CuentaInteresMinoritario.Id, IntcoNinguno, (1 - p) * (totalPatrimonio + resultado)));
+                lista.Add(Nuevo(s, ReglasRubros.CuentaResultadoMinoritario.Id, IntcoNinguno, -(1 - p) * resultado));
+                lista.Add(Nuevo(matriz, ReglasRubros.CuentaDiferenciaInversion.Id, $"I_{s}", totalInversion + p * totalPatrimonio));
+            }
+        }
+
+        // Lo que deja el redondeo se ajusta en la diferencia de inversión para que la eliminación cuadre.
+        return Cuadrar(lista, ReglasRubros.CuentaDiferenciaInversion.Id);
+    }
+
+    /// <summary>
+    /// RN-13 (HU-34): las coligadas (método participación) no se integran línea a línea; la matriz reconoce su % del resultado
+    /// de la coligada en la inversión y en «Participación en resultados de asociadas». Sus transacciones intercompañía no se
+    /// eliminan y las sociedades fuera del perímetro no participan.
+    /// </summary>
+    public static IReadOnlyList<RegistroBpc> AplicarParticipacion(
+        IReadOnlyList<RegistroBpc> convertidos,
+        IReadOnlyList<Participacion> participaciones,
+        string matriz,
+        string cuentaInversion,
+        IReadOnlyDictionary<string, ClaseCuenta> clases,
+        string grupo)
+    {
+        var lista = new List<RegistroBpc>();
+        foreach (var moneda in convertidos.Select(r => r.Moneda).Distinct())
+        {
+            foreach (var col in participaciones.Where(p => p.Metodo == MetodoConsolidacion.Participacion))
+            {
+                var deCol = convertidos.Where(r => r.Moneda == moneda && r.Grupo.Length == 0 && r.Entidad == col.Sociedad).ToList();
+                if (deCol.Count == 0)
+                {
+                    continue;
+                }
+
+                var parte = decimal.Round(col.Propiedad / 100m * deCol.Where(r => clases.GetValueOrDefault(r.Cuenta) == ClaseCuenta.ResultadoEjercicio).Sum(r => r.Importe), 2);
+                var periodo = deCol[0].Periodo;
+                RegistroBpc Nuevo(string cuenta, string intco, decimal importe) =>
+                    new(Modelo, matriz, cuenta, intco, periodo, moneda, FlujoCierre, OrigenParticipacion, importe, grupo);
+                lista.Add(Nuevo(cuentaInversion, $"I_{col.Sociedad}", -parte));
+                lista.Add(Nuevo(ReglasRubros.CuentaParticipacionResultado.Id, $"I_{col.Sociedad}", parte));
+                lista.Add(Nuevo(ReglasRubros.CuentaParticipacionEjercicio.Id, IntcoNinguno, parte));
+            }
+        }
+
+        return lista;
+    }
+
+    /// <summary>
+    /// Consolidado del grupo en una moneda: los datos de las sociedades que se integran (matriz e integración global) más los
+    /// ajustes del grupo (eliminaciones, participación). Coligadas y sociedades fuera del perímetro no se suman (RN-13).
+    /// </summary>
+    public static IReadOnlyDictionary<string, decimal> Consolidado(IEnumerable<RegistroBpc> registros, IReadOnlyList<Participacion> participaciones, string grupo, string moneda)
+    {
+        var integradas = participaciones.Where(p => p.Metodo is MetodoConsolidacion.Matriz or MetodoConsolidacion.IntegracionGlobal).Select(p => p.Sociedad).ToHashSet();
+        return registros
+            .Where(r => r.Modelo == Modelo && r.Moneda == moneda && ((r.Grupo.Length == 0 && integradas.Contains(r.Entidad)) || r.Grupo == grupo))
             .GroupBy(r => r.Cuenta)
             .ToDictionary(g => g.Key, g => g.Sum(r => r.Importe));
+    }
+
+    private static IReadOnlyList<RegistroBpc> Cuadrar(List<RegistroBpc> lista, string cuentaAjuste)
+    {
+        foreach (var g in lista.GroupBy(r => (r.Moneda, r.Periodo)).ToList())
+        {
+            var resto = g.Sum(r => r.Importe);
+            if (resto != 0m)
+            {
+                var i = lista.FindLastIndex(r => r.Moneda == g.Key.Moneda && r.Periodo == g.Key.Periodo && r.Cuenta == cuentaAjuste);
+                if (i >= 0)
+                {
+                    lista[i] = lista[i] with { Importe = lista[i].Importe - resto };
+                }
+            }
+        }
+
+        return lista;
+    }
 }

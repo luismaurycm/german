@@ -247,4 +247,22 @@ public class EjecucionTests
         public override Task<ResultadoOperacionSap> EjecutarAsync(DestinoSap d, OperacionSap o, CancellationToken ct = default) =>
             Task.FromResult(new ResultadoOperacionSap(false, $"logon {d.Parametros.UsuarioTecnico}/{d.Credencial.Revelar()} rechazado"));
     }
+
+    [Fact(DisplayName = "HU-14 CA1: UX-09 sigue consultando el estado hasta que el cliente avanza, aunque el último paso ya terminó")]
+    [Trait("HU", "HU-14")]
+    public void EnCursoHastaQueAvanzaElCliente()
+    {
+        var cliente = new Cliente { Id = Guid.NewGuid(), Nombre = "X", Creado = DateTimeOffset.UnixEpoch, CreadoPor = "u", Estado = EstadoCliente.EnCurso };
+        var ejecucion = new EjecucionPlan
+        {
+            Id = Guid.NewGuid(), ClienteId = cliente.Id, VarianteId = "A", Inicio = DateTimeOffset.UnixEpoch, Usuario = "u",
+            Pasos = [new PasoEjecucion { Id = "P", Nombre = "Paso", Objetos = [], Estado = EstadoPaso.Completo }],
+        };
+
+        Assert.Equal(EstadoEjecucion.Completa, ejecucion.Estado);
+        Assert.True(new VistaEjecucion(cliente, ejecucion, []).EnCurso);
+        cliente.Estado = EstadoCliente.Completo;
+        Assert.False(new VistaEjecucion(cliente, ejecucion, []).EnCurso);
+        Assert.False(new VistaEjecucion(cliente, null, []).EnCurso);
+    }
 }

@@ -1,0 +1,132 @@
+@page "/clientes/{id:guid}/participaciones"
+@model Acelerador.Web.Pages.Clientes.ParticipacionesModel
+@{
+    ViewData["Title"] = "C02 Participaciones y métodos";
+    var v = Model.Vista;
+    var conErrores = Model.Errores.Select(e => e.Sociedad).Distinct().ToList();
+}
+<div class="a-body">
+    <partial name="_Navegacion" model="@(new ModeloNavegacion(v.Cliente, "c02"))" />
+    <main class="a-main" id="contenido">
+        <div class="ph">
+            <div>
+                <h1>C02 Participaciones y métodos</h1>
+                <p>Vista de la plantilla EPM (UX-13). El Usuario financiero la usa en Excel con EPM; aquí lee y escribe en el mismo modelo de propiedad de BPC.</p>
+            </div>
+            <div class="row"><span class="pill neu">Modelo PROPIEDAD</span></div>
+        </div>
+
+        @if (Model.Aviso is not null)
+        {
+            <div class="note o" role="status">@Iconos.Ok<div>@Model.Aviso</div></div>
+        }
+
+        @if (v.Error is not null || Model.Error is not null)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div><b>No se pudo conectar a BPC; revisa la conexión de EPM.</b><br>El sistema respondió: «@(Model.Error ?? v.Error)»</div></div>
+        }
+
+        @foreach (var soc in conErrores)
+        {
+            <div class="note e" role="alert">@Iconos.Error<div>@ReglasParticipaciones.MensajeFila(soc, Model.Errores)</div></div>
+        }
+
+        <form method="get" class="row filtros" data-carga="Consultando el modelo de propiedad…" data-auto>
+            <div class="fld">
+                <label for="grupo">Grupo</label>
+                <input id="grupo" type="text" value="@v.Grupo" readonly>
+            </div>
+            <div class="fld">
+                <label for="periodo">Periodo</label>
+                <select id="periodo" name="periodo">
+                    @foreach (var p in v.Periodos)
+                    {
+                        <option value="@p" selected="@(p == v.Periodo)">@p</option>
+                    }
+                </select>
+            </div>
+            <button class="btn btn-s" type="submit">Actualizar</button>
+        </form>
+
+        @if (v.Vacio && Model.Borrador.Count == 0)
+        {
+            <div class="note w" role="status">@Iconos.Aviso<div>@ServicioParticipaciones.MensajeVacio</div></div>
+        }
+
+        <form method="post" class="col" data-ocupado="Guardando…">
+            <input type="hidden" name="periodo" value="@v.Periodo">
+            <div class="tblw">
+                <table class="tbl cards edit c02">
+                    <caption class="sr">Participaciones y métodos de cada sociedad en @v.Periodo</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Sociedad</th><th scope="col" class="num">% control</th><th scope="col" class="num">% consolidación</th>
+                            <th scope="col" class="num">% propiedad</th><th scope="col">Método</th><th scope="col">Cambio frente al periodo anterior</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < v.Filas.Count; i++)
+                        {
+                            var f = v.Filas[i];
+                            var cod = f.Sociedad.Codigo;
+                            var (ctrl, cons, prop, met) = Model.Valores(f);
+                            string Inv(string dato) => Model.ConError(cod, dato) ? "true" : "false";
+                            <tr class="@(conErrores.Contains(cod) ? "fila-err" : null)">
+                                <td data-l="Sociedad"><input type="hidden" name="filas[@i].Sociedad" value="@cod"><span class="mono">@cod</span> @f.Sociedad.Nombre</td>
+                                <td data-l="% control" class="num"><input class="ent num corto celda-epm" name="filas[@i].Control" value="@ctrl" inputmode="decimal" aria-label="% control de @cod" aria-invalid="@Inv(ReglasParticipaciones.Control)"></td>
+                                <td data-l="% consolidación" class="num"><input class="ent num corto celda-epm" name="filas[@i].Consolidacion" value="@cons" inputmode="decimal" aria-label="% consolidación de @cod" aria-invalid="@Inv(ReglasParticipaciones.Consolidacion)"></td>
+                                <td data-l="% propiedad" class="num"><input class="ent num corto celda-epm" name="filas[@i].Propiedad" value="@prop" inputmode="decimal" aria-label="% propiedad de @cod" aria-invalid="@Inv(ReglasParticipaciones.Propiedad)"></td>
+                                <td data-l="Método">
+                                    <select class="ent celda-epm" name="filas[@i].Metodo" aria-label="Método de @cod" aria-invalid="@Inv(ReglasParticipaciones.Metodo)">
+                                        <option value="" selected="@(met.Length == 0)">—</option>
+                                        @foreach (var m in Enum.GetValues<MetodoConsolidacion>())
+                                        {
+                                            <option value="@m" selected="@(met == m.ToString())">@ReglasSociedades.Metodo(m)</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td data-l="Cambio">@(f.Cambios.Count == 0 ? "—" : string.Join(" · ", f.Cambios))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <p class="rn sin-margen">Porcentajes de 0 a 100 y método obligatorio. RN-13 · Un cambio aplica desde el periodo elegido y no altera los anteriores. RN-14 · Cada cambio queda en la auditoría de BPC. RNF-Aud-02</p>
+            <div class="row fin">
+                <button class="btn btn-s" type="submit" name="accion" value="copiar">Copiar del periodo anterior</button>
+                <button class="btn btn-p" type="submit" name="accion" value="guardar">Guardar datos</button>
+            </div>
+        </form>
+
+        <section class="card col" aria-labelledby="titulo-auditoria">
+            <h2 id="titulo-auditoria">Cambios registrados (auditoría de BPC)</h2>
+            @if (v.Auditoria.Count == 0)
+            {
+                <p class="muted sin-margen">Aún no hay cambios en el modelo de propiedad.</p>
+            }
+            else
+            {
+                <div class="tblw sin-borde">
+                    <table class="tbl cards">
+                        <caption class="sr">Auditoría de cambios de participaciones con usuario, fecha, valor anterior y nuevo</caption>
+                        <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Usuario</th><th scope="col">Sociedad</th><th scope="col">Periodo</th><th scope="col">Dato</th><th scope="col">Anterior</th><th scope="col">Nuevo</th></tr></thead>
+                        <tbody>
+                            @foreach (var a in v.Auditoria.Take(30))
+                            {
+                                <tr>
+                                    <td data-l="Fecha y hora" class="mono nw">@Formato.FechaHora(a.Fecha)</td>
+                                    <td data-l="Usuario">@a.Usuario</td>
+                                    <td data-l="Sociedad" class="mono">@a.Sociedad</td>
+                                    <td data-l="Periodo" class="mono">@a.Periodo</td>
+                                    <td data-l="Dato" class="mono">@a.Dato</td>
+                                    <td data-l="Anterior" class="mono">@a.Anterior</td>
+                                    <td data-l="Nuevo" class="mono">@a.Nuevo</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </main>
+</div>

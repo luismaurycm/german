@@ -185,4 +185,12 @@ public sealed record ValidacionCuadre(
 /// <summary>Consulta al modelo BPC (lo que harían EPM o los reportes C01 a C04). Null en un filtro = todos.</summary>
 public sealed record ConsultaBpc(string Modelo, string? Periodo = null, string? Moneda = null, string? Origen = null, string? Entidad = null);
 
-public sealed record ResultadoConsultaBpc(bool Exitosa, string Mensaje, IReadOnlyList<RegistroBpc> Registros, IReadOnlyList<ValidacionCuadre> Validaciones);
+/// <summary>Un cambio auditado en BPC (RNF-Aud-02): quién, cuándo, qué dato, valor anterior y nuevo.</summary>
+public sealed record AuditoriaBpc(DateTimeOffset Fecha, string Usuario, string Modelo, string Sociedad, string Periodo, string Dato, string Anterior, string Nuevo);
+
+public sealed record ResultadoConsultaBpc(
+    bool Exitosa,
+    string Mensaje,
+    IReadOnlyList<RegistroBpc> Registros,
+    IReadOnlyList<ValidacionCuadre> Validaciones,
+    IReadOnlyList<AuditoriaBpc>? Auditoria = null);
